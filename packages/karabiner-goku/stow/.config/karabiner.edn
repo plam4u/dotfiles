@@ -1,0 +1,345 @@
+;; !  | means mandatory
+;; #  | means optional
+;; C  | left_command
+;; T  | left_control
+;; O  | left_option
+;; S  | left_shift
+;; F  | fn
+;; Q  | right_command
+;; W  | right_control
+;; E  | right_option
+;; R  | right_shift
+;; P  | caps_lock
+;; !! | mandatory command + control + optional + shift (hyper)
+;; ## | optional any
+
+{:profiles
+ {:Default {:default true
+            :sim     50
+            :delay   80
+            :alone   120
+            :held    70}}
+ :devices {
+           :mbp-kb [{:vendor_id 1452 :product_id 832}] ;; MacBook Pro 16" Internal Keyboard
+           :mbp-kb2 [{:vendor_id 1452 :product_id 835}] 
+           :mbp-kb3 [{:vendor_id 76 :product_id 666}] ;; Apple keyboard with Touch ID
+           :dm-kb  [{:vendor_id 17485 :product_id 13622 :is_keyboard true}] ;; Dactyl-Manuform Keyboard
+           :dm-ms  [{:vendor_id 17485 :product_id 13622 :is_pointing_device true}] ;; Dactyl-Manuform Mouse
+           :ml-kb  [{:vendor_id 12951 :product_id 6505}] ;; Moonlander
+           }
+ :simlayers {
+             :tab-mode {:key :tab}
+             :semicolon-mode {:key :semicolon}
+             :comma-mode {:key :comma}
+             :period-mode {:key :period}
+             :quote-mode {:key :quote}
+             :q-mode {:key :q}
+             :b-mode {:key :b}
+             :n-mode {:key :f12}
+             :h-mode {:key :f12}
+             :g-mode {:key :f12}
+             }
+ :layers {}
+ :templates {
+             :toggle-nm   "open -g hammerspoon://toggle-app-by-name?name=%s"
+             :toggle-id   "open -g hammerspoon://toggle-app-by-id?id=%s"
+             }
+ :applications {
+                :chrome ["^com\\.google\\.Chrome$"] ;; regex to match Chrome
+                :brave ["^com\\.brave\\.Browser$"]
+                :xcode ["^com\\.apple\\.dt\\.Xcode$"]
+                :preview ["^com\\.apple\\.Preview$"]
+                :telegram ["^ru\\.keepcoder\\.Telegram$"]
+                :reminders ["^com\\.apple\\.reminders"]
+                :calendar ["^com\\.apple\\.iCal"]
+                :clock ["^com\\.apple\\.clock"]
+                :arc ["^company\\.thebrowser\\.Browser"]
+                }
+
+ :main [
+        {:des "Arc" :rules [:arc
+          [:!TOSg :!Ch]
+          ]}
+        {:des "Calendar" :rules [:calendar
+          [:international1 :!C5] 
+          [:international2 :!C1]
+          [:international3 :!C2]
+          [:international4 :!C3]
+          [:international5 :!C4]
+          [:!Sinternational2 :!CS1]
+          [:!Sinternational3 :!CS2]
+          ]}
+        {:des "Reminders" :rules [:reminders
+          [:international1 :!C5] ;; Today
+          [:international2 :!C1]
+          [:international3 :!C2]
+          [:international4 :!C3]
+          [:international5 :!C4]
+          ]}
+        {:des "Clock" :rules [:clock
+          [:international1 :!C1] ;; Alarm
+          [:international2 :!C2] ;; Stopwatch
+          [:international3 :!C3] ;; Timer
+          [:international4 :!C4] ;; World Clock
+          ]}
+        {:des "Preview" :rules [:preview
+          ;; arrow keys
+          ;; [:#TOSh :left_arrow] ;; optional ctrl, shift, or option
+          ;; [:##j :down_arrow]
+          ;; [:##k :up_arrow]
+          ;; [:##l :right_arrow]
+
+          ;; tabs
+          ;; [:##u :!CSopen_bracket]
+          ;; [:##o :!CSclose_bracket]
+
+          ;; history / forward
+          ;; [:##open_bracket :!Copen_bracket]
+          ;; [:##close_bracket :!Cclose_bracket]
+          ]}
+
+        {:des "Telegram" :rules [:telegram
+          [:!QRopen_bracket :!Oup_arrow]
+          [:!QRclose_bracket :!Odown_arrow]
+          ]}
+
+        {:des "Xcode" :rules [:xcode
+          ;; ==========================================================
+          ;; Global Keymap
+          ;; ==========================================================
+
+          ; [:!Ww :!Edelete_or_backspace]
+          [:!Copen_bracket :!CTh]            ;; Go back
+          [:!Cclose_bracket :!CTl]           ;; Go forward
+          [:!Tw :!Tgrave_accent_and_tilde]   ;; Next editor
+          [:!Ww :!Tgrave_accent_and_tilde]   ;; Next editor
+
+          ;; ==========================================================
+          ;; Top Row Left -> 2 Taps
+          ;; ==========================================================
+
+          ;; Left hand
+          [:international1 :!OSgrave_accent_and_tilde] ;; Right nav
+          [:international2 :!Ograve_accent_and_tilde]  ;; Left nav
+          [:international3 :!CSf] ;; Find word
+          [:international4 :!CSOf]  ;; Find ref 
+          [:international5 :!CT1]  ;; Reveal current file
+
+          ;; Right hand
+          [:international6 :!C5]   ;; Focus Issue Navigator
+          [:international7 :!T0]   ;; Select scheme
+          [:international8 :!TS0]  ;; Select destination
+          [:international9 :!CSp]  ;; Select destination
+          [:keypad_num_lock :!TS0] ;; Select destination 
+          ]}
+
+        {:des "Tab mode" :rules [:tab-mode
+          ;; Hide
+          [:##g [:!TOSg]]
+          ;; fullscreen
+          [:##spacebar [:!TOSspacebar]]
+          ;; move to next window
+          [:##left_command [:!TOSslash]]
+          ;; center window
+          [:##t [:!TOSt]]
+
+          ;; Obsidian app 
+          [:##e [:toggle-id "md.obsidian"]]
+          [:##f [:toggle-id "com.apple.finder"]]
+
+          ;; Upper Row
+          [:##y [:toggle-id "WhatsApp"]]
+          [:##u [:toggle-id "com.apple.dt.Xcode"]]
+          [:##i [:toggle-id "com.apple.iphonesimulator"]]
+          [:##o [:toggle-id "com.figma.Desktop"]]
+
+          ;; Home Row
+          ; [:##g [:toggle-id "WhatsApp"]]
+          [:##h [:toggle-id "company.thebrowser.Browser"]]
+          [:##j [:toggle-id "ru.keepcoder.Telegram"]]
+          [:##k [:toggle-id "com.tinyspeck.slackmacgap"]]
+          [:##l [:toggle-id "com.apple.Music"]]
+
+          ;; Lower Row
+          [:##v [:toggle-id "com.apple.mail"]]
+          ; [:##b [:toggle-id "com.brave.Browser"]]
+          [:##b [:toggle-id "com.apple.Notes"]]
+          ; [:##n [:toggle-id "com.apple.Safari"]]
+          [:##n [:toggle-id "com.apple.reminders"]]
+          [:##m [:toggle-id "com.apple.iCal"]]
+          ]}
+
+        {:des "Semicolon mode" :rules [:semicolon-mode
+          ;; ' = '
+          [:##g [:spacebar :equal_sign :spacebar]] 
+          ;; ' -> '
+          [:##b [:spacebar :hyphen :!Speriod :spacebar]]
+          ;; ' {<enter>'
+          [:##e [:spacebar :!Sopen_bracket :return_or_enter]]
+          ;; '() {<enter>'
+          [:##r [:!S9 :!S0 :spacebar :!Sopen_bracket :return_or_enter]]
+          ;; 'guard let self = self '
+          [:##t [:g :u :a :r :d :spacebar :l :e :t :spacebar :s :e :l :f :spacebar :equal_sign :spacebar :s :e :l :f :spacebar]]
+          ;; '// MARK: - '
+          [:##m [:slash :slash :spacebar :!Sm :!Sa :!Sr :!Sk :!Ssemicolon :spacebar :hyphen :spacebar]]
+          ]}
+
+        {:des "Comma mode" :rules [:comma-mode
+          ;;
+          [:##m [:toggle-id "md.obsidian"]]
+          ]}
+
+        {:des "Period mode" :rules [:period-mode
+          ;;
+          ]}
+
+        {:des "Quote mode" :rules [:quote-mode
+          ;;
+          ]}
+
+        {:des "Q-mode" :rules [:q-mode
+          ;;
+          [:##e [:toggle-id "md.obsidian"]]
+          ]}
+
+        {:des "H-mode" :rules [:h-mode
+          ;;
+          ;; [:##a [:toggle-nm "Simulator"]]
+          ;; [:##s [:toggle-nm "Slack"]]
+          ;; [:##d [:toggle-id "com.google.Chrome"]]
+          ;; [:##f [:toggle-id "com.apple.dt.Xcode"]]
+          ;; [:##g [:toggle-nm "YouTube%20Music"]]
+          ]}
+
+        {:des "B-mode" :rules [:b-mode
+          ;;
+          ]}
+
+        {:des "G-mode" :rules [:g-mode
+          ;;
+          [:##a [:toggle-id "com.workflowy.desktop"]]
+          [:##j [:toggle-id "ru.keepcoder.Telegram"]]
+          [:##k [:toggle-id "com.apple.MobileSMS"]]
+          [:##l [:toggle-id "WhatsApp"]]
+          [:##semicolon [:toggle-id "com.facebook.archon.developerID"]]
+
+          [:##y [:toggle-id "com.apple.Preview"]]
+          [:##u [:toggle-id "com.apple.Safari"]]
+          [:##i [:toggle-id "org.mozilla.firefox"]]
+          [:##o [:toggle-id "com.ranchero.NetNewsWire-Evergreen"]]
+          [:##p [:toggle-id "com.apple.podcasts"]]
+          ]}
+        
+        {:des "Dactyl Manuform Keyboard" :rules [:dm-kb
+          ;; mirror "mash + u/i/o" to the left hand
+          [:!TOSw [:!TOSu]]
+          [:!TOSe [:!TOSi]]
+          [:!TOSr [:!TOSo]]
+
+          ;; ========================
+          ;; LOWER2 (Left Thumb Combo (ESC+SPC))
+          ;; ========================
+          ;; QWERT
+          [:!Sf11 [:toggle-id "com.apple.Notes"]]
+          [:!Sf12 [:toggle-id "com.apple.iCal"]]
+          [:!Sf13 [:toggle-id "com.apple.reminders"]]
+          [:!Sf14 [:toggle-id "ru.keepcoder.Telegram"]]
+          [:!Sf15 [:toggle-id "com.apple.Safari"]]
+
+          ;; ASDFG
+          [:!Sf16 [:toggle-id "md.obsidian"]]
+          [:!Sf17 [:toggle-id "com.tinyspeck.slackmacgap"]]
+          ; [:!Sf18 [:toggle-id "com.brave.Browser"]]
+          [:!Sf18 [:toggle-id "company.thebrowser.Browser"]]
+          [:!Sf19 [:toggle-id "com.apple.dt.Xcode"]]
+          [:!Sf20 [:toggle-id "com.apple.Music"]]
+          
+          ;; Lower Row (Modifiers)
+           
+          ;; ========================
+          ;; LOWER4 (Left Thumb + Ring Row 5) 
+          ;; ========================
+          ;; Upper Row (B)
+          [:!Of11 [:toggle-nm "Notes"]]
+          [:!Of12 [:toggle-nm "Notes"]]
+          [:!Of13 [:toggle-nm "Notes"]]
+          [:!Of14 [:toggle-nm "Notes"]]
+          [:!Of15 [:toggle-nm "Notes"]]
+
+          ;; Home Row (B)
+          [:!Of16 [:toggle-nm "Notes"]]
+          [:!Of17 [:toggle-nm "Notes"]]
+          [:!Of18 [:toggle-nm "Notes"]]
+          [:!Of19 [:toggle-nm "Notes"]]
+          [:!Of20 [:toggle-nm "Notes"]]
+          
+          ;; Lower Row 3 (Modifiers)
+
+          ;; RIGHT SIDE
+          ;; Upper Row (C)
+          [:!Tf11 [:toggle-nm "Calendar"]]
+          [:!Tf12 [:toggle-nm "Calendar"]]
+          [:!Tf13 [:toggle-nm "Calendar"]]
+          [:!Tf14 [:toggle-nm "Calendar"]]
+          [:!Tf15 [:toggle-nm "Calendar"]]
+
+          ;; Home Row (C)
+          [:!Tf16 [:toggle-nm "Calendar"]]
+          [:!Tf17 [:toggle-nm "draw.io"]]
+          [:!Tf18 [:toggle-id "com.jetbrains.pycharm"]]
+          [:!Tf19 [:toggle-nm "Calendar"]]
+          [:!Tf20 [:toggle-nm "Calendar"]]
+          
+          ;; Lower Row (C)
+          [:!Tf21 [:toggle-nm "Calendar"]]
+          [:!Tf22 [:toggle-nm "Calendar"]]
+          [:!Tf23 [:toggle-nm "Calendar"]]
+          [:!Tf24 [:toggle-nm "Calendar"]]
+          [:!Of21 [:toggle-nm "Calendar"]]
+          ]}
+
+        {:des "Apple Internal Keyboard" :rules [:!dm-kb
+          ;; arrow keys
+          [:!Q##h :left_arrow]
+          [:!Q##j :down_arrow]
+          [:!Q##k :up_arrow]
+          [:!Q##l :right_arrow]
+
+          ;; backspace, enter, forward delete
+          [:!Q##m :delete_or_backspace]
+          [:!Q##comma :return_or_enter]
+          [:!Q##period :delete_forward]
+
+          ;; escape if LCMD tapped alone
+          [:left_command :left_command nil {:alone :escape}]
+
+          ;; easy CTRL key with the left pinky
+          [:non_us_backslash :left_control nil {:alone :non_us_backslash}]
+
+          ;; easy CTRL key with the right pinky
+          [:slash :right_control nil {:alone :slash}]
+
+          ;; caps_lock to escape
+          [:##caps_lock :left_control nil {:alone :escape}]
+
+          ;; swap fn with left control
+          ;; [:##fn :left_control]
+          ;; [:##left_control :fn]
+
+          ;; Move to left/right space
+          [:!Fz :f17]
+          [:!Fx :f16]
+
+          ;; LSFT if Spacebar held
+          ;; [:spacebar :left_shift nil {:alone :spacebar}]
+
+          ;; swap semicolon with colon
+          ;; [:!Ssemicolon :semicolon nil]
+          ;; [:semicolon :!Ssemicolon nil]
+
+          ;; swap double with single quotes 
+          ;; [:!Squote :quote nil]
+          ;; [:quote :!Squote nil]
+          ]}
+        ]
+ }

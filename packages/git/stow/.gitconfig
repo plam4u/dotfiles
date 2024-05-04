@@ -1,0 +1,39 @@
+[user]
+	name = Plamen Andreev
+	email = plam4u@me.com
+[core]
+	excludesfile = /Users/plam/.gitignore_global
+	editor = vim
+[difftool "sourcetree"]
+	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
+	path =
+[mergetool "sourcetree"]
+	cmd = /Applications/Sourcetree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
+	trustExitCode = true
+[diff]
+	tool = vimdiff
+[merge]
+	tool = vimdiff
+	conflictstyle = diff3
+[difftool]
+	prompt = 0
+[pull]
+	rebase = true
+[fetch]
+	prune = true
+[alias]
+    l = !git log --pretty=format:'%Cred%h%Creset - %s %Cgreen(%cr) %C(bold blue)%an%Creset' --abbrev-commit --date=relative --no-merges
+    s = !git status --short --branch --untracked-files=normal --ahead-behind
+    d = !git diff --compact-summary
+    b = !git branch --show-current
+    search = !git log --all --pretty=format:'%Cred%h%Creset - %s %Cgreen(%cr) %C(bold blue)%an%Creset' --abbrev-commit --date=relative --no-merges --regexp-ignore-case --grep
+    nevermind = !git reset --hard HEAD && git clean -fdx
+[init]
+	defaultBranch = master
+[branch]
+	autosetuprebase = always
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true

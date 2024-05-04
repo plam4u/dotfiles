@@ -1,0 +1,6 @@
+set main-view-date-display = relative-compact
+set main-view-commit-title-graph = v1
+set main-view-commit-title-refs = yes
+set ignore-case = true
+color cursor			white	color28	bold
+bind generic 9 !@sh -c "echo %(commit) | pbcopy"

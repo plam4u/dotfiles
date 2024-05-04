@@ -1,0 +1,189 @@
+#!/usr/bin/env bash
+
+# Get the directory of the currently executing script
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../share/funcs.sh"
+
+show_help() {
+    echo "Usage: $(basename $0) <subcommand> [--force] [--dir <dotfiles_path>] [--bundle <bundle-name> ...] [package1 package2 ...] "
+    echo
+    echo "Subcommands:"
+    echo "  install          Install one or more packages."
+    echo "  uninstall        Uninstall one or more packages."
+    echo "  stow             Symlink package's stow dir to user's home dir."
+    echo "  scripts          Execute all scripts for package's scripts dir."
+    echo
+    echo "Options:"
+    echo "  [--dir|-d]                     Specify dotfiles base dir to locate bundles and packages."
+    echo "  [--bundle|-b] <bundle-name>    Specify a file that contains the list of packages."
+    echo "  [--force|-f]                   Force install (i.e. ignore if already installed)."
+    echo
+    exit 1
+}
+
+install() {
+    # homebrew is required
+    if [ ! -x /opt/homebrew/bin/brew ]; then
+        echo "No such file /opt/homebrew/bin/brew!"
+        exit 1
+    fi
+
+    # export homebrew variables for current script
+    eval $(/opt/homebrew/bin/brew shellenv)
+
+    map_packages install_package "$@"
+}
+
+install_package() {
+    package=$1
+    echo "Installing $package..."
+    # return
+    
+    if brew list "$package" &>/dev/null && [[ ! $FORCE -eq 1 ]]; then
+        echo "$package is already installed!"
+
+    elif [[ -d "packages/$package" ]]; then
+    (
+        cd "packages/$package"
+        install_package_steps $package
+    )
+    else
+        brew install "$package"
+    fi
+}
+
+install_package_steps() {
+    if [[ -f "install.sh" ]]; then
+        echo "Running install.sh..."
+        source install.sh
+    else
+        echo "Running brew install..."
+        brew install "$package"
+    fi
+    if [[ -d "stow" ]]; then
+        echo "Running stow..."
+        ( cd stow; stow . )
+    fi
+    if [[ -d "macos-defaults" ]]; then
+        shopt -s nullglob # expand to an empty list if dir not exists
+        for script in macos-defaults/*.sh; do
+            echo "Running $script..."
+            source $script
+        done
+        shopt -u nullglob
+    fi
+    if [[ -d "scripts" ]]; then
+        shopt -s nullglob # expand to an empty list if dir not exists
+        for script in scripts/*.sh; do
+            echo "Running $script..."
+            source "$script"
+        done
+        shopt -u nullglob
+    fi
+}
+
+if [ $# -eq 0 ]; then
+    show_help
+fi
+
+uninstall() {
+    map_packages uninstall_package "$@"
+}
+
+uninstall_package() {
+    package=$1
+    echo "Uninstalling $package..."
+    # return
+    
+    if [[ -d "packages/$package" ]]; then
+    (
+        cd "packages/$package"
+        uninstall_package_steps $package
+    )
+    else
+        brew uninstall "$package"
+    fi
+}
+
+uninstall_package_steps() {
+    if [[ -f "uninstall.sh" ]]; then
+        echo "Running uninstall.sh..."
+        source uninstall.sh
+    else
+        echo "Running brew uninstall..."
+        brew uninstall "$package"
+    fi
+    if [[ -d "stow" ]]; then
+        echo "Running stow --delete..."
+        ( cd stow; stow --delete . )
+    fi
+}
+
+stow_() {
+    map_packages stow_package "$@"
+}
+
+stow_package() {
+    package=$1
+    echo "Stow $package..."
+    # return
+
+    if [[ -d "packages/$package" ]]; then
+        (
+        cd "packages/$package"
+        if [[ -d "stow" ]]; then
+            echo "Running $package/stow..."
+            cd stow; 
+            stow .
+        fi
+    )
+    fi
+}
+
+scripts_() {
+    map_packages scripts_package "$@"
+}
+
+scripts_package() {
+    package=$1
+    echo "Scripts $package..."
+    # return
+
+    if [[ -d "packages/$package" ]]; then
+        (
+        cd "packages/$package"
+        if [[ -d "scripts" ]]; then
+            shopt -s nullglob # expand to an empty list if dir not exists
+            for script in scripts/*.sh; do
+                echo "Running $package/$script..."
+                source "$script"
+            done
+            shopt -u nullglob
+        fi
+    )
+    fi
+}
+
+case "$1" in
+    i | install)
+        shift
+        install "$@"
+        ;;
+    u | uninstall)
+        shift
+        uninstall "$@"
+        ;;
+    s | stow)
+        shift
+        stow_ "$@"
+        ;;
+    S | scripts)
+        shift
+        scripts_ "$@"
+        ;;
+    *)
+        echo "Unknown subcommand: $1"
+        show_help
+        ;;
+esac
+

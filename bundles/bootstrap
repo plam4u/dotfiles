@@ -1,0 +1,39 @@
+# essential
+xdg-base-dir-spec
+stow
+zsh
+git
+dockutil
+macos-defaults
+
+# keyboard
+karabiner-elements
+karabiner-goku
+
+# cli apps
+asdf
+bat
+eza
+fd
+fzf
+lazygit
+mas
+python
+ruby
+speedtest
+tig
+tree
+zoxide
+
+# terminal
+iterm2
+
+# editor
+neovim
+tmux
+
+# essential casks
+chatgpt
+hammerspoon
+obsidian
+brave-browser

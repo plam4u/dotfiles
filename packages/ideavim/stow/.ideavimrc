@@ -1,0 +1,21 @@
+let mapleader = ' '
+
+set number relativenumber
+set easymotion
+set surround
+set multiple-cursors
+set commentary
+set ReplaceWithRegister
+set textobj-entire
+set argtextobj
+set exchange
+set ideajoin
+set scrolloff=4
+set smartcase
+
+" Press `f` to activate AceJump
+" map f <Action>(AceAction)
+" Press `F` to activate Target Mode
+" map F <Action>(AceTargetAction)
+" Press `g` to activate Line Mode
+" map g <Action>(AceLineAction)
