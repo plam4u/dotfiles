@@ -13,4 +13,6 @@ bash -c "`curl -fsSL https://raw.githubusercontent.com/plam4u/dotfiles/master/re
 ## Install apps
 
 Run the command below to install the apps specified in ~/.dotfiles/Brewfile
-```brew bundle install --file=~/.dotfiles/Brewfile```
+```
+brew bundle install --file=~/.dotfiles/Brewfile
+```
