@@ -1,4 +1,6 @@
-# Install
+# .dotfiles
+
+## Clone "dotfiles" folder
 
 Run the command below to install:
 - brew
@@ -7,3 +9,8 @@ Run the command below to install:
 ```
 bash -c "`curl -fsSL https://raw.githubusercontent.com/plam4u/dotfiles/master/remote-install.sh`"
 ```
+
+## Install apps
+
+Run
+`brew bundle install --file=~/.dotfiles/Brewfile`
