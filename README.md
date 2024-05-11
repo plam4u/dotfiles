@@ -3,9 +3,9 @@
 ## Clone "dotfiles" folder
 
 Run the command below to install:
-- brew
-- Command Line Tools for Xcode
-- dotfiles at $HOME/.dotfiles
+- Homebrew (brew)
+- Command Line Tools (CLT)
+- clone dotfiles at ~/.dotfiles
 ```
 bash -c "`curl -fsSL https://raw.githubusercontent.com/plam4u/dotfiles/master/remote-install.sh`"
 ```
