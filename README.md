@@ -7,7 +7,7 @@ Run the command below to install:
 - Command Line Tools (CLT)
 - clone dotfiles at ~/.dotfiles
 ```
-bash -c "`curl -fsSL https://raw.githubusercontent.com/plam4u/dotfiles/master/remote-install.sh`"
+bash -c "`curl -fsSL https://raw.githubusercontent.com/plam4u/dotfiles/main/remote-install.sh`"
 ```
 
 ## Install apps
