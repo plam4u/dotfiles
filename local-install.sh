@@ -19,6 +19,9 @@ fi
 	stow -t $HOME *
 )
 
+# install rosetta for backward compatibility
+softwareupdate --install-rosetta --agree-to-license
+
 # start karabiner-goku service to watch for changes
 brew services start goku
 
