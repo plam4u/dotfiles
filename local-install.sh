@@ -19,4 +19,8 @@ fi
 	stow -t $HOME *
 )
 
+# start karabiner-goku service to watch for changes
+brew services start goku
+
 echo "Finished local installation!"
+echo

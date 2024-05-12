@@ -1,5 +1,10 @@
+tap "homebrew/bundle"
+tap "homebrew/cask-fonts"
+tap "homebrew/services"
+
 brew "stow"
 cask "karabiner-elements"
+brew "yqrashawn/goku/goku"
 
 # tap "homebrew/bundle"
 # tap "homebrew/services"
