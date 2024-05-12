@@ -1,20 +1,21 @@
-# karabiner-goku taps
+# karabiner-elements and related
+cask "karabiner-elements"
 tap "candid82/brew"
 tap "yqrashawn/goku"
-
-brew "stow"
-cask "karabiner-elements"
 brew "yqrashawn/goku/goku"
+
+# .dotfiles/symlinks manager
+brew "stow"
+
+tap "teamookla/speedtest"
+brew "speedtest"
 
 # tap "homebrew/bundle"
 # tap "homebrew/services"
 # tap "qmk/qmk"
-# tap "teamookla/speedtest"
-# tap "yqrashawn/goku"
-# 
+
 # brew "fzf"
-# brew "yqrashawn/goku/goku"
-#  
+  
 # cask "alfred"
 # cask "figma"
 # cask "hammerspoon"
