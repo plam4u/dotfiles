@@ -9,7 +9,7 @@ if [ -x /opt/homebrew/bin/brew ]; then
 
 	# install Brewfile
 	brew bundle install --file $HOME/.dotfiles/Brewfile
-elif
+else
 	echo "Brew not available. Exiting..."
 	exit 1
 fi
