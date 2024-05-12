@@ -1,4 +1,4 @@
-brew stow
+brew "stow"
 
 # tap "homebrew/bundle"
 # tap "homebrew/services"
