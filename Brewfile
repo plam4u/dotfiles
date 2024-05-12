@@ -1,16 +1,13 @@
-# speedtest
-tap "teamookla/speedtest"
-
-# karabiner-elements
-tap "candid82/brew"
-tap "yqrashawn/goku"
+tap "teamookla/speedtest"	# speedtest
+tap "candid82/brew" 		# karabiner-goku
+tap "yqrashawn/goku"		# karabiner-goku
 
 # karabiner-elements
 cask "karabiner-elements"
 brew "yqrashawn/goku/goku"
 
 # speedtest CLI
-brew "speedtest"
+brew "teamookla/speedtest/speedtest"
 
 # .dotfiles/symlinks manager
 brew "stow"
