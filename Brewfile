@@ -1,4 +1,5 @@
 brew "stow"
+cask "karabiner-elements"
 
 # tap "homebrew/bundle"
 # tap "homebrew/services"
