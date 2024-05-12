@@ -1,4 +1,5 @@
-tap "homebrew/bundle"
+# karabiner-goku taps
+tap "candid82/brew"
 tap "yqrashawn/goku"
 
 brew "stow"
