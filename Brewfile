@@ -24,8 +24,10 @@ brew "neovim", args: ["HEAD"]	# text editor
 brew "asdf"			# version manager for ruby, python and more
 brew "tig"			# git text interface
 brew "tree"			# display directories as trees
-tap "qmk/qmk"			# QMK keyboard firmware
-brew "qmk/qmk/qmk"		# QMK firmware for my Dactyl Manuform
+
+# installed separately
+# tap "qmk/qmk"			# QMK keyboard firmware
+# brew "qmk/qmk/qmk"		# QMK firmware for my Dactyl Manuform
 
 cask "alfred"			# application launcher
 cask "hammerspoon"		# desktop automation application
