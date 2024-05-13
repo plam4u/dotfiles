@@ -1,7 +1,6 @@
 #!/bin/bash
 
-# make sure that Homebrew is available,
-# otherwise there is no point in continuing
+# make sure that Homebrew is available
 if [ ! -x /opt/homebrew/bin/brew ]; then
     echo "Can't find /opt/homebrew/bin/brew. Installation can't continue without 'brew'!"
     exit 1
