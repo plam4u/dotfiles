@@ -1,0 +1,91 @@
+# TODO: maybe
+#
+# brew "luarocks"		# Lua package manager
+# brew "stylua"			# Lua code formatter
+# brew "ansible"		# automation
+# brew "emacs"          # text editor
+# brew "pandoc"         # markup format conversion
+# brew "tmux"           # Terminal multiplexer
+# brew "ripgrep"		# search tool like grep
+# brew "vim"            # text editor
+# brew "wget"           # Internet file retriever
+# brew "youtube-dl"     # download YouTube videos
+# cask "firefox"        # internet browser
+# cask "jetbrains-toolbox"
+# cask "shortcat"       # mouse-free UI interaction
+# brew "tree-sitter"	# Parser generator tool and incremental parsing library
+# brew "fd"		        # Simple, fast and user-friendly alternative to find
+# cask "macdown"        # Markdown editor
+# brew "ical-buddy"	    # Get events and tasks from the macOS calendar database
+# brew "swiftformat"    # Swift code formatter
+# cask "swiftformat-for-xcode" # Swift code formatter
+# brew "carthage"       # Decentralized dependency manager for Cocoa
+# cask "visual-studio-code" # text editor
+#
+# Quick Look
+# cask "qlcolorcode"
+# cask "qlimagesize"
+# cask "qlmarkdown"
+# cask "qlstephen"
+# cask "qlvideo"
+# cask "quicklook-json"
+# cask "quicklookase"
+# cask "webpquicklook"
+
+# TODO: not sure
+#
+# brew "rbenv"		    # ruby version manager (currently using asdf)
+# brew "openssl@3"	    # Cryptography and SSL/TLS Toolkit
+# brew "pycparser"	    # C parser in Python
+# brew "cffi"		    # C Foreign Function Interface for Python
+# brew "xz"		        # General-purpose data compression with high compression ratio
+# brew "boost"		    # Collection of portable C++ source libraries
+# brew "berkeley-db"    # High performance key/value database
+# brew "glib"		    # Core application library for C
+# brew "libevent"	    # Asynchronous event library
+# brew "p11-kit"	    # Library to load and enumerate PKCS#11 modules
+# brew "unbound"	    # Validating, recursive, caching DNS resolver
+# brew "gnutls"		    # GNU Transport Layer Security (TLS) Library
+# brew "harfbuzz"	    # OpenType text shaping engine
+# brew "openjpeg"	    # Library for JPEG-2000 image manipulation
+# brew "leptonica"	    # Image processing and image analysis library
+# brew "libass"		    # Subtitle renderer for the ASS/SSA subtitle format
+# brew "libbluray"	    # Blu-Ray disc playback library for media players like VLC
+# brew "pango"		    # Framework for layout and rendering of i18n text
+# brew "srt"		    # Secure Reliable Transport
+# brew "tesseract"	    # OCR (Optical Character Recognition) engine
+# brew "freetds"	    # Libraries to talk to Microsoft SQL Server and Sybase databases
+# brew "gd"		        # Graphics library to dynamically manipulate images
+# brew "ghostscript"    # Interpreter for PostScript and PDF
+# brew "gobject-introspection"	# Generate introspection data for GObject libraries
+# brew "helix"		    # text editor
+# brew "libheif"	    # ISO/IEC 23008-12:2017 HEIF file format decoder and encoder
+# brew "libraw"		    # Library for reading RAW files from digital photo cameras
+# brew "lazygit"	    # Simple terminal UI for git commands
+# brew "libffi"		    # Portable Foreign Function Interface library
+# brew "libiconv"	    # Conversion library
+# brew "libpq"		    # Postgres C API library
+# brew "libraqm"	    # Library for complex text layout
+# brew "perl"		    # programming language
+# brew "php"		    # programming language
+# brew "tcl-tk"		    # Tool Command Language
+# brew "pillow"		    # Friendly PIL fork (Python Imaging Library)
+# brew "ranger"		    # File browser
+# brew "ruby-build"	    # Ruby version manager
+# brew "socat"		    # SOcket CAT: netcat on steroids
+# brew "lynx"		    # Text-based web browser
+# brew "thefuck"	    # Programmatically correct mistyped console commands
+# brew "xcodegen"	    # Generate your Xcode project from a spec file and your folder structure
+# brew "zlib"		    # General-purpose lossless data-compression library
+# brew "libusbmuxd"	    # USB multiplexor library for iOS devices
+# brew "zsh-syntax-highlighting"
+# cask "android-studio"	# Android IDE
+# cask "apparency"	    # Inspect application bundles
+# cask "background-music" # Audio utility
+# cask "chromedriver"	# Automated testing of webapps for Google Chrome
+# cask "neovide"	    # Neovim Client in Rust
+# cask "copilot-for-xcode"
+# cask "suspicious-package" # Application for inspecting installer packages
+# cask "rubymine"	    # text editor
+# cask "logitech-options"		# obsolete, use logi-options-plus instead
+# brew "mackup"		    # Keep your Mac's application settings in sync

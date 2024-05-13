@@ -34,7 +34,13 @@ brew bundle install --file $HOME/.dotfiles/Brewfile
 softwareupdate --install-rosetta --agree-to-license
 
 # start karabiner-goku service to watch for changes
-brew services start goku
+if [ -x goku ]; then
+    brew services start goku
+fi
+
+# QMK throws warnings
+brew tap qmk/qmk
+brew install qmk/qmk/qmk
 
 echo "Finished local installation!"
 echo
