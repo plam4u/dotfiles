@@ -18,17 +18,19 @@ eval $(/opt/homebrew/bin/brew shellenv)
 # install Brewfile
 brew bundle install --file $HOME/.dotfiles/Brewfile
 
-# Subshells: Parentheses can also be used to create subshells, 
-# which execute commands in a separate child process.
-# This can be useful for isolating changes to the environment 
-# or executing commands in a different context
-(
-    # stow contains "packages".
-    # install all packages
-    # by using the * to expand dirs
-    cd stow
-    stow -t $HOME *
-)
+if [ -x stow ]; then
+    # Subshells: Parentheses can also be used to create subshells, 
+    # which execute commands in a separate child process.
+    # This can be useful for isolating changes to the environment 
+    # or executing commands in a different context
+    (
+        # stow contains "packages".
+        # install all packages
+        # by using the * to expand dirs
+        cd stow
+        stow -t $HOME *
+    )
+fi
 
 # install rosetta for backward compatibility
 softwareupdate --install-rosetta --agree-to-license
