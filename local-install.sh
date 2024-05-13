@@ -6,12 +6,11 @@ if [ ! -x /opt/homebrew/bin/brew ]; then
     exit 1
 fi
 
-# some apps require sudo to get installed (e.g. karabiner-elements)
+# some installs require sudo (e.g. karabiner-elements)
 sudo -v
 while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 
 # export homebrew variables for current script.
-# these stowed later to make these available globally
 eval $(/opt/homebrew/bin/brew shellenv)
 
 # install Brewfile
@@ -31,7 +30,7 @@ if [ -x stow ]; then
     )
 fi
 
-# install rosetta for backward compatibility
+# install rosetta for backward compatibility (e.g. to run goku)
 softwareupdate --install-rosetta --agree-to-license
 
 # start karabiner-goku service to watch for changes
