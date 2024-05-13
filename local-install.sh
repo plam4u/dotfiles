@@ -44,7 +44,7 @@ fi
 
 # QMK throws warnings when installed using "brew bundle"
 brew tap qmk/qmk
-# brew install qmk/qmk/qmk
+brew install qmk/qmk/qmk
 
 echo "Finished local installation!"
 echo
