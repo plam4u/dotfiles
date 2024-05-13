@@ -25,10 +25,6 @@ brew "asdf"			# version manager for ruby, python and more
 brew "tig"			# git text interface
 brew "tree"			# display directories as trees
 
-# installed separately
-# tap "qmk/qmk"			# QMK keyboard firmware
-# brew "qmk/qmk/qmk"		# QMK firmware for my Dactyl Manuform
-
 cask "alfred"			# application launcher
 cask "hammerspoon"		# desktop automation application
 cask "iterm2"			# terminal emulator
@@ -39,3 +35,8 @@ cask "vlc"			# multimedia player
 cask "drawio"			# diagram software
 cask "font-hack-nerd-font"	# font with icons
 cask "logi-options-plus"	# Logi Options+ for "MX Anywhere 2S"
+
+# installed separately
+# tap "qmk/qmk"			# QMK keyboard firmware
+# brew "qmk/qmk/qmk"		# QMK firmware for my Dactyl Manuform
+
