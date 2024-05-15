@@ -14,9 +14,14 @@ defaults write com.apple.finder "FXRemoveOldTrashItems" -bool NO
 defaults write com.apple.finder "WarnOnEmptyTrash" -bool NO
 defaults write com.apple.finder "FXEnableExtensionChangeWarning" -bool NO
 defaults write com.apple.finder "ShowRecentTags" -bool NO
+defaults write com.apple.finder "SidebarShowingiCloudDesktop" -bool NO
 defaults write com.apple.finder "NewWindowTarget" -string "PfLo"
 defaults write com.apple.finder "NewWindowTargetPath" -string "file:///Users/$USER/Downloads/"
 defaults write com.apple.finder "NSNavLastRootDirectory" -string "~/Downloads"
+defaults write com.apple.finder "SidebarZoneOrder1" -array "icloud_drive" favorites devices tags
 
 # Screenshots
 defaults write com.apple.screencapture "show-thumbnail" -bool NO
+defaults write com.apple.screencapture target -string "clipboard"
+
+# Safari
