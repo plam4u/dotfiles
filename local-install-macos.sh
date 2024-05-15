@@ -1,3 +1,11 @@
 #!/bin/bash
 
+# Global
+defaults write NSGlobalDomain "AppleShowAllExtensions" -bool YES
 
+# Finder
+defaults write com.apple.finder "ShowPathbar" -bool YES
+defaults write com.apple.finder "ShowStatusBar" -bool YES
+defaults write com.apple.finder "WarnOnEmptyTrash" -bool NO
+defaults write com.apple.finder "FXEnableExtensionChangeWarning" -bool NO
+defaults write com.apple.finder "NewWindowTargetPath" -string 'file:///Users/$USER/Downloads/'
