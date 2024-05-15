@@ -22,6 +22,6 @@ defaults write com.apple.finder "SidebarZoneOrder1" -array "icloud_drive" favori
 
 # Screenshots
 defaults write com.apple.screencapture "show-thumbnail" -bool NO
-defaults write com.apple.screencapture target -string "clipboard"
+defaults write com.apple.screencapture "target" -string "clipboard"
 
 # Safari
