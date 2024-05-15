@@ -46,7 +46,7 @@ fi
 # brew install qmk/qmk/qmk
 
 echo
-echo "local-install.sh: OK!"
+echo "local-install.sh: \033[32mOK!\033[0m"
 echo
 
 for script in macos-defaults/*; do
@@ -56,5 +56,5 @@ for script in macos-defaults/*; do
 done
 
 echo
-echo "macOS settings: OK!"
+echo "macOS user defaults: \033[32mOK!\033[0m"
 echo
