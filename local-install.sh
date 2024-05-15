@@ -47,3 +47,11 @@ brew install qmk/qmk/qmk
 echo
 echo "local-install.sh: OK!"
 echo
+
+(
+    sh local-install-macos.sh
+)
+
+echo
+echo "macOS settings: OK!"
+echo
