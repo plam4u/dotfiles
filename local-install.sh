@@ -48,7 +48,9 @@ echo
 echo "local-install.sh: OK!"
 echo
 
-sh local-install-macos.sh
+for script in macos-defaults/*; do
+    sh script
+done
 
 echo
 echo "macOS settings: OK!"
