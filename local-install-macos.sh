@@ -29,6 +29,7 @@ defaults write com.apple.dock "autohide" -bool YES
 defaults write com.apple.dock "show-recents" -bool NO
 
 if [ -x dockutil ]; then
+    dockutil -r all --no-restart
     dockutil -a /System/Applications/Calendar.app/ --no-restart
     dockutil -a /System/Applications/Reminders.app/ --no-restart
     dockutil -a /System/Applications/Notes.app/ --no-restart
