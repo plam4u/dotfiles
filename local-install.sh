@@ -1,5 +1,7 @@
 #!/bin/bash
 
+[[ $1 == "--dev" ]] && DEV_MODE="1"
+
 # make sure that Homebrew is available
 if [ ! -x /opt/homebrew/bin/brew ]; then
     echo "Can't find /opt/homebrew/bin/brew. Installation can't continue without 'brew'!"
