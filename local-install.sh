@@ -51,9 +51,8 @@ echo
 
 for script in macos-defaults/*; do
     echo
-    echo "\033[32mRunning $script\033[0m"
+    echo "\033[32mRunning $script...\033[0m"
     sh $script
-    echo "\033[32m$script\033[0m OK"
 done
 
 echo
