@@ -24,4 +24,8 @@ defaults write com.apple.finder "SidebarZoneOrder1" -array "icloud_drive" favori
 defaults write com.apple.screencapture "show-thumbnail" -bool NO
 defaults write com.apple.screencapture "target" -string "clipboard"
 
+# Dock
+defaults write com.apple.dock "autohide" -bool YES
+defaults write com.apple.dock "show-recents" -bool NO
+
 # Safari
