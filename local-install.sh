@@ -49,7 +49,10 @@ echo "local-install.sh: OK!"
 echo
 
 for script in macos-defaults/*; do
-    sh script
+    echo
+    echo "Running \e[32m$script\e[0m"
+    sh $script
+    echo "\e[32m$script\e[0m OK"
 done
 
 echo
