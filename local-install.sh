@@ -44,5 +44,6 @@ fi
 brew tap qmk/qmk
 brew install qmk/qmk/qmk
 
-echo "Finished local installation!"
+echo
+echo "local-install.sh: OK!"
 echo
