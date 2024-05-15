@@ -16,7 +16,7 @@ eval $(/opt/homebrew/bin/brew shellenv)
 # install Brewfile
 brew bundle install --file $HOME/.dotfiles/Brewfile
 
-if [ -x stow ]; then
+if [ -x "$(command -v stow)" ]; then
     # Subshells: Parentheses can also be used to create subshells, 
     # which execute commands in a separate child process.
     # This can be useful for isolating changes to the environment 
@@ -34,7 +34,7 @@ fi
 softwareupdate --install-rosetta --agree-to-license
 
 # start karabiner-goku service to watch for changes
-if [ -x goku ]; then
+if [ -x "$(command -v goku)" ]; then
     brew services start goku
 else
     echo "goku executable not found. Skipping..."
@@ -48,9 +48,7 @@ echo
 echo "local-install.sh: OK!"
 echo
 
-(
-    sh local-install-macos.sh
-)
+sh local-install-macos.sh
 
 echo
 echo "macOS settings: OK!"
