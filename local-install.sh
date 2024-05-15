@@ -30,19 +30,20 @@ if [ -x "$(command -v stow)" ]; then
     )
 fi
 
-# install rosetta for backward compatibility (e.g. to run goku)
-softwareupdate --install-rosetta --agree-to-license
-
 # start karabiner-goku service to watch for changes
 if [ -x "$(command -v goku)" ]; then
+
+    # install rosetta for backward compatibility (e.g. to run goku)
+    softwareupdate --install-rosetta --agree-to-license
+
     brew services start goku
 else
     echo "goku executable not found. Skipping..."
 fi
 
 # QMK throws warnings when installed using "brew bundle"
-brew tap qmk/qmk
-brew install qmk/qmk/qmk
+# brew tap qmk/qmk
+# brew install qmk/qmk/qmk
 
 echo
 echo "local-install.sh: OK!"
