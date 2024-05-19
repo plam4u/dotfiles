@@ -13,7 +13,6 @@ brew "fzf"			        # command-line fuzzy finder
 brew "bat"			        # cat(1) with syntax highlighting
 brew "ffmpeg"		    	# convert and stream audio and video
 brew "git-lfs"		    	# git extension for versioning large files
-brew "dockutil"		    	# manage dock items
 brew "htop"			        # interactive process viewer
 brew "imagemagick"		    # manipulate images in many formats
 brew "jq"			        # command-line JSON processor

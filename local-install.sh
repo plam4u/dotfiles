@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# Useful links:
+# - https://devhints.io/bash
+# - https://git.herrbischoff.com/awesome-macos-command-line/about/
+# - https://git.herrbischoff.com/awesome-command-line-apps/about/
+# - https://shadowfile.inode.link/blog/2018/06/advanced-defaults1-usage/
+# - https://github.com/mathiasbynens/dotfiles/blob/main/.macos
+# - https://github.com/kevinSuttle/macOS-Defaults/blob/master/.macos
+
 [[ $1 == "--dev" ]] && DEV_MODE="1"
 
 # make sure that Homebrew is available
@@ -54,6 +62,28 @@ if [ -z "$DEV_MODE"]; then
     brew tap qmk/qmk
     brew install qmk/qmk/qmk
 fi
+
+# turn firewall on
+sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setglobalstate on
+
+# HOSTNAME="plam"
+# sudo scutil --set ComputerName "$HOSTNAME"
+# sudo scutil --set HostName "$HOSTNAME"
+# sudo scutil --set LocalHostName "$HOSTNAME"
+# sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server NetBIOSName -string "$HOSTNAME"
+
+# TODO
+# - dns
+# - gatekeeper
+# - localhost
+# - notification
+# - printer
+# - screensaver
+# - service (list|start|stop)
+# - software update
+
+# timezone
+sudo systemsetup -settimezone Europe/Madrid
 
 echo
 echo "local-install.sh: \033[32mOK!\033[0m"
