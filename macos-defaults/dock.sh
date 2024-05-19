@@ -2,6 +2,7 @@
 
 defaults write com.apple.dock "autohide" -bool YES
 defaults write com.apple.dock "show-recents" -bool NO
+defaults write com.apple.dock "region" -string 'ES'
 
 source $HOME/.zprofile
 if [ -x "$(command -v dockutil)" ]; then
@@ -12,3 +13,4 @@ if [ -x "$(command -v dockutil)" ]; then
     dockutil -a /Applications/Safari.app/ --no-restart
     dockutil -a /System/Applications/Mail.app/ --restart
 fi
+
