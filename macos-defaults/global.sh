@@ -18,7 +18,7 @@ defaults write NSGlobalDomain "KeyRepeat" -int 1
 defaults write NSGlobalDomain "NSWindowShouldDragOnGesture" -bool YES
 
 # date format
-defaults write NSGlobalDomain "AppleICUDateFormatString" '<dict><key>1</key><string>y-MM-dd</string></dict>'
+defaults write NSGlobalDomain "AppleICUDateFormatStrings" '<dict><key>1</key><string>y-MM-dd</string></dict>'
 defaults write NSGlobalDomain "AppleFirstWeekday" '<dict><key>gregorian</key><integer>2</integer></dict>'
 defaults write NSGlobalDomain "AppleLanguages" '<array><string>en-US</string></array>'
 defaults write NSGlobalDomain "AppleLocale" -string 'en_US@rg=eszzzz'
