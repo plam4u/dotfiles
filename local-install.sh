@@ -17,6 +17,9 @@ eval $(/opt/homebrew/bin/brew shellenv)
 
 # install Brewfile
 brew bundle install --file $HOME/.dotfiles/Brewfile
+if [ -z "$DEV_MODE" ]; then
+    brew bundle install --file $HOME/.dotfiles/Brewfile-basics
+fi
 
 if [ -x "$(command -v stow)" ]; then
     # Subshells: Parentheses can also be used to create subshells, 
@@ -33,7 +36,7 @@ if [ -x "$(command -v stow)" ]; then
 fi
 
 # start karabiner-goku service to watch for changes
-if [ -x "$(command -v goku)" ]; then
+if [ -x "$(command -v goku)" && -z "$DEV_MODE"]; then
 
     # install rosetta for backward compatibility (e.g. to run goku)
     softwareupdate --install-rosetta --agree-to-license
@@ -43,9 +46,12 @@ else
     echo "goku executable not found. Skipping..."
 fi
 
-# QMK throws warnings when installed using "brew bundle"
-# brew tap qmk/qmk
-# brew install qmk/qmk/qmk
+if [ -z "$DEV_MODE"]; then
+    # Installed here because
+    # QMK throws warnings when installed using "brew bundle"
+    brew tap qmk/qmk
+    brew install qmk/qmk/qmk
+fi
 
 echo
 echo "local-install.sh: \033[32mOK!\033[0m"
