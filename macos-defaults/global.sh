@@ -1,8 +1,8 @@
 #!/bin/bash
 
-defaults write NSGlobalDomain "AppleShowAllExtensions" -bool YES
 defaults write NSGlobalDomain "AppleWindowTabbingMode" -string 'always'
 defaults write NSGlobalDomain "AppleInterfaceStyle" -string 'Dark'
+defaults write com.apple.dock "region" -string 'ES'
 
 # restore windows from last session
 defaults write NSGlobalDomain "NSQuitAlwaysKeepsWindows" -bool YES
