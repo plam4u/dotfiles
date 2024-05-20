@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Disable the sound effects on boot
+sudo nvram SystemAudioVolume=" "
+
+# Always show scrollbars
+defaults write NSGlobalDomain "AppleShowScrollBars" -string "Always"
+
 defaults write NSGlobalDomain "AppleWindowTabbingMode" -string 'always'
 defaults write NSGlobalDomain "AppleInterfaceStyle" -string 'Dark'
 defaults write com.apple.dock "region" -string 'ES'
