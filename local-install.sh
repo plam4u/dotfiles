@@ -24,9 +24,10 @@ while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 eval $(/opt/homebrew/bin/brew shellenv)
 
 # install Brewfile
-brew bundle install --file $HOME/.dotfiles/Brewfile
-if [ -z "$DEV_MODE" ]; then
-    brew bundle install --file $HOME/.dotfiles/Brewfile-basics
+if [ -n "$DEV_MODE" ]; then
+    brew bundle install --file $HOME/.dotfiles/Brewfile-dev
+else
+    brew bundle install --file $HOME/.dotfiles/Brewfile
 fi
 
 if [ -x "$(command -v stow)" ]; then
