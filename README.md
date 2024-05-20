@@ -12,6 +12,11 @@ bash -c "`curl -fsSL https://raw.githubusercontent.com/plam4u/dotfiles/main/remo
 
 ## Install apps
 
+Required:
+Terminal needs disk access to execute some of the commands:
+
+`System Settings` > `Privacy and Security` > `Full Disk Access` > Terminal
+
 Run the command below to start the setup:
 ```
 cd ~/.dotfiles && sh local-install.sh

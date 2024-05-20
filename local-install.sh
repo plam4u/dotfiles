@@ -46,7 +46,7 @@ if [ -x "$(command -v stow)" ]; then
 fi
 
 # start karabiner-goku service to watch for changes
-if [ -x "$(command -v goku)" && -z "$DEV_MODE"]; then
+if [ -x "$(command -v goku)" && -z "$DEV_MODE" ]; then
 
     # install rosetta for backward compatibility (e.g. to run goku)
     softwareupdate --install-rosetta --agree-to-license
@@ -56,7 +56,7 @@ else
     echo "goku executable not found. Skipping..."
 fi
 
-if [ -z "$DEV_MODE"]; then
+if [ -z "$DEV_MODE" ]; then
     # Installed here because
     # QMK throws warnings when installed using "brew bundle"
     brew tap qmk/qmk
