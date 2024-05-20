@@ -17,10 +17,8 @@ if [ ! -x /opt/homebrew/bin/brew ]; then
 fi
 
 # some installs require sudo (e.g. karabiner-elements)
-if [ -z "$DEV_MODE" ]; then
-    sudo -v
-    while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
-fi
+sudo -v
+while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 
 # export homebrew variables for current script.
 eval $(/opt/homebrew/bin/brew shellenv)
