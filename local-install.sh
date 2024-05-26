@@ -59,6 +59,8 @@ fi
 #     # Installed here because
 #     # QMK throws warnings when installed using "brew bundle"
 #     brew tap qmk/qmk
+#     brew tap osx-cross/arm # QMK dependency
+#     brew tap osx-cross/avr # QMK dependency
 #     brew install qmk/qmk/qmk
 # fi
 
