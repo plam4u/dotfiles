@@ -15,8 +15,8 @@ cask "karabiner-elements"
 brew "yqrashawn/goku/goku"	# karabiner-elements JSON generator
 
 # Dactyl Manuform keyboard tools installed as part of the install script
-tap "qmk/qmk"	    		# QMK firmware
-brew "qmk/qmk/qmk"		# QMK firmware for my split keyboard
+# tap "qmk/qmk"	    		# QMK firmware
+# brew "qmk/qmk/qmk"		# QMK firmware for my split keyboard
 
 # essential brews
 brew "teamookla/speedtest/speedtest"	# speedtest CLI
