@@ -14,10 +14,6 @@ brew "dockutil"		    	# manage dock items
 cask "karabiner-elements"
 brew "yqrashawn/goku/goku"	# karabiner-elements JSON generator
 
-# Dactyl Manuform keyboard tools installed as part of the install script
-# tap "qmk/qmk"	    		# QMK firmware
-# brew "qmk/qmk/qmk"		# QMK firmware for my split keyboard
-
 # essential brews
 brew "teamookla/speedtest/speedtest"	# speedtest CLI
 brew "fzf"		        # command-line fuzzy finder
@@ -32,6 +28,7 @@ brew "neovim", args: ["HEAD"]	# text editor
 brew "asdf"		       	# version manager for ruby, python and more
 brew "tig"		       	# git text interface
 brew "tree"		       	# display directories as trees
+
 # essential casks
 cask "alfred"		    	# application launcher
 cask "hammerspoon"	    	# desktop automation application

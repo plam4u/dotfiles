@@ -55,12 +55,12 @@ else
     echo "goku executable not found. Skipping..."
 fi
 
-if [ -z "$DEV_MODE" ]; then
-    # Installed here because
-    # QMK throws warnings when installed using "brew bundle"
-    brew tap qmk/qmk
-    brew install qmk/qmk/qmk
-fi
+# if [ -z "$DEV_MODE" ]; then
+#     # Installed here because
+#     # QMK throws warnings when installed using "brew bundle"
+#     brew tap qmk/qmk
+#     brew install qmk/qmk/qmk
+# fi
 
 # turn firewall on
 sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setglobalstate on
