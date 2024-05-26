@@ -1,7 +1,6 @@
 # official taps
 tap "homebrew/bundle"		# homebrew core
 tap "homebrew/services"		# homebrew core
-tap "homebrew/cask"		# homebrew fonts
 # 3rd party taps
 tap "teamookla/speedtest"	# speedtest
 tap "candid82/brew" 		# karabiner-goku
