@@ -46,7 +46,7 @@ if [ -x "$(command -v stow)" ]; then
 fi
 
 # start karabiner-goku service to watch for changes
-if [[ -x "$(command -v goku)" && -z "$DEV_MODE" ]]; then
+if [ -x "$(command -v goku)" ]; then
 
     # install rosetta for backward compatibility (e.g. to run goku)
     softwareupdate --install-rosetta --agree-to-license
