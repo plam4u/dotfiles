@@ -24,7 +24,7 @@ brew "htop"	 	        # interactive process viewer
 brew "imagemagick"		# manipulate images in many formats
 brew "jq"		        # command-line JSON processor
 brew "mas"			# Mac App Store command-line interface
-brew "neovim", args: ["HEAD"]	# text editor
+brew "neovim"                	# text editor
 brew "asdf"		       	# version manager for ruby, python and more
 brew "tig"		       	# git text interface
 brew "tree"		       	# display directories as trees

@@ -42,6 +42,7 @@ if [ -x "$(command -v stow)" ]; then
         cd stow
         stow -t $HOME *
     )
+    source ~/.zprofile
 fi
 
 # start karabiner-goku service to watch for changes
