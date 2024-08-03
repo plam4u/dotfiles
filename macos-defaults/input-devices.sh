@@ -7,6 +7,9 @@ defaults write NSGlobalDomain "ApplePressAndHoldEnabled" -bool NO
 defaults write NSGlobalDomain "InitialKeyRepeat" -int 10
 defaults write NSGlobalDomain "KeyRepeat" -int 1
 
+# Use F1, F2, etc. as standard function keys
+defaults write NSGlobalDomain "com.apple.keyboard.fnState" -bool YES
+
 # Disable automatic capitalization as it’s annoying when typing code
 defaults write NSGlobalDomain "NSAutomaticCapitalizationEnabled" -bool NO
 
@@ -26,7 +29,7 @@ defaults write NSGlobalDomain "NSAutomaticQuoteSubstitutionEnabled" -bool NO
 defaults write NSGlobalDomain "NSAutomaticSpellingCorrectionEnabled" -bool NO
 
 # Trackpad: enable tap to click for this user and for the login screen
-defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad "Clicking" -bool true
+defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad "Clicking" -bool YES
 defaults -currentHost write NSGlobalDomain "com.apple.mouse.tapBehavior" -int 1
 defaults write NSGlobalDomain "com.apple.mouse.tapBehavior" -int 1
 

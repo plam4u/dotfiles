@@ -21,3 +21,8 @@ defaults write com.apple.mail "DisableInlineAttachmentViewing" -bool true
 # Disable automatic spell checking
 defaults write com.apple.mail "SpellCheckingBehavior" -string "NoSpellCheckingEnabled"
 
+# Recent mails on top
+defaults write com.apple.mail "ConversationViewSortDescending" -bool true
+
+# Auto Bcc self
+defaults write com.apple.mail "BccSelf" -bool true
