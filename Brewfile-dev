@@ -7,4 +7,5 @@ tap "candid82/brew" 		# karabiner-goku
 tap "yqrashawn/goku"		# karabiner-goku
 cask "karabiner-elements"
 brew "yqrashawn/goku/goku"	# karabiner-elements JSON generator
+cask "hammerspoon"	    	# desktop automation application
 
