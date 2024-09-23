@@ -7,3 +7,6 @@ fpath=(${ASDF_DIR}/completions $fpath)
 
 # initialise completions with ZSH's compinit
 autoload -Uz compinit && compinit
+
+export PATH="$HOME/.asdf/shims:$PATH"
+
