@@ -1,5 +1,13 @@
-ffmpeg
+# audio
+background-music
+shureplus-motiv
+shure-motiv-mix
+
+# image
 imagemagick
+
+# video
+ffmpeg
 transmission
 vlc
 youtube-dl
