@@ -21,3 +21,12 @@ Run the command below to start the setup:
 ```
 cd ~/dotfiles && ./bootstrap.sh
 ```
+
+## Interesting bundles
+
+- bootstrap: essential apps and configs
+- devices: drivers for my current setup
+- terminal-iterm: setup my preferred terminal
+- messaging: WhatsApp, Telegram, Messenger
+- multimedia: audio, video, and image processing
+- other packages can be installed on demand depending on the context
