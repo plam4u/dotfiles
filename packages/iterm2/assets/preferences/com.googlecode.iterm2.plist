@@ -5,7 +5,7 @@
 	<key>AlwaysOpenWindowAtStartup</key>
 	<true/>
 	<key>CustomTabBarFontSize</key>
-	<real>14</real>
+	<real>16</real>
 	<key>Default Bookmark Guid</key>
 	<string>1276E429-48B1-4A00-A9DC-B374941493B8</string>
 	<key>HapticFeedbackForEsc</key>
@@ -1470,6 +1470,8 @@
 	<false/>
 	<key>ShowNewOutputIndicator</key>
 	<false/>
+	<key>ShowSessionRestoredBanner</key>
+	<false/>
 	<key>SoundForEsc</key>
 	<false/>
 	<key>SplitPaneDimmingAmount</key>
@@ -1482,6 +1484,8 @@
 	<integer>1</integer>
 	<key>TabsHaveCloseButton</key>
 	<false/>
+	<key>UseCustomTabBarFontSize</key>
+	<true/>
 	<key>VisualIndicatorForEsc</key>
 	<false/>
 	<key>findMode_iTerm</key>
