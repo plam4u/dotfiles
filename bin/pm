@@ -8,6 +8,7 @@ show_help() {
     echo "Usage: $(basename $0) <subcommand> [--force] [--dir <dotfiles_path>] [--bundle <bundle-name> ...] [package1 package2 ...] "
     echo
     echo "Subcommands:"
+    echo "  add              Add a package using the template provided in ./templates dir."
     echo "  install          Install one or more packages."
     echo "  uninstall        Uninstall one or more packages."
     echo "  stow             Symlink package's stow dir to user's home dir."
@@ -19,6 +20,49 @@ show_help() {
     echo "  [--force|-f]                   Force install (i.e. ignore if already installed)."
     echo
     exit 1
+}
+
+add() {
+    map_packages add_package "$@"
+}
+
+add_package() {
+    package=$1
+    echo "Adding $package..."
+    TEMP_DIR=$(mktemp -d)
+    cp -R "templates/package-name" "$TEMP_DIR"
+
+    ( # cd and work inside TEMP_DIR
+    cd $TEMP_DIR
+
+    function has_more_directories {
+        find . -depth -type d -name "*package-name*" | grep -q "package-name"
+    }
+
+    # rename folders
+    while has_more_directories; do
+        find . -depth -type d -name "*package-name*" | while read -r name; do
+            new_name=$(echo "$name" | sed "s/package-name/$package/g")
+            [[ ! -d $(dirname $new_name) ]] && mkdir -p $(dirname $new_name)
+            mv "$name" "$new_name"
+        done
+    done
+
+    # rename files
+    find . -type f -name "*package-name*" | while read name; do
+        new_name=$(echo "$name" | sed "s/package-name/$package/g")
+        mv "$name" "$new_name"
+    done
+
+    # rename contents
+    find . -type f -name "*.*" -exec sed -i '' "s/package-name/$package/g" {} +
+
+    # exiting subshell scope
+    )
+
+    cp -R "$TEMP_DIR/$package" "packages"
+
+    echo $TEMP_DIR
 }
 
 install() {
@@ -165,6 +209,10 @@ scripts_package() {
 }
 
 case "$1" in
+    a | add)
+        shift
+        add "$@"
+        ;;
     i | install)
         shift
         install "$@"
