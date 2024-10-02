@@ -61,8 +61,7 @@ add_package() {
     )
 
     cp -R "$TEMP_DIR/$package" "packages"
-
-    echo $TEMP_DIR
+    # echo $TEMP_DIR
 }
 
 install() {
