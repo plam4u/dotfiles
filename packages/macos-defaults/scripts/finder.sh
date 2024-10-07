@@ -15,9 +15,9 @@ defaults write com.apple.finder "ShowRemovableMediaOnDesktop" -bool true
 # When performing a search, search the current folder by default
 defaults write com.apple.finder "FXDefaultSearchScope" -string "SCcf"
 
-# Icon View   : `icnv` 
-# List View   : `Nlsv` 
-# Column View : `clmv` 
+# Icon View   : `icnv`
+# List View   : `Nlsv`
+# Column View : `clmv`
 # Cover Flow  : `Flwv`
 defaults write com.apple.finder "FXPreferredViewStyle" -string 'Nlsv'
 
@@ -89,9 +89,9 @@ defaults write com.apple.finder "NewWindowTargetPath" -string "file:///Users/$US
 defaults write com.apple.finder "NSNavLastRootDirectory" -string "~/Downloads"
 defaults write com.apple.finder "SidebarZoneOrder1" -array "icloud_drive" favorites devices tags
 defaults write com.apple.finder "CreateDesktop" -bool NO
-defaults write com.apple.finder "_FXShowPosixPathInTitle" -bool YES
-defaults write com.apple.finder "_FXSortFoldersFirst" -bool YES 
-defaults write com.apple.finder "_FXSortFoldersFirstOnDesktop" -bool YES 
+# defaults write com.apple.finder "_FXShowPosixPathInTitle" -bool YES
+defaults write com.apple.finder "_FXSortFoldersFirst" -bool YES
+defaults write com.apple.finder "_FXSortFoldersFirstOnDesktop" -bool YES
 
 # Show the ~/Library folder
 chflags nohidden ~/Library
@@ -103,7 +103,6 @@ chflags nohidden ~/Library
 # Expand the following File Info panes:
 # “General”, “Open with”, and “Sharing & Permissions”
 defaults write com.apple.finder "FXInfoPanesExpanded" -dict \
-	General -bool true \
-	OpenWith -bool true \
-	Privileges -bool true
-
+  General -bool true \
+  OpenWith -bool true \
+  Privileges -bool true
