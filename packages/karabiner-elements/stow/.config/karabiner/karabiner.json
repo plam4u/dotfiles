@@ -2586,7 +2586,7 @@
           "type" : "basic"
         }, {
           "from" : {
-            "key_code" : "f16",
+            "key_code" : "f18",
             "modifiers" : {
               "mandatory" : [ "left_shift" ]
             }
@@ -2605,70 +2605,13 @@
           "type" : "basic"
         }, {
           "from" : {
-            "key_code" : "f17",
-            "modifiers" : {
-              "mandatory" : [ "left_shift" ]
-            }
-          },
-          "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.tinyspeck.slackmacgap"
-          } ],
-          "conditions" : [ {
-            "identifiers" : [ {
-              "vendor_id" : 17485,
-              "product_id" : 13622,
-              "is_keyboard" : true
-            } ],
-            "type" : "device_if"
-          } ],
-          "type" : "basic"
-        }, {
-          "from" : {
-            "key_code" : "f18",
-            "modifiers" : {
-              "mandatory" : [ "left_shift" ]
-            }
-          },
-          "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=company.thebrowser.Browser"
-          } ],
-          "conditions" : [ {
-            "identifiers" : [ {
-              "vendor_id" : 17485,
-              "product_id" : 13622,
-              "is_keyboard" : true
-            } ],
-            "type" : "device_if"
-          } ],
-          "type" : "basic"
-        }, {
-          "from" : {
             "key_code" : "f19",
             "modifiers" : {
               "mandatory" : [ "left_shift" ]
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.dt.Xcode"
-          } ],
-          "conditions" : [ {
-            "identifiers" : [ {
-              "vendor_id" : 17485,
-              "product_id" : 13622,
-              "is_keyboard" : true
-            } ],
-            "type" : "device_if"
-          } ],
-          "type" : "basic"
-        }, {
-          "from" : {
-            "key_code" : "f20",
-            "modifiers" : {
-              "mandatory" : [ "left_shift" ]
-            }
-          },
-          "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.Music"
+            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.brave.Browser"
           } ],
           "conditions" : [ {
             "identifiers" : [ {
@@ -2687,7 +2630,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-name?name=Notes"
+            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.Notes"
           } ],
           "conditions" : [ {
             "identifiers" : [ {
@@ -2706,7 +2649,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-name?name=Notes"
+            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.Notes"
           } ],
           "conditions" : [ {
             "identifiers" : [ {
@@ -2725,7 +2668,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-name?name=Notes"
+            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.Notes"
           } ],
           "conditions" : [ {
             "identifiers" : [ {
@@ -2744,7 +2687,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-name?name=Notes"
+            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.Notes"
           } ],
           "conditions" : [ {
             "identifiers" : [ {
@@ -2763,7 +2706,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-name?name=Notes"
+            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.Notes"
           } ],
           "conditions" : [ {
             "identifiers" : [ {
@@ -2782,7 +2725,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-name?name=Notes"
+            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.Notes"
           } ],
           "conditions" : [ {
             "identifiers" : [ {
@@ -2801,7 +2744,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-name?name=Notes"
+            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.Notes"
           } ],
           "conditions" : [ {
             "identifiers" : [ {
@@ -2820,7 +2763,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-name?name=Notes"
+            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.Notes"
           } ],
           "conditions" : [ {
             "identifiers" : [ {
@@ -2839,7 +2782,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-name?name=Notes"
+            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.Notes"
           } ],
           "conditions" : [ {
             "identifiers" : [ {
@@ -2858,7 +2801,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-name?name=Notes"
+            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.Notes"
           } ],
           "conditions" : [ {
             "identifiers" : [ {
@@ -2877,7 +2820,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-name?name=Calendar"
+            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.iCal"
           } ],
           "conditions" : [ {
             "identifiers" : [ {
@@ -2896,7 +2839,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-name?name=Calendar"
+            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.iCal"
           } ],
           "conditions" : [ {
             "identifiers" : [ {
@@ -2915,7 +2858,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-name?name=Calendar"
+            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.iCal"
           } ],
           "conditions" : [ {
             "identifiers" : [ {
@@ -2934,7 +2877,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-name?name=Calendar"
+            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.iCal"
           } ],
           "conditions" : [ {
             "identifiers" : [ {
@@ -2953,7 +2896,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-name?name=Calendar"
+            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.iCal"
           } ],
           "conditions" : [ {
             "identifiers" : [ {
@@ -2972,7 +2915,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-name?name=Calendar"
+            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.iCal"
           } ],
           "conditions" : [ {
             "identifiers" : [ {
@@ -2991,7 +2934,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-name?name=draw.io"
+            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.iCal"
           } ],
           "conditions" : [ {
             "identifiers" : [ {
@@ -3010,7 +2953,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.jetbrains.pycharm"
+            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.iCal"
           } ],
           "conditions" : [ {
             "identifiers" : [ {
@@ -3029,7 +2972,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-name?name=Calendar"
+            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.iCal"
           } ],
           "conditions" : [ {
             "identifiers" : [ {
@@ -3048,7 +2991,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-name?name=Calendar"
+            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.iCal"
           } ],
           "conditions" : [ {
             "identifiers" : [ {
@@ -3067,7 +3010,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-name?name=Calendar"
+            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.iCal"
           } ],
           "conditions" : [ {
             "identifiers" : [ {
@@ -3086,7 +3029,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-name?name=Calendar"
+            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.iCal"
           } ],
           "conditions" : [ {
             "identifiers" : [ {
@@ -3105,7 +3048,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-name?name=Calendar"
+            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.iCal"
           } ],
           "conditions" : [ {
             "identifiers" : [ {
@@ -3124,7 +3067,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-name?name=Calendar"
+            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.iCal"
           } ],
           "conditions" : [ {
             "identifiers" : [ {
@@ -3143,7 +3086,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-name?name=Calendar"
+            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.iCal"
           } ],
           "conditions" : [ {
             "identifiers" : [ {

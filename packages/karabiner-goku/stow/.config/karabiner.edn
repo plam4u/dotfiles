@@ -247,12 +247,17 @@
           [:!Sf15 [:toggle-id "com.apple.Safari"]]
 
           ;; ASDFG
-          [:!Sf16 [:toggle-id "md.obsidian"]]
-          [:!Sf17 [:toggle-id "com.tinyspeck.slackmacgap"]]
+          ;; !Sf16 - A, !Sf17 - S, !Sf18 - D, !Sf19 - F, !Sf20 - G
+
+          ; [:!Sf16 [:toggle-id "md.obsidian"]]
+          ; [:!Sf17 [:toggle-id "com.tinyspeck.slackmacgap"]]
+          ; [:!Sf17 [:toggle-id "com.brave.Browser"]]
           ; [:!Sf18 [:toggle-id "com.brave.Browser"]]
-          [:!Sf18 [:toggle-id "company.thebrowser.Browser"]]
-          [:!Sf19 [:toggle-id "com.apple.dt.Xcode"]]
-          [:!Sf20 [:toggle-id "com.apple.Music"]]
+          ; [:!Sf18 [:toggle-id "company.thebrowser.Browser"]]
+          [:!Sf18 [:toggle-id "md.obsidian"]]
+          ; [:!Sf19 [:toggle-id "com.apple.dt.Xcode"]]
+          [:!Sf19 [:toggle-id "com.brave.Browser"]]
+          ; [:!Sf20 [:toggle-id "com.apple.Music"]]
           
           ;; Lower Row (Modifiers)
            
@@ -260,42 +265,42 @@
           ;; LOWER4 (Left Thumb + Ring Row 5) 
           ;; ========================
           ;; Upper Row (B)
-          [:!Of11 [:toggle-nm "Notes"]]
-          [:!Of12 [:toggle-nm "Notes"]]
-          [:!Of13 [:toggle-nm "Notes"]]
-          [:!Of14 [:toggle-nm "Notes"]]
-          [:!Of15 [:toggle-nm "Notes"]]
+          [:!Of11 [:toggle-id "com.apple.Notes"]]
+          [:!Of12 [:toggle-id "com.apple.Notes"]]
+          [:!Of13 [:toggle-id "com.apple.Notes"]]
+          [:!Of14 [:toggle-id "com.apple.Notes"]]
+          [:!Of15 [:toggle-id "com.apple.Notes"]]
 
           ;; Home Row (B)
-          [:!Of16 [:toggle-nm "Notes"]]
-          [:!Of17 [:toggle-nm "Notes"]]
-          [:!Of18 [:toggle-nm "Notes"]]
-          [:!Of19 [:toggle-nm "Notes"]]
-          [:!Of20 [:toggle-nm "Notes"]]
+          [:!Of16 [:toggle-id "com.apple.Notes"]]
+          [:!Of17 [:toggle-id "com.apple.Notes"]]
+          [:!Of18 [:toggle-id "com.apple.Notes"]]
+          [:!Of19 [:toggle-id "com.apple.Notes"]]
+          [:!Of20 [:toggle-id "com.apple.Notes"]]
           
           ;; Lower Row 3 (Modifiers)
 
           ;; RIGHT SIDE
           ;; Upper Row (C)
-          [:!Tf11 [:toggle-nm "Calendar"]]
-          [:!Tf12 [:toggle-nm "Calendar"]]
-          [:!Tf13 [:toggle-nm "Calendar"]]
-          [:!Tf14 [:toggle-nm "Calendar"]]
-          [:!Tf15 [:toggle-nm "Calendar"]]
+          [:!Tf11 [:toggle-id "com.apple.iCal"]]
+          [:!Tf12 [:toggle-id "com.apple.iCal"]]
+          [:!Tf13 [:toggle-id "com.apple.iCal"]]
+          [:!Tf14 [:toggle-id "com.apple.iCal"]]
+          [:!Tf15 [:toggle-id "com.apple.iCal"]]
 
           ;; Home Row (C)
-          [:!Tf16 [:toggle-nm "Calendar"]]
-          [:!Tf17 [:toggle-nm "draw.io"]]
-          [:!Tf18 [:toggle-id "com.jetbrains.pycharm"]]
-          [:!Tf19 [:toggle-nm "Calendar"]]
-          [:!Tf20 [:toggle-nm "Calendar"]]
+          [:!Tf16 [:toggle-id "com.apple.iCal"]]
+          [:!Tf17 [:toggle-id "com.apple.iCal"]]
+          [:!Tf18 [:toggle-id "com.apple.iCal"]]
+          [:!Tf19 [:toggle-id "com.apple.iCal"]]
+          [:!Tf20 [:toggle-id "com.apple.iCal"]]
           
           ;; Lower Row (C)
-          [:!Tf21 [:toggle-nm "Calendar"]]
-          [:!Tf22 [:toggle-nm "Calendar"]]
-          [:!Tf23 [:toggle-nm "Calendar"]]
-          [:!Tf24 [:toggle-nm "Calendar"]]
-          [:!Of21 [:toggle-nm "Calendar"]]
+          [:!Tf21 [:toggle-id "com.apple.iCal"]]
+          [:!Tf22 [:toggle-id "com.apple.iCal"]]
+          [:!Tf23 [:toggle-id "com.apple.iCal"]]
+          [:!Tf24 [:toggle-id "com.apple.iCal"]]
+          [:!Of21 [:toggle-id "com.apple.iCal"]]
           ]}
 
         {:des "Apple Internal Keyboard" :rules [:!dm-kb
