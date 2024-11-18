@@ -230,7 +230,12 @@
           [:##p [:toggle-id "com.apple.podcasts"]]
           ]}
         
+        {:des "Dactyl Manuform Mouse" :rules [:dm-ms
+          [{:pkey :button5} [:w]]
+        ]}
+
         {:des "Dactyl Manuform Keyboard" :rules [:dm-kb
+
           ;; mirror "mash + u/i/o" to the left hand
           [:!TOSw [:!TOSu]]
           [:!TOSe [:!TOSi]]

@@ -2421,6 +2421,25 @@
           }
         } ]
       }, {
+        "description" : "Dactyl Manuform Mouse",
+        "manipulators" : [ {
+          "from" : {
+            "pointing_button" : "button5"
+          },
+          "to" : [ {
+            "key_code" : "w"
+          } ],
+          "conditions" : [ {
+            "identifiers" : [ {
+              "vendor_id" : 17485,
+              "product_id" : 13622,
+              "is_pointing_device" : true
+            } ],
+            "type" : "device_if"
+          } ],
+          "type" : "basic"
+        } ]
+      }, {
         "description" : "Dactyl Manuform Keyboard",
         "manipulators" : [ {
           "from" : {
