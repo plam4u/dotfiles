@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<root>
+  <appdef>
+    <appname>UNKNOWN</appname>
+    <equal>com.valvesoftware.dota2</equal>
+    <item>
+      <name>Disable all settings while playing Dota 2</name>
+      <identifier>private.ignore_dota_2</identifier>
+      <only>UNKNOWN</only>
+      <autogen>__PassThrough__</autogen>
+    </item>
+  </appdef>
+</root>

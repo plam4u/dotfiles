@@ -231,7 +231,7 @@
           ]}
         
         {:des "Dactyl Manuform Mouse" :rules [:dm-ms
-          [{:pkey :button5} [:w]]
+          [{:pkey :button10} :!CS4]
         ]}
 
         {:des "Dactyl Manuform Keyboard" :rules [:dm-kb
@@ -270,11 +270,11 @@
           ;; LOWER4 (Left Thumb + Ring Row 5) 
           ;; ========================
           ;; Upper Row (B)
-          [:!Of11 [:toggle-id "com.apple.Notes"]]
-          [:!Of12 [:toggle-id "com.apple.Notes"]]
-          [:!Of13 [:toggle-id "com.apple.Notes"]]
-          [:!Of14 [:toggle-id "com.apple.Notes"]]
-          [:!Of15 [:toggle-id "com.apple.Notes"]]
+          ; [:!Of11 [:toggle-id "com.apple.Notes"]]
+          ; [:!Of12 [:toggle-id "com.apple.Notes"]]
+          ; [:!Of13 [:toggle-id "com.apple.Notes"]]
+          ; [:!Of14 [:toggle-id "com.apple.Notes"]]
+          ; [:!Of15 [:toggle-id "com.apple.Notes"]]
 
           ;; Home Row (B)
           [:!Of16 [:toggle-id "com.apple.Notes"]]
@@ -287,25 +287,25 @@
 
           ;; RIGHT SIDE
           ;; Upper Row (C)
-          [:!Tf11 [:toggle-id "com.apple.iCal"]]
-          [:!Tf12 [:toggle-id "com.apple.iCal"]]
-          [:!Tf13 [:toggle-id "com.apple.iCal"]]
-          [:!Tf14 [:toggle-id "com.apple.iCal"]]
-          [:!Tf15 [:toggle-id "com.apple.iCal"]]
+          ; [:!Tf11 [:toggle-id "com.apple.iCal"]]
+          ; [:!Tf12 [:toggle-id "com.apple.iCal"]]
+          ; [:!Tf13 [:toggle-id "com.apple.iCal"]]
+          ; [:!Tf14 [:toggle-id "com.apple.iCal"]]
+          ; [:!Tf15 [:toggle-id "com.apple.iCal"]]
 
           ;; Home Row (C)
-          [:!Tf16 [:toggle-id "com.apple.iCal"]]
-          [:!Tf17 [:toggle-id "com.apple.iCal"]]
-          [:!Tf18 [:toggle-id "com.apple.iCal"]]
-          [:!Tf19 [:toggle-id "com.apple.iCal"]]
-          [:!Tf20 [:toggle-id "com.apple.iCal"]]
+          ; [:!Tf16 [:toggle-id "com.apple.iCal"]]
+          ; [:!Tf17 [:toggle-id "com.apple.iCal"]]
+          ; [:!Tf18 [:toggle-id "com.apple.iCal"]]
+          ; [:!Tf19 [:toggle-id "com.apple.iCal"]]
+          ; [:!Tf20 [:toggle-id "com.apple.iCal"]]
           
           ;; Lower Row (C)
-          [:!Tf21 [:toggle-id "com.apple.iCal"]]
-          [:!Tf22 [:toggle-id "com.apple.iCal"]]
-          [:!Tf23 [:toggle-id "com.apple.iCal"]]
-          [:!Tf24 [:toggle-id "com.apple.iCal"]]
-          [:!Of21 [:toggle-id "com.apple.iCal"]]
+          ; [:!Tf21 [:toggle-id "com.apple.iCal"]]
+          ; [:!Tf22 [:toggle-id "com.apple.iCal"]]
+          ; [:!Tf23 [:toggle-id "com.apple.iCal"]]
+          ; [:!Tf24 [:toggle-id "com.apple.iCal"]]
+          ; [:!Of21 [:toggle-id "com.apple.iCal"]]
           ]}
 
         {:des "Apple Internal Keyboard" :rules [:!dm-kb
