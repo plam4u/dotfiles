@@ -1,21 +1,102 @@
 let mapleader = ' '
 
 set number relativenumber
-set easymotion
-set surround
-set multiple-cursors
-set commentary
-set ReplaceWithRegister
-set textobj-entire
-set argtextobj
-set exchange
 set ideajoin
 set scrolloff=4
 set smartcase
 
+nmap <S-Down> :action EditorCloneCaretBelow<CR>
+nmap <S-Up> :action EditorCloneCaretAbove<CR>
+
+" first, install IDE plugin
+set which-key
+
+Plug 'justinmk/vim-sneak'
+" Instructions
+" Type s and two chars to start sneaking in forward direction
+" Type S and two chars to start sneaking in backward direction
+" Type ; or , to proceed with sneaking just as if you were using f or t commands
+
+Plug 'preservim/nerdtree'
+nmap <leader>e :NERDTreeToggle<CR>
+" :NERDTree
+" :NERDTreeFocus
+" :NERDTreeToggle
+" :NERDTreeClose
+" :NERDTreeFind
+" :NERDTreeRefreshRoot
+
+Plug '<plugin-github-reference>'
+" enables plugins
+
+Plug 'tpope/vim-commentary'
+" set commentary
+
+Plug 'vim-scripts/ReplaceWithRegister'
+" set ReplaceWithRegister
+
+set textobj-entire
+
+set argtextobj
+
+set exchange
+
+Plug 'easymotion/vim-easymotion'
+" set easymotion
+
+Plug 'tpope/vim-surround'
+" set surround
+
+Plug 'terryma/vim-multiple-cursors'
+" set multiple-cursors
+
+" Remap multiple-cursors shortcuts to match terryma/vim-multiple-cursors
+nmap <C-n> <Plug>NextWholeOccurrence
+xmap <C-n> <Plug>NextWholeOccurrence
+nmap g<C-n> <Plug>NextOccurrence
+xmap g<C-n> <Plug>NextOccurrence
+xmap <C-x> <Plug>SkipOccurrence
+xmap <C-p> <Plug>RemoveOccurrence
+
+" Note that the default <A-n> and g<A-n> shortcuts don't work on Mac due to dead keys.
+" <A-n> is used to enter accented text e.g. ñ
+" Feel free to pick your own mappings that are not affected. I like to use <leader>
+nmap <leader><C-n> <Plug>AllWholeOccurrences
+xmap <leader><C-n> <Plug>AllWholeOccurrences
+nmap <leader>g<C-n> <Plug>AllOccurrences
+xmap <leader>g<C-n> <Plug>AllOccurrences
+
+" START AceJump
 " Press `f` to activate AceJump
 " map f <Action>(AceAction)
 " Press `F` to activate Target Mode
 " map F <Action>(AceTargetAction)
 " Press `g` to activate Line Mode
 " map g <Action>(AceLineAction)
+" END AceJump
+
+Plug 'machakann/vim-highlightedyank'
+" By KostkaBrukowa
+" Original plugin: vim-highlightedyank.
+
+" Setup:
+" Add the following command to ~/.ideavimrc: Plug 'machakann/vim-highlightedyank'
+" Alternative syntax
+" Instructions
+" If you want to optimize highlight duration, assign a time in milliseconds:
+"
+"   let g:highlightedyank_highlight_duration = "1000"
+"
+" A negative number makes the highlight persistent.
+" 
+" If you want to change background color of highlight you can provide the rgba of the color you want e.g.
+"
+"   let g:highlightedyank_highlight_color = "rgba(160, 160, 160, 155)"
+" 
+" If you want to change text color of highlight you can provide the rgba of the color you want e.g.
+"
+"   let g:highlightedyank_highlight_foreground_color = "rgba(0, 0, 0, 255)"
+" 
+" https://github.com/machakann/vim-highlightedyank/blob/master/doc/highlightedyank.txt
+
+
