@@ -27,41 +27,68 @@ add() {
 }
 
 add_package() {
-    package=$1
+    local package="$1"
+    if [[ -z "$package" ]]; then
+        echo "Usage: add_package <package-name>"
+        return 1
+    fi
+
     echo "Adding $package..."
+    local base_dir
+    base_dir=$(pwd)
+    local TEMP_DIR
     TEMP_DIR=$(mktemp -d)
-    cp -R "templates/package-name" "$TEMP_DIR"
 
-    ( # cd and work inside TEMP_DIR
-    cd $TEMP_DIR
+    # Copy the template using an absolute path.
+    cp -R "$base_dir/templates/package-name" "$TEMP_DIR"
 
-    function has_more_directories {
-        find . -depth -type d -name "*package-name*" | grep -q "package-name"
-    }
+    (
+        # Work inside the copied template.
+        cd "$TEMP_DIR/package-name" || {
+            echo "Failed to cd into template copy"
+            exit 1
+        }
 
-    # rename folders
-    while has_more_directories; do
-        find . -depth -type d -name "*package-name*" | while read -r name; do
-            new_name=$(echo "$name" | sed "s/package-name/$package/g")
-            [[ ! -d $(dirname $new_name) ]] && mkdir -p $(dirname $new_name)
-            mv "$name" "$new_name"
+        # --- Phase 1: Rename internal directories ---
+        # Loop until no directories containing "package-name" remain.
+        while find . -depth -type d -name "*package-name*" | grep -q .; do
+            find . -depth -type d -name "*package-name*" | while IFS= read -r dir; do
+                new_dir=$(echo "$dir" | sed "s/package-name/${package}/g")
+                mkdir -p "$(dirname "$new_dir")"
+                # If the destination already exists, remove it to avoid merging.
+                if [ -e "$new_dir" ]; then
+                    rm -rf "$new_dir"
+                fi
+                mv "$dir" "$new_dir"
+            done
         done
-    done
 
-    # rename files
-    find . -type f -name "*package-name*" | while read name; do
-        new_name=$(echo "$name" | sed "s/package-name/$package/g")
-        mv "$name" "$new_name"
-    done
+        # --- Phase 2: Rename files ---
+        find . -type f -name "*package-name*" | while IFS= read -r file; do
+            new_file=$(echo "$file" | sed "s/package-name/${package}/g")
+            mkdir -p "$(dirname "$new_file")"
+            mv "$file" "$new_file"
+        done
 
-    # rename contents
-    find . -type f -name "*.*" -exec sed -i '' "s/package-name/$package/g" {} +
-
-    # exiting subshell scope
+        # --- Phase 3: Update file contents ---
+        # (On GNU/Linux, you might need: sed -i "s/package-name/${package}/g" instead.)
+        find . -type f -exec sed -i '' "s/package-name/${package}/g" {} +
     )
 
-    cp -R "$TEMP_DIR/$package" "packages"
-    # echo $TEMP_DIR
+    # --- Phase 4: Rename the top-level folder ---
+    cd "$TEMP_DIR" || {
+        echo "Failed to cd to TEMP_DIR"
+        return 1
+    }
+    mv "package-name" "$package"
+
+    # --- Phase 5: Copy the finished package into the packages folder ---
+    mkdir -p "$base_dir/packages"
+    cp -R "$TEMP_DIR/$package" "$base_dir/packages/"
+
+    rm -rf "$TEMP_DIR"
+
+    echo "Package '$package' created successfully in $base_dir/packages."
 }
 
 install() {
@@ -81,15 +108,15 @@ install_package() {
     package=$1
     echo "Installing $package..."
     # return
-    
+
     if brew list "$package" &>/dev/null && [[ ! $FORCE -eq 1 ]]; then
         echo "$package is already installed!"
 
     elif [[ -d "packages/$package" ]]; then
-    (
-        cd "packages/$package"
-        install_package_steps $package
-    )
+        (
+            cd "packages/$package"
+            install_package_steps $package
+        )
     else
         brew install "$package"
     fi
@@ -105,7 +132,10 @@ install_package_steps() {
     fi
     if [[ -d "stow" ]]; then
         echo "Running stow..."
-        ( cd stow; stow . )
+        (
+            cd stow
+            stow .
+        )
     fi
     if [[ -d "macos-defaults" ]]; then
         shopt -s nullglob # expand to an empty list if dir not exists
@@ -137,12 +167,12 @@ uninstall_package() {
     package=$1
     echo "Uninstalling $package..."
     # return
-    
+
     if [[ -d "packages/$package" ]]; then
-    (
-        cd "packages/$package"
-        uninstall_package_steps $package
-    )
+        (
+            cd "packages/$package"
+            uninstall_package_steps $package
+        )
     else
         brew uninstall "$package"
     fi
@@ -158,7 +188,10 @@ uninstall_package_steps() {
     fi
     if [[ -d "stow" ]]; then
         echo "Running stow --delete..."
-        ( cd stow; stow --delete . )
+        (
+            cd stow
+            stow --delete .
+        )
     fi
 }
 
@@ -173,13 +206,13 @@ stow_package() {
 
     if [[ -d "packages/$package" ]]; then
         (
-        cd "packages/$package"
-        if [[ -d "stow" ]]; then
-            echo "Running $package/stow..."
-            cd stow; 
-            stow .
-        fi
-    )
+            cd "packages/$package"
+            if [[ -d "stow" ]]; then
+                echo "Running $package/stow..."
+                cd stow
+                stow .
+            fi
+        )
     fi
 }
 
@@ -194,43 +227,42 @@ scripts_package() {
 
     if [[ -d "packages/$package" ]]; then
         (
-        cd "packages/$package"
-        if [[ -d "scripts" ]]; then
-            shopt -s nullglob # expand to an empty list if dir not exists
-            for script in scripts/*.sh; do
-                echo "Running $package/$script..."
-                source "$script"
-            done
-            shopt -u nullglob
-        fi
-    )
+            cd "packages/$package"
+            if [[ -d "scripts" ]]; then
+                shopt -s nullglob # expand to an empty list if dir not exists
+                for script in scripts/*.sh; do
+                    echo "Running $package/$script..."
+                    source "$script"
+                done
+                shopt -u nullglob
+            fi
+        )
     fi
 }
 
 case "$1" in
-    a | add)
-        shift
-        add "$@"
-        ;;
-    i | install)
-        shift
-        install "$@"
-        ;;
-    u | uninstall)
-        shift
-        uninstall "$@"
-        ;;
-    s | stow)
-        shift
-        stow_ "$@"
-        ;;
-    S | scripts)
-        shift
-        scripts_ "$@"
-        ;;
-    *)
-        echo "Unknown subcommand: $1"
-        show_help
-        ;;
+a | add)
+    shift
+    add "$@"
+    ;;
+i | install)
+    shift
+    install "$@"
+    ;;
+u | uninstall)
+    shift
+    uninstall "$@"
+    ;;
+s | stow)
+    shift
+    stow_ "$@"
+    ;;
+S | scripts)
+    shift
+    scripts_ "$@"
+    ;;
+*)
+    echo "Unknown subcommand: $1"
+    show_help
+    ;;
 esac
-
