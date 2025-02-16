@@ -86,6 +86,7 @@ Plug 'machakann/vim-highlightedyank'
 " If you want to optimize highlight duration, assign a time in milliseconds:
 "
 "   let g:highlightedyank_highlight_duration = "1000"
+let g:highlightedyank_highlight_duration = "50"
 "
 " A negative number makes the highlight persistent.
 " 
