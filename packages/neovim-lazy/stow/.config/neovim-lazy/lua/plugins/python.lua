@@ -1,6 +1,53 @@
 local icons = LazyVim.config.icons
 
 return {
+  { "theHamsta/nvim-dap-virtual-text", enabled = false },
+  {
+    "mfussenegger/nvim-dap",
+    keys = {
+      {
+        "<leader>dd",
+        function()
+          local dap = require("dap")
+          local lines =
+            vim.fn.getregion(vim.fn.getpos("."), vim.fn.getpos("v"), { type = vim.api.nvim_get_mode().mode })
+          dap.repl.open()
+          dap.repl.execute(table.concat(lines, "\n"))
+        end,
+        desc = "Execute selection",
+        mode = "x",
+      },
+      {
+        "<leader>dR",
+        function()
+          require("dap").repl.execute(".clear")
+        end,
+        desc = "Clear REPL",
+      },
+    },
+  },
+  {
+    "rcarriga/nvim-dap-ui",
+    opts = function(_, _)
+      local dap = require("dap")
+      dap.listeners.after.event_initialized["dapui_config"] = function() end
+    end,
+
+    config = function(_, opts)
+      local dap = require("dap")
+      local dapui = require("dapui")
+      dapui.setup(opts)
+      dap.listeners.after.event_initialized["dapui_config"] = function()
+        -- dapui.open({})
+      end
+      dap.listeners.before.event_terminated["dapui_config"] = function()
+        dapui.close({})
+      end
+      dap.listeners.before.event_exited["dapui_config"] = function()
+        dapui.close({})
+      end
+    end,
+  },
   {
     "nvim-lualine/lualine.nvim",
     opts = {
