@@ -1106,6 +1106,8 @@ Copy Mode</string>
 					<integer>2</integer>
 				</dict>
 			</dict>
+			<key>Left Command Key</key>
+			<integer>2</integer>
 			<key>Left Control Key</key>
 			<integer>0</integer>
 			<key>Link Color</key>
