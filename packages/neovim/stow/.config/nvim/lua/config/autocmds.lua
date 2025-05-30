@@ -10,11 +10,6 @@ end
 vim.api.nvim_create_autocmd("VimEnter", {
   callback = function()
     require("persistence").load()
-    for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-      if vim.fn.bufname(buf) == "" then
-        vim.api.nvim_buf_delete(buf, { force = true })
-      end
-    end
   end,
 })
 -- delete empty buffers after session restoration
