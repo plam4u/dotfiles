@@ -4,6 +4,7 @@ return {
   version = false, -- Never set this value to "*"! Never!
   opts = {
     provider = "copilot",
+    auto_suggestions_provider = "copilot",
     -- provider = "openai",
     -- openai = {
     --   endpoint = "https://api.openai.com/v1",
