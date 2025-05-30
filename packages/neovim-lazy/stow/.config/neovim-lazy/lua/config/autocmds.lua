@@ -12,6 +12,17 @@ vim.api.nvim_create_autocmd("VimEnter", {
     require("persistence").load()
   end,
 })
+-- delete empty buffers after session restoration
+vim.api.nvim_create_autocmd("User", {
+  pattern = "SessionLoadPost",
+  callback = function()
+    for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+      if vim.fn.bufname(buf) == "" then
+        vim.api.nvim_buf_delete(buf, { force = true })
+      end
+    end
+  end,
+})
 
 -- load local lua settings (e.g. config a python debugger)
 vim.api.nvim_create_autocmd("VimEnter", {
