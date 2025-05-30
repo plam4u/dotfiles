@@ -4,3 +4,4 @@
 
 vim.g.snacks_animate = false
 vim.opt.spell = false
+vim.g.ai_cmp = true
