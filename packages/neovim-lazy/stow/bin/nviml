@@ -1,0 +1,2 @@
+#!/usr/bin/env zsh
+NVIM_APPNAME=neovim-lazy nvim "$@"
