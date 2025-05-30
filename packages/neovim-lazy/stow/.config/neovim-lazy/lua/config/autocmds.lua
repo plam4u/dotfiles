@@ -6,6 +6,13 @@ local function augroup(name)
   return vim.api.nvim_create_augroup("lazyvim_" .. name, { clear = true })
 end
 
+-- restore last session for current directory
+vim.api.nvim_create_autocmd("VimEnter", {
+  callback = function()
+    require("persistence").load()
+  end,
+})
+
 -- load local lua settings (e.g. config a python debugger)
 vim.api.nvim_create_autocmd("VimEnter", {
   callback = function()
