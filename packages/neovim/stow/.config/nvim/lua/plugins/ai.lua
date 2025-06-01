@@ -3,20 +3,133 @@ if true then
     {
       "olimorris/codecompanion.nvim",
       lazy = true,
-      opts = {},
-      dependencies = {
-        "nvim-lua/plenary.nvim",
-        "nvim-treesitter/nvim-treesitter",
-        "ravitemer/mcphub.nvim",
+      opts = {
+        workspace = {
+          root = vim.fn.getcwd(), -- or use a project-detecting function
+        },
+        extensions = {
+          history = {
+            enabled = true,
+            opts = {
+              keymap = "gh",
+              save_chat_keymap = "sc",
+              auto_save = false,
+              auto_generate_title = true,
+              continue_last_chat = false,
+              delete_on_clearing_chat = false,
+              picker = "snacks",
+              enable_logging = false,
+              dir_to_save = vim.fn.stdpath("data") .. "/codecompanion-history",
+            },
+          },
+          mcphub = {
+            callback = "mcphub.extensions.codecompanion",
+            opts = {
+              make_vars = true,
+              make_slash_commands = true,
+              show_result_in_chat = true,
+            },
+          },
+          vectorcode = {
+            opts = {
+              add_tool = true,
+            },
+          },
+        },
+        strategies = {
+          chat = {
+            adapter = {
+              name = "copilot",
+              model = "claude-sonnet-4",
+            },
+            roles = {
+              user = "plam4u",
+            },
+            keymaps = {
+              send = {
+                modes = {
+                  i = { "<C-CR>", "<C-s>" },
+                },
+              },
+              completion = {
+                modes = {
+                  i = "<C-x>",
+                },
+              },
+            },
+            slash_commands = {
+              ["buffer"] = {
+                keymaps = {
+                  modes = {
+                    i = "<C-b>",
+                  },
+                },
+              },
+              ["fetch"] = {
+                keymaps = {
+                  modes = {
+                    i = "<C-f>",
+                  },
+                },
+              },
+              ["help"] = {
+                opts = {
+                  max_lines = 1000,
+                },
+              },
+              ["image"] = {
+                keymaps = {
+                  modes = {
+                    i = "<C-i>",
+                  },
+                },
+                opts = {
+                  dirs = { "~/Documents/Screenshots" },
+                },
+              },
+            },
+          },
+          inline = {
+            adapter = {
+              name = "copilot",
+              model = "gpt-4.1",
+            },
+          },
+        },
+        display = {
+          action_palette = {
+            provider = "default",
+          },
+          chat = {
+            -- show_references = true,
+            -- show_header_separator = false,
+            -- show_settings = false,
+          },
+          diff = {
+            provider = "mini_diff",
+          },
+        },
+        opts = {
+          log_level = "DEBUG",
+        },
       },
-    },
-    {
-      "olimorris/codecompanion.nvim",
-      opts = {},
       dependencies = {
         "nvim-lua/plenary.nvim",
         "nvim-treesitter/nvim-treesitter",
-        "ravitemer/mcphub.nvim",
+        "j-hui/fidget.nvim", -- Display status
+        "ravitemer/codecompanion-history.nvim", -- Save and load conversation history
+        {
+          "ravitemer/mcphub.nvim", -- Manage MCP servers
+          cmd = "MCPHub",
+          build = "npm install -g mcp-hub@latest",
+          config = true,
+        },
+        -- {
+        --   "Davidyz/VectorCode", -- Index and search code in your repositories
+        --   version = "*",
+        --   build = "pipx upgrade vectorcode",
+        --   dependencies = { "nvim-lua/plenary.nvim" },
+        -- },
       },
       keys = {
         -- General
@@ -94,6 +207,7 @@ I'm sharing my `README.md` and `TODO.md` with you.
             },
           },
         })
+        require("plugins.custom.spinner"):init()
       end,
     },
     {
