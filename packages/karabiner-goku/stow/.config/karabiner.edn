@@ -134,39 +134,41 @@
           ]}
 
         {:des "Tab mode" :rules [:tab-mode
-          ;; Hide
-          [:##g [:!TOSg]]
-          ;; fullscreen
-          [:##spacebar [:!TOSspacebar]]
-          ;; move to next window
-          [:##left_command [:!TOSslash]]
-          ;; center window
-          [:##t [:!TOSt]]
 
-          ;; Obsidian app 
-          [:##e [:toggle-id "md.obsidian"]]
+          ;; Row 1 (F-keys)
+          ;;
+          ;; Row 2 (Numbers)
+          ;;
+          ;; Row 3 (Tab, Q, W, E, R, T, Y, U, I, O, P)
+          [:##e [:toggle-id "REPLACE_ME"]]
+          [:##r [:toggle-id "com.apple.reminders"]]
+          [:##t [:toggle-id "ru.keepcoder.Telegram"]]
+          [:##y [:toggle-id "com.brave.Browser.app.agimnkijcaahngcdmfeangaknmldooml"]] ; YouTube
+          [:##u [:toggle-id "com.apple.Music"]]
+          [:##i [:toggle-id "REPLACE_ME"]]
+          [:##o [:toggle-id "md.obsidian"]]
+          [:##p [:toggle-id "com.apple.Preview"]]
+
+          ;; Row 4 (Capslock, A, S, D, F, G, H, J, K, L, Semicolon)
           [:##f [:toggle-id "com.apple.finder"]]
+          [:##g [:toggle-id "com.brave.Browser.app.mnhkaebcjjhencmpkapnbdaogjamfbcj"]] ;; Google Maps
+          [:##h [:!TOSg]] ;; Hide App
+          [:##j [:toggle-id "REPLACE_ME"]]
+          [:##k [:toggle-id "com.brave.Browser"]]
+          [:##l [:toggle-id "REPLACE_ME"]]
+          [:##semicolon [:toggle-id "REPLACE_ME"]]
 
-          ;; Upper Row
-          [:##y [:toggle-id "WhatsApp"]]
-          [:##u [:toggle-id "com.apple.dt.Xcode"]]
-          [:##i [:toggle-id "com.apple.iphonesimulator"]]
-          [:##o [:toggle-id "com.figma.Desktop"]]
+          ;; Row 5 (Shift, Z, X, C, V, B, N, M, Comma, Period)
+          [:##c [:toggle-id "com.apple.iCal"]]
+          [:##v [:toggle-id "REPLACE_ME"]]
+          [:##b [:toggle-id "REPLACE_ME"]]
+          [:##n [:toggle-id "com.apple.Notes"]]
+          [:##m [:toggle-id "com.apple.mail"]]
 
-          ;; Home Row
-          ; [:##g [:toggle-id "WhatsApp"]]
-          [:##h [:toggle-id "company.thebrowser.Browser"]]
-          [:##j [:toggle-id "ru.keepcoder.Telegram"]]
-          [:##k [:toggle-id "com.tinyspeck.slackmacgap"]]
-          [:##l [:toggle-id "com.apple.Music"]]
+          ;; Row 6 - (Fn, Ctrl, Option, Command, Space, Command, Option, Arrows)
+          [:##left_command [:!TOSslash]] ;; move window to next screen
+          [:##spacebar [:!TOSspacebar]] ;; fullscreen
 
-          ;; Lower Row
-          [:##v [:toggle-id "com.apple.mail"]]
-          ; [:##b [:toggle-id "com.brave.Browser"]]
-          [:##b [:toggle-id "com.apple.Notes"]]
-          ; [:##n [:toggle-id "com.apple.Safari"]]
-          [:##n [:toggle-id "com.apple.reminders"]]
-          [:##m [:toggle-id "com.apple.iCal"]]
           ]}
 
         {:des "Semicolon mode" :rules [:semicolon-mode
