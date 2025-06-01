@@ -1,3 +1,21 @@
+-- return {
+--   {
+--     "olimorris/codecompanion.nvim",
+--     opts = {},
+--     dependencies = {
+--       "nvim-lua/plenary.nvim",
+--       "nvim-treesitter/nvim-treesitter",
+--     },
+--   },
+--   -- MCP Hub
+--   {
+--     "olimorris/codecompanion.nvim",
+--     dependencies = {
+--       "ravitemer/mcphub.nvim",
+--     },
+--   },
+-- }
+
 return {
   "yetone/avante.nvim",
   event = "VeryLazy",
