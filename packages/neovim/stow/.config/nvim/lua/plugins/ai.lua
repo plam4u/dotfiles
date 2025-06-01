@@ -110,7 +110,8 @@ return {
           -- show_settings = false,
         },
         diff = {
-          provider = "mini_diff",
+          provider = "default",
+          -- provider = "mini_diff",
         },
       },
       opts = {
@@ -127,8 +128,7 @@ return {
         cmd = "MCPHub",
         build = "npm install -g mcp-hub@latest",
         config = true,
-      },
-      {
+        {},
         "Davidyz/VectorCode", -- Index and search code in your repositories
         version = "*",
         build = "pipx upgrade vectorcode",
@@ -273,16 +273,16 @@ I'm sharing my `README.md` and `TODO.md` with you.
       },
     },
   },
-  {
-    "echasnovski/mini.diff",
-    config = function()
-      local diff = require("mini.diff")
-      diff.setup({
-        -- Disabled by default
-        source = diff.gen_source.none(),
-      })
-    end,
-  },
+  -- {
+  --   "echasnovski/mini.diff",
+  --   config = function()
+  --     local diff = require("mini.diff")
+  --     diff.setup({
+  --       -- Disabled by default
+  --       source = diff.gen_source.none(),
+  --     })
+  --   end,
+  -- },
   {
     "HakonHarnes/img-clip.nvim",
     opts = {
