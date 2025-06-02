@@ -1,8 +1,9 @@
-mash = {"shift", "ctrl", "alt"}
-mash2 = {"shift", "ctrl", "alt", "cmd"}
+mash = { "shift", "ctrl", "alt" }
+mash2 = { "shift", "ctrl", "alt", "cmd" }
 
-require "apps"
-require "grid"
+require("apps")
+require("grid")
+require("caffeine")
 
 -- hs.loadSpoon("ArrangeDesktop")
 -- spoon.bindHotkeysToSpec(def, mapping)
