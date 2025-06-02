@@ -24,6 +24,47 @@ return {
         end,
         desc = "Clear REPL",
       },
+      {
+        "<leader>d1",
+        function()
+          local dap = require("dap")
+          dap.run(dap.configurations.python[1])
+        end,
+        desc = "Run Config 1",
+      },
+      {
+        "<leader>d2",
+        function()
+          local dap = require("dap")
+          dap.run(dap.configurations.python[2])
+        end,
+        desc = "Run Config 2",
+      },
+      {
+        "<leader>d3",
+        function()
+          local dap = require("dap")
+          dap.run(dap.configurations.python[3])
+        end,
+        desc = "Run Config 3",
+      },
+      {
+        "<leader>d4",
+        function()
+          local dap = require("dap")
+          dap.run(dap.configurations.python[4])
+        end,
+        desc = "Run Config 4",
+      },
+      {
+        "<leader>d5",
+        function()
+          local dap = require("dap")
+          dap.run(dap.configurations.python[5])
+        end,
+        desc = "Run Config 5",
+      },
+      { "<leader>dL", ":luafile %<cr>", desc = "Reload Launch File" },
     },
   },
   {

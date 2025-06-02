@@ -179,7 +179,7 @@ return {
       { "<leader>in", "<cmd>CodeCompanionChat<cr>", mode = { "n", "v" }, desc = "New Chat (CodeCompanion)" },
       { "<leader>ia", "<cmd>CodeCompanionChat Toggle<cr>", mode = { "n", "v" }, desc = "Toggle (CodeCompanion)" },
       {
-        "gs",
+        "gd",
         "<cmd>CodeCompanionChat Add<cr><esc>:wincmd l<cr>",
         mode = { "v" },
         desc = "Add Selection to Chat (CodeCompanion)",
