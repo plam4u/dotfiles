@@ -29,13 +29,13 @@ return {
             show_result_in_chat = true,
           },
         },
-        vectorcode = {
-          opts = {
-            add_tool = true,
-            add_slash_command = true,
-            tool_opts = {},
-          },
-        },
+        -- vectorcode = {
+        --   opts = {
+        --     add_tool = true,
+        --     add_slash_command = true,
+        --     tool_opts = {},
+        --   },
+        -- },
       },
       strategies = {
         chat = {
@@ -128,47 +128,48 @@ return {
         cmd = "MCPHub",
         build = "npm install -g mcp-hub@latest",
         config = true,
-        {},
-        "Davidyz/VectorCode", -- Index and search code in your repositories
-        version = "*",
-        build = "pipx upgrade vectorcode",
-        dependencies = { "nvim-lua/plenary.nvim" },
-        config = function()
-          require("vectorcode").setup({
-            async_opts = {
-              debounce = 10,
-              events = { "BufWritePost", "InsertEnter", "BufReadPost" },
-              exclude_this = true,
-              n_query = 1,
-              notify = false,
-              query_cb = require("vectorcode.utils").make_surrounding_lines_cb(-1),
-              run_on_register = false,
-              timeout_ms = 5000,
-            },
-            async_backend = "default", -- or "lsp"
-            exclude_this = true,
-            n_query = 1,
-            notify = true,
-            timeout_ms = 5000,
-            on_setup = {
-              update = false, -- set to true to enable update when `setup` is called.
-              lsp = false,
-            },
-            sync_log_env_var = false,
-          })
-          require("codecompanion").setup({
-            extensions = {
-              vectorcode = {
-                opts = {
-                  add_tool = true,
-                  add_slash_command = true,
-                  tool_opts = {},
-                },
-              },
-            },
-          })
-        end,
       },
+      -- {
+      --   "Davidyz/VectorCode", -- Index and search code in your repositories
+      --   version = "*",
+      --   build = "pipx upgrade vectorcode",
+      --   dependencies = { "nvim-lua/plenary.nvim" },
+      --   config = function()
+      --     require("vectorcode").setup({
+      --       async_opts = {
+      --         debounce = 10,
+      --         events = { "BufWritePost", "InsertEnter", "BufReadPost" },
+      --         exclude_this = true,
+      --         n_query = 1,
+      --         notify = false,
+      --         query_cb = require("vectorcode.utils").make_surrounding_lines_cb(-1),
+      --         run_on_register = false,
+      --         timeout_ms = 5000,
+      --       },
+      --       async_backend = "default", -- or "lsp"
+      --       exclude_this = true,
+      --       n_query = 1,
+      --       notify = true,
+      --       timeout_ms = 5000,
+      --       on_setup = {
+      --         update = false, -- set to true to enable update when `setup` is called.
+      --         lsp = false,
+      --       },
+      --       sync_log_env_var = false,
+      --     })
+      --     require("codecompanion").setup({
+      --       extensions = {
+      --         vectorcode = {
+      --           opts = {
+      --             add_tool = true,
+      --             add_slash_command = true,
+      --             tool_opts = {},
+      --           },
+      --         },
+      --       },
+      --     })
+      --   end,
+      -- },
     },
     keys = {
       -- General
