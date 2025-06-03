@@ -65,21 +65,60 @@ return {
         desc = "Run Config 5",
       },
       { "<leader>dL", ":luafile %<cr>", desc = "Reload Launch File" },
+      {
+        "<leader>d1",
+        function()
+          local dap = require("dap")
+          dap.run(dap.configurations.python[1])
+        end,
+        desc = "Run Config 1",
+      },
+      {
+        "<leader><leader>d",
+        function()
+          local dap = require("dap")
+          dap.run_last()
+        end,
+        desc = "Run Last Config",
+      },
     },
   },
   {
     "rcarriga/nvim-dap-ui",
     opts = function(_, _)
-      local dap = require("dap")
-      dap.listeners.after.event_initialized["dapui_config"] = function() end
-    end,
+      -- prevent debugger from showing on debug session start
+      -- local dap = require("dap")
+      -- dap.listeners.after.event_initialized["dapui_config"] = function() end
 
+      return {
+        layouts = {
+          {
+            elements = {
+              "scopes",
+              "breakpoints",
+              "stacks",
+              -- Remove "watches" from here to hide left panel
+            },
+            size = 40,
+            position = "left",
+          },
+          {
+            elements = {
+              -- Remove "console" from here to hide console
+              "repl",
+            },
+            size = 0.25,
+            position = "bottom",
+          },
+        },
+      }
+    end,
     config = function(_, opts)
       local dap = require("dap")
       local dapui = require("dapui")
       dapui.setup(opts)
       dap.listeners.after.event_initialized["dapui_config"] = function()
-        -- dapui.open({})
+        dapui.open({})
       end
       dap.listeners.before.event_terminated["dapui_config"] = function()
         dapui.close({})
@@ -88,6 +127,55 @@ return {
         dapui.close({})
       end
     end,
+    keys = {
+      {
+        "q",
+        function()
+          vim.api.nvim_win_close(0, false)
+        end,
+        desc = "Close DAP UI window",
+        ft = "dap-float",
+      },
+      {
+        "<leader>dK",
+        function()
+          require("dap.ui.widgets").hover()
+        end,
+        desc = "Hover",
+      },
+      {
+        "<leader>df",
+        function()
+          local dap_elements = {
+            { name = "Console", element = "console", desc = "DAP protocol messages" },
+            { name = "REPL", element = "repl", desc = "Interactive debugging console" },
+            { name = "Scopes", element = "scopes", desc = "Variable scopes (local/global)" },
+            { name = "Breakpoints", element = "breakpoints", desc = "Breakpoint list" },
+            { name = "Stacks", element = "stacks", desc = "Call stack" },
+            { name = "Watches", element = "watches", desc = "Watch expressions" },
+          }
+
+          vim.ui.select(dap_elements, {
+            prompt = "Select DAP UI element to float:",
+            format_item = function(item)
+              return string.format("%s - %s", item.name, item.desc)
+            end,
+          }, function(choice)
+            if choice then
+              require("dapui").float_element(choice.element, {
+                title = choice.name,
+                width = 100,
+                height = 30,
+                enter = true,
+                position = "center",
+              })
+            end
+          end)
+        end,
+        desc = "Float DAP UI element",
+      },
+      { "<leader>dw", "<leader>df", mode = "n", remap = true },
+    },
   },
   {
     "nvim-lualine/lualine.nvim",

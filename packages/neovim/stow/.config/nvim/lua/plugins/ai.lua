@@ -204,6 +204,17 @@ return {
     init = function()
       vim.cmd([[cab cc CodeCompanion]])
       require("plugins.codecompanion.spinner"):init()
+
+      local group = vim.api.nvim_create_augroup("CodeCompanionEvents", { clear = true })
+      vim.api.nvim_create_autocmd("User", {
+        pattern = "CodeCompanionRequestStarted",
+        group = group,
+        callback = function()
+          if vim.bo.filetype == "codecompanion" then
+            vim.cmd("normal! zt")
+          end
+        end,
+      })
     end,
     dependencies = {
       "j-hui/fidget.nvim", -- Display status
