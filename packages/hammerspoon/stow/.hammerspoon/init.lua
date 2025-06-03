@@ -5,9 +5,6 @@ require("apps")
 require("grid")
 require("caffeine")
 
--- hs.loadSpoon("ArrangeDesktop")
--- spoon.bindHotkeysToSpec(def, mapping)
-
 hs.loadSpoon("ReloadConfiguration")
 spoon.ReloadConfiguration:start()
 
