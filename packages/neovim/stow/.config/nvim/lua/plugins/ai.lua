@@ -295,12 +295,33 @@ return {
     version = false, -- Never set this value to "*"! Never!
     opts = {
       provider = "copilot",
-      auto_suggestions_provider = "copilot",
+      auto_suggestions_provider = nil,
+      providers = {
+        copilot = {
+          model = "claude-sonnet-4",
+        },
+      },
+      mappings = {
+        sidebar = {
+          close_from_input = { normal = "<Esc>", insert = "<C-d>" },
+          switch_windows = "<C-n>",
+          reverse_switch_windows = "<C-p>",
+        },
+      },
       windows = {
         ---@type "right" | "left" | "top" | "bottom"
         position = "right",
         wrap = true,
-        width = 40, -- in %
+        width = 45, -- in %
+        input = {
+          height = 7, -- Height of the input window in vertical layout
+        },
+        edit = {
+          border = "rounded", -- Border style for the edit window
+        },
+        ask = {
+          border = "rounded", -- Border style for the edit window
+        },
       },
     },
     build = "make",
