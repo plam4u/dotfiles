@@ -1,41 +1,22 @@
 return {
   {
     "olimorris/codecompanion.nvim",
-    lazy = true,
     opts = {
-      workspace = {
-        root = vim.fn.getcwd(), -- or use a project-detecting function
-      },
       extensions = {
         history = {
           enabled = true,
           opts = {
             keymap = "gh",
-            save_chat_keymap = "sc",
+            save_chat_keymap = "gu",
             auto_save = false,
             auto_generate_title = true,
             continue_last_chat = false,
-            delete_on_clearing_chat = false,
+            delete_on_clearing_chat = true,
             picker = "snacks",
             enable_logging = false,
             dir_to_save = vim.fn.stdpath("data") .. "/codecompanion-history",
           },
         },
-        mcphub = {
-          callback = "mcphub.extensions.codecompanion",
-          opts = {
-            make_vars = true,
-            make_slash_commands = true,
-            show_result_in_chat = true,
-          },
-        },
-        -- vectorcode = {
-        --   opts = {
-        --     add_tool = true,
-        --     add_slash_command = true,
-        --     tool_opts = {},
-        --   },
-        -- },
       },
       strategies = {
         chat = {
@@ -44,19 +25,14 @@ return {
             model = "claude-sonnet-4",
           },
           roles = {
-            user = "plam4u",
+            user = "P",
           },
           keymaps = {
-            send = {
-              modes = {
-                i = { "<C-CR>", "<C-s>" },
-              },
-            },
-            completion = {
-              modes = {
-                i = "<C-x>",
-              },
-            },
+            stop = { modes = { n = "Q" } },
+            close = { modes = { n = "q", i = "<C-c>" } },
+            send = { modes = { i = { "<C-CR>", "<C-s>" } } },
+            completion = { modes = { i = "<C-x>" } },
+            auto_tool_mode = { modes = { n = "gat" } },
           },
           slash_commands = {
             ["symbols"] = {
@@ -96,7 +72,7 @@ return {
         inline = {
           adapter = {
             name = "copilot",
-            model = "gpt-4.1",
+            model = "claude-sonnet-4", --"gpt-4.1",
           },
         },
       },
@@ -105,83 +81,108 @@ return {
           provider = "default",
         },
         chat = {
-          -- show_references = true,
-          -- show_header_separator = false,
-          -- show_settings = false,
+          auto_scroll = false,
+          start_in_insert_mode = false,
+          show_references = true,
+          show_header_separator = true,
+          show_settings = true,
+          intro_message = "Enter your prompt here! Press ? for options",
         },
         diff = {
-          provider = "default",
-          -- provider = "mini_diff",
+          provider = "default", -- "mini_diff"
         },
       },
-      opts = {
-        log_level = "DEBUG",
-      },
-    },
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-      "nvim-treesitter/nvim-treesitter",
-      "j-hui/fidget.nvim", -- Display status
-      "ravitemer/codecompanion-history.nvim", -- Save and load conversation history
-      {
-        "ravitemer/mcphub.nvim", -- Manage MCP servers
-        cmd = "MCPHub",
-        build = "npm install -g mcp-hub@latest",
-        config = true,
-      },
-      -- {
-      --   "Davidyz/VectorCode", -- Index and search code in your repositories
-      --   version = "*",
-      --   build = "pipx upgrade vectorcode",
-      --   dependencies = { "nvim-lua/plenary.nvim" },
-      --   config = function()
-      --     require("vectorcode").setup({
-      --       async_opts = {
-      --         debounce = 10,
-      --         events = { "BufWritePost", "InsertEnter", "BufReadPost" },
-      --         exclude_this = true,
-      --         n_query = 1,
-      --         notify = false,
-      --         query_cb = require("vectorcode.utils").make_surrounding_lines_cb(-1),
-      --         run_on_register = false,
-      --         timeout_ms = 5000,
-      --       },
-      --       async_backend = "default", -- or "lsp"
-      --       exclude_this = true,
-      --       n_query = 1,
-      --       notify = true,
-      --       timeout_ms = 5000,
-      --       on_setup = {
-      --         update = false, -- set to true to enable update when `setup` is called.
-      --         lsp = false,
-      --       },
-      --       sync_log_env_var = false,
-      --     })
-      --     require("codecompanion").setup({
-      --       extensions = {
-      --         vectorcode = {
-      --           opts = {
-      --             add_tool = true,
-      --             add_slash_command = true,
-      --             tool_opts = {},
-      --           },
-      --         },
-      --       },
-      --     })
-      --   end,
-      -- },
     },
     keys = {
       -- General
-      { "<leader>ic", "<cmd>CodeCompanionActions<cr>", mode = { "n", "v" }, desc = "Open Actions (CodeCompanion)" },
-      { "<leader>it", "<cmd>CodeCompanionCmd<cr>", mode = { "n", "v" }, desc = "Write Cmd (CodeCompanion)" },
+      {
+        "gi",
+        function()
+          if vim.bo.filetype == "codecompanion" then
+            vim.cmd("normal! G")
+            vim.cmd("startinsert!")
+            vim.cmd("$put! =''")
+          end
+        end,
+        mode = { "n" },
+        desc = "Start prompt typing... (CodeCompanion)",
+      },
+      { "<leader>ia", "<cmd>CodeCompanionActions<cr>", mode = { "n", "v" }, desc = "Open Actions (CodeCompanion)" },
+      { "<leader>ic", "<cmd>CodeCompanionCmd<cr>", mode = { "n", "v" }, desc = "Gen Neovim Command (CodeCompanion)" },
 
       -- Chat
       { "<leader>in", "<cmd>CodeCompanionChat<cr>", mode = { "n", "v" }, desc = "New Chat (CodeCompanion)" },
-      { "<leader>ia", "<cmd>CodeCompanionChat Toggle<cr>", mode = { "n", "v" }, desc = "Toggle (CodeCompanion)" },
+      { "<leader>ii", "<cmd>CodeCompanionChat Toggle<cr>", mode = { "n", "v" }, desc = "Toggle (CodeCompanion)" },
+      {
+        "go",
+        function()
+          local current_scrolloff = vim.o.scrolloff
+          if current_scrolloff == 999 then
+            vim.o.scrolloff = 0
+          else
+            vim.o.scrolloff = 999
+          end
+        end,
+        mode = { "n" },
+        desc = "Toggle scrolloff=999/0 (CodeCompanion)",
+        ft = { "codecompanion" },
+      },
+      {
+        "gt",
+        function()
+          vim.o.scrolloff = 0
+          vim.cmd("normal! G")
+          vim.fn.search("^## CodeCompanion (", "bW")
+          vim.cmd("normal! zt")
+        end,
+        mode = { "n" },
+        desc = "Goto Last Response (CodeCompanion)",
+        ft = { "codecompanion" },
+      },
+      {
+        "gn",
+        function()
+          vim.o.scrolloff = 0
+          vim.cmd("call vimwiki#base#goto_next_header()")
+          vim.cmd("normal! zt")
+        end,
+        mode = { "n" },
+        desc = "Goto Next Header (CodeCompanion)",
+        ft = { "codecompanion" },
+      },
+      {
+        "<leader>gd",
+        function()
+          local CodeCompanion = require("codecompanion")
+          local chat = CodeCompanion.last_chat()
+          if not chat then
+            chat = CodeCompanion.chat()
+            vim.cmd("normal! 2o")
+          else
+            vim.cmd("CodeCompanionChat Add")
+            vim.cmd("wincmd l")
+            vim.cmd("normal! G")
+            vim.cmd("normal! o")
+          end
+        end,
+        mode = { "v" },
+        desc = "Add Selection to Chat (CodeCompanion)",
+      },
       {
         "gd",
-        "<cmd>CodeCompanionChat Add<cr><esc>:wincmd l<cr>",
+        function()
+          local CodeCompanion = require("codecompanion")
+          local chat = CodeCompanion.last_chat()
+          if not chat then
+            chat = CodeCompanion.chat()
+            vim.cmd("normal! 2o")
+          else
+            vim.cmd("CodeCompanionChat Add")
+            vim.cmd("wincmd l")
+            vim.cmd("normal! G")
+            vim.cmd("normal! o")
+          end
+        end,
         mode = { "v" },
         desc = "Add Selection to Chat (CodeCompanion)",
       },
@@ -200,55 +201,36 @@ return {
         desc = "Example Prompt (CodeCompanion)",
       },
     },
-    config = function(_, _)
-      -- Expand 'cc' into 'CodeCompanion' in the command line
+    init = function()
       vim.cmd([[cab cc CodeCompanion]])
-
-      require("codecompanion").setup({
-        extensions = {
-          mcphub = {
-            callback = "mcphub.extensions.codecompanion",
-            opts = {
-              make_vars = true,
-              make_slash_commands = true,
-              show_result_in_chat = true,
-            },
-          },
-        },
-        prompt_library = {
-          ["Example Prompt"] = {
-            strategy = "chat",
-            description = "This is a sample prompt description.",
-            opts = {
-              index = 11,
-              is_slash_cmd = false,
-              auto_submit = false,
-              short_name = "prompt_example",
-            },
-            references = {
-              {
-                type = "file",
-                path = {
-                  "README.md",
-                  "TODO.md",
-                },
-              },
-            },
-            prompts = {
-              {
-                role = "user",
-                content = [[
-I'm rewriting the documentation for my python code, as I'm moving to a uv project manager. Can you help me rewrite it?
-
-I'm sharing my `README.md` and `TODO.md` with you. 
-]],
-              },
-            },
-          },
-        },
-      })
-      require("plugins.custom.spinner"):init()
+      require("plugins.codecompanion.spinner"):init()
     end,
+    dependencies = {
+      "j-hui/fidget.nvim", -- Display status
+      "ravitemer/codecompanion-history.nvim", -- Save and load conversation history
+      {
+        "ravitemer/mcphub.nvim", -- Manage MCP servers
+        enabled = false, -- TODO: Enable when MCPHub is ready
+        cmd = "MCPHub",
+        build = "npm install -g mcp-hub@latest",
+        config = true,
+      },
+      {
+        "HakonHarnes/img-clip.nvim", -- Share images with the chat buffer
+        enabled = false,
+        event = "VeryLazy",
+        cmd = "PasteImage",
+        opts = {
+          filetypes = {
+            codecompanion = {
+              prompt_for_file_name = false,
+              template = "[Image]($FILE_PATH)",
+              use_absolute_path = true,
+            },
+          },
+        },
+      },
+    },
   },
   {
     "folke/which-key.nvim",
@@ -274,16 +256,17 @@ I'm sharing my `README.md` and `TODO.md` with you.
       },
     },
   },
-  -- {
-  --   "echasnovski/mini.diff",
-  --   config = function()
-  --     local diff = require("mini.diff")
-  --     diff.setup({
-  --       -- Disabled by default
-  --       source = diff.gen_source.none(),
-  --     })
-  --   end,
-  -- },
+  {
+    "echasnovski/mini.diff",
+    enabled = false, -- TODO:
+    config = function()
+      local diff = require("mini.diff")
+      diff.setup({
+        -- Disabled by default
+        source = diff.gen_source.none(),
+      })
+    end,
+  },
   {
     "HakonHarnes/img-clip.nvim",
     opts = {
@@ -315,23 +298,12 @@ I'm sharing my `README.md` and `TODO.md` with you.
       auto_suggestions_provider = "copilot",
       windows = {
         ---@type "right" | "left" | "top" | "bottom"
-        position = "right", -- the position of the sidebar
-        wrap = true, -- similar to vim.o.wrap
-        width = 40, -- default % based on available width
+        position = "right",
+        wrap = true,
+        width = 40, -- in %
       },
-      -- provider = "openai",
-      -- openai = {
-      --   endpoint = "https://api.openai.com/v1",
-      --   model = "gpt-4o", -- your desired model (or use gpt-4o, etc.)
-      --   timeout = 30000, -- Timeout in milliseconds, increase this for reasoning models
-      --   temperature = 0,
-      --   max_completion_tokens = 8192, -- Increase this to include reasoning tokens (for reasoning models)
-      --reasoning_effort = "medium", -- low|medium|high, only used for reasoning models
-      -- },
     },
-    -- if you want to build from source then do `make BUILD_FROM_SOURCE=true`
     build = "make",
-    -- build = "powershell -ExecutionPolicy Bypass -File Build.ps1 -BuildFromSource false" -- for windows
     dependencies = {
       "nvim-treesitter/nvim-treesitter",
       "stevearc/dressing.nvim",
