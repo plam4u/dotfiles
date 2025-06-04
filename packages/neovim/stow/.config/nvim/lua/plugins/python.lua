@@ -137,6 +137,22 @@ return {
         ft = "dap-float",
       },
       {
+        "<CR>",
+        function()
+          local line = vim.api.nvim_get_current_line()
+          -- Strip the "dap> " prompt if present
+          local command = line:gsub("^dap> ", "")
+          if command ~= "" then
+            -- Move to the end of the line and simulate insert mode Enter
+            vim.api.nvim_win_set_cursor(0, { vim.api.nvim_win_get_cursor(0)[1], #line })
+            vim.api.nvim_feedkeys("a\n", "n", false)
+          end
+        end,
+        desc = "Execute REPL entry",
+        ft = "dap-repl",
+        mode = "n",
+      },
+      {
         "<leader>dK",
         function()
           require("dap.ui.widgets").hover()
@@ -156,7 +172,7 @@ return {
           }
 
           vim.ui.select(dap_elements, {
-            prompt = "Select DAP UI element to float:",
+            prompt = "Select DAP UI widget to float:",
             format_item = function(item)
               return string.format("%s - %s", item.name, item.desc)
             end,
@@ -172,9 +188,9 @@ return {
             end
           end)
         end,
-        desc = "Float DAP UI element",
+        desc = "Float DAP UI widget",
       },
-      { "<leader>dw", "<leader>df", mode = "n", remap = true },
+      { "<leader>dw", "<leader>df", mode = "n", remap = true, desc = "Float DAP UI widget" },
     },
   },
   {
