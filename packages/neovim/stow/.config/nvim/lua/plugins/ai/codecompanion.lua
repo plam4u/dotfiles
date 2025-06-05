@@ -72,7 +72,7 @@ return {
         inline = {
           adapter = {
             name = "copilot",
-            model = "claude-sonnet-4", --"gpt-4.1",
+            model = "gpt-4.1", --"claude-sonnet-3",
           },
         },
       },
@@ -85,7 +85,7 @@ return {
           start_in_insert_mode = false,
           show_references = true,
           show_header_separator = true,
-          show_settings = true,
+          show_settings = false,
           intro_message = "Enter your prompt here! Press ? for options",
         },
         diff = {
