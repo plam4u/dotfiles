@@ -17,6 +17,16 @@ return {
         desc = "Execute selection",
         mode = "x",
       },
+      -- { "<leader>dr", function() require("dap").repl.toggle() end, desc = "Toggle REPL", },
+      -- { "<leader>dr", false },
+      {
+        "<C-e>",
+        function()
+          require("dap").repl.execute(".clear")
+        end,
+        mode = "i",
+        desc = "Clear REPL",
+      },
       {
         "<leader>dR",
         function()
@@ -97,7 +107,7 @@ return {
               "scopes",
               "breakpoints",
               "stacks",
-              -- Remove "watches" from here to hide left panel
+              "watches",
             },
             size = 40,
             position = "left",
