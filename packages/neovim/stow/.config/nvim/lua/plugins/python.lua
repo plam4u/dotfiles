@@ -5,6 +5,22 @@ return {
   {
     "mfussenegger/nvim-dap",
     keys = {
+      { "<leader>do", false },
+      { "<leader>dO", false },
+      {
+        "<leader>dO",
+        function()
+          require("dap").step_out()
+        end,
+        desc = "Step Out",
+      },
+      {
+        "<leader>do",
+        function()
+          require("dap").step_over()
+        end,
+        desc = "Step Over",
+      },
       {
         "<leader>dd",
         function()
@@ -13,6 +29,7 @@ return {
             vim.fn.getregion(vim.fn.getpos("."), vim.fn.getpos("v"), { type = vim.api.nvim_get_mode().mode })
           dap.repl.open()
           dap.repl.execute(table.concat(lines, "\n"))
+          vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "n", false)
         end,
         desc = "Execute selection",
         mode = "x",
@@ -104,10 +121,10 @@ return {
         layouts = {
           {
             elements = {
-              "scopes",
-              "breakpoints",
-              "stacks",
-              "watches",
+              { id = "scopes", size = 0.7 }, -- 40% of left panel
+              { id = "breakpoints", size = 0.1 }, -- 20% of left panel
+              { id = "stacks", size = 0.1 }, -- 20% of left panel
+              { id = "watches", size = 0.1 }, -- 20% of left panel
             },
             size = 40,
             position = "left",
@@ -128,7 +145,7 @@ return {
       local dapui = require("dapui")
       dapui.setup(opts)
       dap.listeners.after.event_initialized["dapui_config"] = function()
-        dapui.open({})
+        -- dapui.open({})
       end
       dap.listeners.before.event_terminated["dapui_config"] = function()
         dapui.close({})
