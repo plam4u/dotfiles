@@ -14,6 +14,8 @@ config.enable_tab_bar = false
 config.window_decorations = "RESIZE"
 config.window_background_opacity = 1
 config.macos_window_background_blur = 10
+config.term = "xterm-256color"
+config.window_close_confirmation = "NeverPrompt"
 
 -- my coolnight colorscheme:
 config.colors = {
@@ -30,4 +32,3 @@ config.colors = {
 
 -- and finally, return the configuration to wezterm
 return config
-
