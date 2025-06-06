@@ -4,13 +4,22 @@ return {
     opts = function(_, opts)
       opts.options.component_separators = "|"
       opts.options.section_separators = ""
-      -- show tmux session name in lualine in section z
+
+      local tmux_session = ""
       opts.sections.lualine_z = {
         function()
-          local tmux_session = vim.fn.system("tmux display-message -p '#W:#S'")
-          return " " .. tmux_session:gsub("%s+", "")
+          if tmux_session == "" and vim.env.TMUX then
+            local result = vim.fn.system("tmux display-message -p '#W:#S' 2>/dev/null")
+            if vim.v.shell_error == 0 then
+              tmux_session = " " .. result:gsub("%s+", "")
+            else
+              tmux_session = "no-session"
+            end
+          end
+          return tmux_session
         end,
       }
+
       return opts
     end,
   },
