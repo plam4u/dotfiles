@@ -54,11 +54,38 @@
                 :calendar ["^com\\.apple\\.iCal"]
                 :clock ["^com\\.apple\\.clock"]
                 :arc ["^company\\.thebrowser\\.Browser"]
+                :iterm ["^com\\.googlecode\\.iterm2"]
+                :kitty ["^net\\.kovidgoyal\\.kitty"]
                 }
 
  :main [
         {:des "Arc" :rules [:arc
           [:!TOSg :!Ch]
+          ]}
+        {:des "iTerm2" :rules [:iterm
+          [:!C1 :!OS1] ; Cmd+1 -> Alt+Shift+1
+          [:!C2 :!OS2] ; Cmd+2 -> Alt+Shift+2
+          [:!C3 :!OS3] ; Cmd+3 -> Alt+Shift+3
+          [:!C4 :!OS4] ; Cmd+4 -> Alt+Shift+4 
+          [:!C5 :!OS5] ; Cmd+5 -> Alt+Shift+5
+          [:!C6 :!OS6] ; Cmd+6 -> Alt+Shift+6
+          [:!C7 :!OS7] ; Cmd+7 -> Alt+Shift+7
+          [:!C8 :!OS8] ; Cmd+8 -> Alt+Shift+8
+          [:!C9 :!OS9] ; Cmd+9 -> Alt+Shift+9
+          ; left for reference
+          ; [:!C1 [:!Tbackslash :!OS1]] ; Cmd+1 -> Ctrl+\, Alt+Shift+1
+          ; [:!C1 [:!Tbackslash :!Ssemicolon :a :t :t :a :c :h :hyphen :s :e :s :s :i :o :n :spacebar :hyphen :t :spacebar :!S4 :1 :return_or_enter]]
+          ]}
+        {:des "Kitty" :rules [:kitty
+          [:!C1 :!OS1] ; Cmd+1 -> Alt+Shift+1
+          [:!C2 :!OS2] ; Cmd+2 -> Alt+Shift+2
+          [:!C3 :!OS3] ; Cmd+3 -> Alt+Shift+3
+          [:!C4 :!OS4] ; Cmd+4 -> Alt+Shift+4 
+          [:!C5 :!OS5] ; Cmd+5 -> Alt+Shift+5
+          [:!C6 :!OS6] ; Cmd+6 -> Alt+Shift+6
+          [:!C7 :!OS7] ; Cmd+7 -> Alt+Shift+7
+          [:!C8 :!OS8] ; Cmd+8 -> Alt+Shift+8
+          [:!C9 :!OS9] ; Cmd+9 -> Alt+Shift+9
           ]}
         {:des "Calendar" :rules [:calendar
           [:international1 :!C5] 
