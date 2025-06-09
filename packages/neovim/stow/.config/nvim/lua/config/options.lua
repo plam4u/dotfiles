@@ -6,3 +6,4 @@ vim.g.snacks_animate = false
 vim.opt.spell = false
 vim.g.ai_cmp = true
 vim.o.scrolloff = 1
+vim.g.copilot_telemetry = 0

@@ -6,3 +6,4 @@ alias v.="nvim ."
 # export PATH="$HOME/bin:$PATH"
 export LVRC="$HOME/.local/share/neovim-lazy/lazy/LazyVim/lua/lazyvim/plugins/init.lua"
 export MYLVRC="$HOME/dotfiles/packages/neovim/stow/.config/nvim/lua/config/autocmds.lua"
+export GITHUB_COPILOT_TELEMETRY_DISABLED=1

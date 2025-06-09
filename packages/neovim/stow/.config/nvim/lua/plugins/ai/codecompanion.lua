@@ -300,4 +300,14 @@ return {
       },
     },
   },
+  {
+    "zbirenbaum/copilot.lua",
+    opts = {
+      server_opts_overrides = {
+        telemetry = {
+          telemetryLevel = "off",
+        },
+      },
+    },
+  },
 }
