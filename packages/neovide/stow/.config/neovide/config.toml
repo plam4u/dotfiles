@@ -2,7 +2,7 @@
 
 # backtraces_path = "/path/to/neovide_backtraces.log" # see below for the default platform specific location
 fork = false
-frame = "full"
+frame = "none"              # "full"
 idle = true
 maximized = false
 mouse-cursor-icon = "arrow"
@@ -16,6 +16,7 @@ vsync = true
 wsl = false
 
 [font]
-normal = ["MesloLGS Nerd Font Mono"] # Will use the bundled Fira Code Nerd Font by default
+normal = [
+  "MesloLGS Nerd Font Mono",
+] # Will use the bundled Fira Code Nerd Font by default
 size = 20.0
-
