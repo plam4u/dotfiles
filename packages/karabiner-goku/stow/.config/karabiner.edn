@@ -21,7 +21,7 @@
             :held    70}}
  :devices {
            :mbp-kb [{:vendor_id 1452 :product_id 832}] ;; MacBook Pro 16" Internal Keyboard
-           :mbp-kb2 [{:vendor_id 1452 :product_id 835}] 
+           :mbp-kb2 [{:vendor_id 1452 :product_id 835}] ;; MacBook Pro M1 Max
            :mbp-kb3 [{:vendor_id 76 :product_id 666}] ;; Apple keyboard with Touch ID
            :dm-kb  [{:vendor_id 17485 :product_id 13622 :is_keyboard true}] ;; Dactyl-Manuform Keyboard
            :dm-ms  [{:vendor_id 17485 :product_id 13622 :is_pointing_device true}] ;; Dactyl-Manuform Mouse
@@ -59,6 +59,9 @@
                 }
 
  :main [
+        {:des "Global Key Bindings" :rules [
+          [:!OSz [:toggle-id "com.neovide.neovide"]]
+          ]}
         {:des "Arc" :rules [:arc
           [:!TOSg :!Ch]
           ]}

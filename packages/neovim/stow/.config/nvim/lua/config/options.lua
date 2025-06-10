@@ -7,3 +7,10 @@ vim.opt.spell = false
 vim.g.ai_cmp = true
 vim.o.scrolloff = 1
 vim.g.copilot_telemetry = 0
+
+if vim.g.neovide then
+  vim.g.neovide_input_macos_option_key_is_meta = "only_left"
+  vim.opt.clipboard = "unnamedplus"
+  vim.keymap.set("n", "<D-v>", '"+p', { noremap = true, silent = true })
+  vim.keymap.set("i", "<D-v>", "<C-r>+", { noremap = true, silent = true })
+end
