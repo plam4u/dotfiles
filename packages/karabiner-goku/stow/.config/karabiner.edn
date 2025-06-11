@@ -170,7 +170,7 @@
           ;; Row 2 (Numbers)
           ;;
           ;; Row 3 (Tab, Q, W, E, R, T, Y, U, I, O, P)
-          [:##e [:toggle-id "REPLACE_ME"]]
+          [:##e [:toggle-id "com.brave.Browser.app.fmpnliohjhemenmnlpbfagaolkdacoja"]]
           [:##r [:toggle-id "com.apple.reminders"]]
           [:##t [:toggle-id "ru.keepcoder.Telegram"]]
           [:##y [:toggle-id "com.brave.Browser.app.agimnkijcaahngcdmfeangaknmldooml"]] ; YouTube
