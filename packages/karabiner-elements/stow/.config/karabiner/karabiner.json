@@ -20,6 +20,17 @@
             "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.neovide.neovide"
           } ],
           "type" : "basic"
+        }, {
+          "from" : {
+            "key_code" : "caps_lock",
+            "modifiers" : {
+              "mandatory" : [ "left_command" ]
+            }
+          },
+          "to" : [ {
+            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.googlecode.iterm2"
+          } ],
+          "type" : "basic"
         } ]
       }, {
         "description" : "Arc",
@@ -799,7 +810,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=REPLACE_ME"
+            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.brave.Browser.app.fmpnliohjhemenmnlpbfagaolkdacoja"
           } ],
           "conditions" : [ {
             "name" : "tab-mode",
@@ -818,7 +829,7 @@
               "value" : 1
             }
           }, {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=REPLACE_ME"
+            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.brave.Browser.app.fmpnliohjhemenmnlpbfagaolkdacoja"
           } ],
           "from" : {
             "simultaneous" : [ {
