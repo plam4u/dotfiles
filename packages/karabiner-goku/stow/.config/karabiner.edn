@@ -61,7 +61,6 @@
  :main [
         {:des "Global Key Bindings" :rules [
           [:!OSz [:toggle-id "com.neovide.neovide"]]
-          [:!Ccaps_lock [:toggle-id "com.googlecode.iterm2"]]
           ]}
         {:des "Arc" :rules [:arc
           [:!TOSg :!Ch]
@@ -171,7 +170,7 @@
           ;; Row 2 (Numbers)
           ;;
           ;; Row 3 (Tab, Q, W, E, R, T, Y, U, I, O, P)
-          [:##e [:toggle-id "com.brave.Browser.app.fmpnliohjhemenmnlpbfagaolkdacoja"]]
+          [:##e [:toggle-id "REPLACE_ME"]]
           [:##r [:toggle-id "com.apple.reminders"]]
           [:##t [:toggle-id "ru.keepcoder.Telegram"]]
           [:##y [:toggle-id "com.brave.Browser.app.agimnkijcaahngcdmfeangaknmldooml"]] ; YouTube
