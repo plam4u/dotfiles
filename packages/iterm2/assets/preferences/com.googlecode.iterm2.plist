@@ -776,6 +776,8 @@ Copy Mode</string>
 				<key>Red Component</key>
 				<real>0.8659515380859375</real>
 			</dict>
+			<key>Application Keypad Allowed</key>
+			<true/>
 			<key>BM Growl</key>
 			<true/>
 			<key>Background Color</key>
@@ -1276,6 +1278,8 @@ Copy Mode</string>
 			<key>Use Non-ASCII Font</key>
 			<false/>
 			<key>Use Separate Colors for Light and Dark Mode</key>
+			<true/>
+			<key>Use libtickit protocol</key>
 			<true/>
 			<key>Vertical Spacing</key>
 			<real>1.1000000000000001</real>
