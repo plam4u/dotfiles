@@ -10,4 +10,4 @@ brew install stow
 # 	stow -t $(HOME) rc
 # 	stow -t $(XDG_CONFIG_HOME) conf
 
-stow -t $HOME .
+stow -t "$HOME" .
