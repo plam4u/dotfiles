@@ -7,11 +7,13 @@ local function augroup(name)
 end
 
 -- restore last session for current directory
-vim.api.nvim_create_autocmd("VimEnter", {
-  callback = function()
-    require("persistence").load()
-  end,
-})
+if vim.env.NVIM_IGNORE_SESSION ~= "1" then
+  vim.api.nvim_create_autocmd("VimEnter", {
+    callback = function()
+      require("persistence").load()
+    end,
+  })
+end
 -- delete empty buffers after session restoration
 vim.api.nvim_create_autocmd("User", {
   pattern = "SessionLoadPost",
