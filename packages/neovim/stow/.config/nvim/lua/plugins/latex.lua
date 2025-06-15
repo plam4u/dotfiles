@@ -14,8 +14,6 @@ return {
               forwardSearch = {
                 executable = "open",
                 args = { "-a", "Skim", "%p" },
-                -- executable = "open", -- Use macOS open command
-                -- args = { "-a", "Preview", "%p" },
               },
             },
           },
@@ -57,15 +55,15 @@ return {
       },
     },
   },
-  {
-    "neovim/nvim-lspconfig",
-    opts = function()
-      local keys = require("lazyvim.plugins.lsp.keymaps").get()
-      -- Add LaTeX-specific keymaps
-      vim.list_extend(keys, {
-        { "<leader>lb", "<cmd>TexlabBuild<cr>", desc = "Build LaTeX", ft = "tex" },
-        { "<leader>lf", "<cmd>TexlabForward<cr>", desc = "Forward Search", ft = "tex" },
-      })
-    end,
-  },
+  -- {
+  --   "neovim/nvim-lspconfig",
+  --   opts = function()
+  --     local keys = require("lazyvim.plugins.lsp.keymaps").get()
+  --     -- Add LaTeX-specific keymaps
+  --     vim.list_extend(keys, {
+  --       { "<localleader>lb", "<cmd>TexlabBuild<cr>", desc = "Build LaTeX", ft = "tex" },
+  --       { "<localleader>lf", "<cmd>TexlabForward<cr>", desc = "Forward Search", ft = "tex" },
+  --     })
+  --   end,
+  -- },
 }
