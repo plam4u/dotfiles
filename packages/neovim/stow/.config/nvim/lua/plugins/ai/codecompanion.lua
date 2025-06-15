@@ -64,7 +64,7 @@ return {
                 },
               },
               opts = {
-                dirs = { "~/Documents/Screenshots" },
+                dirs = { vim.fn.expand("~/Pictures/CodeCompanion.nvim") },
               },
             },
           },
