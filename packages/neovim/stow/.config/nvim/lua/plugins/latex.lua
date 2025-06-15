@@ -19,9 +19,11 @@ return {
           },
         },
         ltex = {
+          filetypes = { "latex", "tex", "bib" },
           settings = {
             ltex = {
-              language = "en-US", -- Change to your preferred language
+              enabled = { "latex", "tex", "bib" },
+              language = "en-US",
               checkFrequency = "save",
               additionalRules = {
                 enablePickyRules = true,
