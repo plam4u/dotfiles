@@ -7,3 +7,19 @@ vim.opt.spell = false
 vim.g.ai_cmp = true
 vim.o.scrolloff = 1
 vim.g.copilot_telemetry = 0
+vim.opt.fillchars = {
+  vert = "│",
+  horiz = "─",
+  horizup = "┴",
+  horizdown = "┬",
+  vertleft = "┤",
+  vertright = "├",
+  verthoriz = "┼",
+  diff = "╱",
+  eob = " ",
+  fold = " ",
+  foldclose = "",
+  foldopen = "",
+  foldsep = " ",
+}
+vim.api.nvim_set_hl(0, "WinSeparator", { fg = "#5c6370", bg = "NONE" })
