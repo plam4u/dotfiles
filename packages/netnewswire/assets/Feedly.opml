@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<opml version="1.0">
+    <head>
+        <title>null subscriptions in feedly Cloud</title>
+    </head>
+    <body>
+        <outline text="iOS Weekly" title="iOS Weekly">
+            <outline type="rss" text="Release Notes" title="Release Notes" xmlUrl="http://releasenotes.tv/feed/" htmlUrl="https://releasenotes.tv"/>
+            <outline type="rss" text="iOS Dev Weekly" title="iOS Dev Weekly" xmlUrl="http://iosdevweekly.com/issues.rss" htmlUrl="https://iosdevweekly.com/"/>
+            <outline type="rss" text="Swift Sandbox" title="Swift Sandbox" xmlUrl="http://swiftsandbox.io/issues.rss" htmlUrl="http://swiftsandbox.io/issues"/>
+            <outline type="rss" text="AndyBargh.com" title="AndyBargh.com" xmlUrl="https://andybargh.com/feed/" htmlUrl="https://andybargh.com"/>
+            <outline type="rss" text="Indie iOS Focus Weekly" title="Indie iOS Focus Weekly" xmlUrl="https://indieiosfocus.curated.co/issues.rss" htmlUrl="https://indieiosfocus.curated.co/issues"/>
+            <outline type="rss" text="iOS Goodies" title="iOS Goodies" xmlUrl="http://ios-goodies.tumblr.com/rss" htmlUrl="https://ios-goodies.tumblr.com/"/>
+            <outline type="rss" text="Alex @ ALSEDI" title="Alex @ ALSEDI" xmlUrl="http://blog.alsedi.com/feed/" htmlUrl="http://blog.alsedi.com"/>
+            <outline type="rss" text="Those Who Swift" title="Those Who Swift" xmlUrl="https://swiftnews.curated.co/issues.rss" htmlUrl="https://swiftnews.curated.co/issues"/>
+            <outline type="rss" text="Swift Weekly Brief" title="Swift Weekly Brief" xmlUrl="http://swiftweekly.github.io/feed.xml" htmlUrl="https://swiftweeklybrief.com/"/>
+        </outline>
+        <outline text="iOS Blogs" title="iOS Blogs">
+            <outline type="rss" text="Angel G. Olloqui personal website" title="Angel G. Olloqui personal website" xmlUrl="http://angelolloqui.com/blog/feed" htmlUrl="https://angelolloqui.github.io/"/>
+            <outline type="rss" text="Clean Swift" title="Clean Swift" xmlUrl="http://clean-swift.com/feed/" htmlUrl="https://clean-swift.com/"/>
+            <outline type="rss" text="Point-Free" title="Point-Free" xmlUrl="https://www.pointfree.co/account/rss/4c8764870c7b0e12d035d71c5e77f718f5979400f6b5fa6ad0cea3d7c56cfd134b0e76b12a51dedddb90f6cf19588d02/902c5126fb13bea8a6d16fd6da212ecaafd52a9bd0c5421f0959e463e4413d3b1a015c30547de49071d184ba0c00f8e7" htmlUrl="https://www.pointfree.co/"/>
+            <outline type="rss" text="OSINSKI.DEV" title="OSINSKI.DEV" xmlUrl="https://osinski.dev/index.xml" htmlUrl="https://osinski.dev/"/>
+            <outline type="rss" text="Crunchy Development" title="Crunchy Development" xmlUrl="http://alisoftware.github.io/feed.xml" htmlUrl="https://alisoftware.github.io/"/>
+            <outline type="rss" text="Blended Cocoa" title="Blended Cocoa" xmlUrl="http://www.blendedcocoa.com/atom.xml" htmlUrl="http://www.blendedcocoa.com/"/>
+            <outline type="rss" text="Sandmoose" title="Sandmoose" xmlUrl="http://sandmoose.com/rss" htmlUrl="http://sandmoose.com/"/>
+            <outline type="rss" text="Masilotti.com" title="Masilotti.com" xmlUrl="http://masilotti.com/atom.xml" htmlUrl="https://masilotti.com/"/>
+            <outline type="rss" text="iOS Developer Tips" title="iOS Developer Tips" xmlUrl="http://iphonedevelopertips.com/feed" htmlUrl="http://iosdevelopertips.com"/>
+            <outline type="rss" text="Helge Heß" title="Helge Heß" xmlUrl="http://www.alwaysrightinstitute.com/feed.xml" htmlUrl="https://www.alwaysrightinstitute.com/"/>
+            <outline type="rss" text="Bruno Rocha" title="Bruno Rocha" xmlUrl="https://swiftrocks.com/rss.xml" htmlUrl="https://swiftrocks.com"/>
+            <outline type="rss" text="Pedro Piñera" title="Pedro Piñera" xmlUrl="http://ppinera.es/feed.xml" htmlUrl="https://ppinera.es"/>
+            <outline type="rss" text="Artsy Engineering" title="Artsy Engineering" xmlUrl="http://artsy.github.io/feed" htmlUrl="https://artsy.github.io/"/>
+            <outline type="rss" text="Alexandros Salazar" title="Alexandros Salazar" xmlUrl="http://nomothetis.svbtle.com/feed" htmlUrl="https://nomothetis.svbtle.com"/>
+            <outline type="rss" text="Andrew Bancroft" title="Andrew Bancroft" xmlUrl="http://www.andrewcbancroft.com/feed/" htmlUrl="https://www.andrewcbancroft.com"/>
+            <outline type="rss" text="fluffy.es - iOS development tutorials" title="fluffy.es - iOS development tutorials" xmlUrl="https://fluffy.es/rss/" htmlUrl="https://fluffy.es/"/>
+            <outline type="rss" text="devsign" title="devsign" xmlUrl="http://devsign.co/feed.xml" htmlUrl="http://devsign.co/"/>
+            <outline type="rss" text="Curtis Herbert" title="Curtis Herbert" xmlUrl="http://blog.curtisherbert.com/rss/" htmlUrl="https://blog.curtisherbert.com/"/>
+            <outline type="rss" text="NSHipster" title="NSHipster" xmlUrl="http://nshipster.com/feed.xml" htmlUrl="https://nshipster.com/"/>
+            <outline type="rss" text="John Sundell" title="John Sundell" xmlUrl="https://www.swiftbysundell.com/posts?format=RSS" htmlUrl="https://www.swiftbysundell.com"/>
+            <outline type="rss" text="WWDC by Sundell &amp; Friends" title="WWDC by Sundell &amp; Friends" xmlUrl="https://wwdcbysundell.com/rss" htmlUrl="https://wwdcbysundell.com"/>
+            <outline type="rss" text="Daniel Hall" title="Daniel Hall" xmlUrl="http://www.danielhall.io/feed" htmlUrl="https://www.danielhall.io/feed"/>
+            <outline type="rss" text="Florian Kugler" title="Florian Kugler" xmlUrl="http://floriankugler.com/feed.xml" htmlUrl="http://floriankugler.com/"/>
+            <outline type="rss" text="Morten Bøgh" title="Morten Bøgh" xmlUrl="http://justabeech.com/atom.xml" htmlUrl="http://justabeech.com/"/>
+            <outline type="rss" text="The SwiftUI Lab" title="The SwiftUI Lab" xmlUrl="https://swiftui-lab.com/feed/" htmlUrl="https://swiftui-lab.com/"/>
+            <outline type="rss" text="The Clean Code Blog" title="The Clean Code Blog" xmlUrl="http://blog.cleancoder.com/atom.xml" htmlUrl="http://blog.cleancoder.com/"/>
+            <outline type="rss" text="Nate Cook" title="Nate Cook" xmlUrl="http://natecook.com/feed.xml" htmlUrl="http://natecook.com/"/>
+            <outline type="rss" text="CocoaPods Blog" title="CocoaPods Blog" xmlUrl="http://blog.cocoapods.org/feed.xml" htmlUrl="https://blog.cocoapods.org"/>
+            <outline type="rss" text="Swift.org" title="Swift.org" xmlUrl="https://swift.org/atom.xml"/>
+            <outline type="rss" text="AppCoda" title="AppCoda" xmlUrl="http://feeds.feedburner.com/appcoda" htmlUrl="https://www.appcoda.com/"/>
+            <outline type="rss" text="Marcin Krzyżanowski" title="Marcin Krzyżanowski" xmlUrl="http://blog.krzyzanowskim.com/rss/" htmlUrl="https://blog.krzyzanowskim.com/"/>
+            <outline type="rss" text="Inside PSPDFKit" title="Inside PSPDFKit" xmlUrl="https://pspdfkit.com/blog/feed.atom" htmlUrl="https://pspdfkit.com/blog"/>
+            <outline type="rss" text="Mobile Development News, from Realm" title="Mobile Development News, from Realm" xmlUrl="http://feeds.feedburner.com/realmio" htmlUrl="https://realm.io/blog/"/>
+            <outline type="rss" text="Yet Another Swift Blog" title="Yet Another Swift Blog" xmlUrl="http://www.vadimbulavin.com/feed.xml" htmlUrl="https://www.vadimbulavin.com/"/>
+            <outline type="rss" text="Florian Kugler" title="Florian Kugler" xmlUrl="http://floriankugler.com/blog?format=rss" htmlUrl="http://floriankugler.com/"/>
+            <outline type="rss" text="My Blog" title="My Blog" xmlUrl="http://maniacdev.com/feed/" htmlUrl="https://maniacdev.com/"/>
+            <outline type="rss" text="Big Nerd Ranch" title="Big Nerd Ranch" xmlUrl="https://www.bignerdranch.com/rss.xml" htmlUrl="https://www.bignerdranch.com/"/>
+            <outline type="rss" text="kean.blog" title="kean.blog" xmlUrl="http://kean.github.io/feed.xml" htmlUrl="https://kean.blog/"/>
+            <outline type="rss" text="Use Your Loaf - iOS Development News &amp; Tips" title="Use Your Loaf - iOS Development News &amp; Tips" xmlUrl="http://useyourloaf.com/blog/rss.xml" htmlUrl="https://useyourloaf.com/blog/"/>
+            <outline type="rss" text="Matteo Manferdini" title="Matteo Manferdini" xmlUrl="http://matteomanferdini.com/feed/" htmlUrl="https://matteomanferdini.com/"/>
+            <outline type="rss" text="mokacoding" title="mokacoding" xmlUrl="http://www.mokacoding.com/feed.xml" htmlUrl="https://mokacoding.com"/>
+            <outline type="rss" text="Chris Eidhof" title="Chris Eidhof" xmlUrl="http://chris.eidhof.nl//index.xml" htmlUrl="http://chris.eidhof.nl"/>
+            <outline type="rss" text="Ole Begemann" title="Ole Begemann" xmlUrl="http://oleb.net/blog/atom.xml" htmlUrl="https://oleb.net/blog/"/>
+            <outline type="rss" text="Natasha The Robot" title="Natasha The Robot" xmlUrl="http://natashatherobot.com/feed/" htmlUrl="https://www.natashatherobot.com"/>
+            <outline type="rss" text="iOS Development" title="iOS Development" xmlUrl="http://doing-it-wrong.mikeweller.com/feeds/posts/default" htmlUrl="http://doing-it-wrong.mikeweller.com/"/>
+            <outline type="rss" text="Think And Build" title="Think And Build" xmlUrl="http://www.thinkandbuild.it/feed/" htmlUrl="https://www.thinkandbuild.it"/>
+            <outline type="rss" text="objc.io" title="objc.io" xmlUrl="http://www.objc.io/feed.xml" htmlUrl="https://www.objc.io"/>
+            <outline type="rss" text="Dave DeLong" title="Dave DeLong" xmlUrl="https://davedelong.com/feed/" htmlUrl="https://davedelong.com/"/>
+            <outline type="rss" text="Quality Coding" title="Quality Coding" xmlUrl="http://qualitycoding.org/feed/" htmlUrl="https://qualitycoding.org"/>
+            <outline type="rss" text="NSBlog" title="NSBlog" xmlUrl="http://www.mikeash.com/pyblog/rss.py" htmlUrl="http://www.mikeash.com/pyblog/"/>
+            <outline type="rss" text="Swift Programming - Medium" title="Swift Programming - Medium" xmlUrl="https://medium.com/feed/swift-programming" htmlUrl="https://medium.com/swift-programming?source=rss----5396e0e8bc29---4"/>
+            <outline type="rss" text="Pilky.me" title="Pilky.me" xmlUrl="http://feeds.feedburner.com/pilkyme" htmlUrl="https://pilky.me/"/>
+            <outline type="rss" text="Macoscope Blog" title="Macoscope Blog" xmlUrl="http://macoscope.com/blog/feed/" htmlUrl="http://macoscope.com/blog"/>
+            <outline type="rss" text="Donny Wals" title="Donny Wals" xmlUrl="https://www.donnywals.com/feed/" htmlUrl="https://www.donnywals.com"/>
+            <outline type="rss" text="Will Townsend" title="Will Townsend" xmlUrl="https://will.townsend.io/feed.xml" htmlUrl="https://example.com/"/>
+            <outline type="rss" text="Swift with Majid" title="Swift with Majid" xmlUrl="https://mecid.github.io/feed.xml" htmlUrl="https://swiftwithmajid.com/"/>
+            <outline type="rss" text="Bynomial Code" title="Bynomial Code" xmlUrl="http://bynomial.com/blog/?feed=rss2" htmlUrl="http://bynomial.com/blog"/>
+            <outline type="rss" text="Apple Developer" title="Apple Developer" xmlUrl="http://developer.apple.com/rss/iphonedevnews.rss" htmlUrl="https://developer.apple.com/news/"/>
+            <outline type="rss" text="Cocoa with Love" title="Cocoa with Love" xmlUrl="http://cocoawithlove.com/feeds/posts/default" htmlUrl="https://www.cocoawithlove.com/"/>
+            <outline type="rss" text="Airspeed Velocity" title="Airspeed Velocity" xmlUrl="http://airspeedvelocity.net/feed/" htmlUrl="https://airspeedvelocity.net"/>
+            <outline type="rss" text="David McGraw" title="David McGraw" xmlUrl="http://www.xmcgraw.com/feed/" htmlUrl="https://www.xmcgraw.com/"/>
+            <outline type="rss" text="Learn Swift ↯" title="Learn Swift ↯" xmlUrl="http://swift.ayaka.me/posts?format=RSS" htmlUrl="http://swift.ayaka.me/"/>
+            <outline type="rss" text="matt.diephouse.com" title="matt.diephouse.com" xmlUrl="http://matt.diephouse.com/index.xml" htmlUrl="http://matt.diephouse.com/"/>
+            <outline type="rss" text="Swift Blog" title="Swift Blog" xmlUrl="http://developer.apple.com/swift/blog/news.rss" htmlUrl="https://developer.apple.com/swift/blog/"/>
+            <outline type="rss" text="iPhoneDev.tv" title="iPhoneDev.tv" xmlUrl="http://iphonedev.tv/blog?format=rss" htmlUrl="https://supereasyapps.com/blog/"/>
+            <outline type="rss" text="Hacking with Swift" title="Hacking with Swift" xmlUrl="https://www.hackingwithswift.com/articles/rss" htmlUrl="https://www.hackingwithswift.com/articles/rss"/>
+        </outline>
+        <outline text="Random" title="Random">
+            <outline type="rss" text="Stack Overflow Blog" title="Stack Overflow Blog" xmlUrl="http://blog.stackoverflow.com/feed/" htmlUrl="https://stackoverflow.blog/"/>
+            <outline type="rss" text="Haoyi's Programming Blog" title="Haoyi's Programming Blog" xmlUrl="http://www.lihaoyi.com/feed.xml" htmlUrl="http://www.lihaoyi.com/"/>
+            <outline type="rss" text="Sofo Archon" title="Sofo Archon" xmlUrl="https://sofoarchon.com/feed/" htmlUrl="https://sofoarchon.com/"/>
+            <outline type="rss" text="QotoQot Blog" title="QotoQot Blog" xmlUrl="https://qotoqot.com/blog/rss.xml" htmlUrl="https://qotoqot.com/blog/"/>
+            <outline type="rss" text="zen habits" title="zen habits" xmlUrl="http://feeds.feedburner.com/zenhabits" htmlUrl="https://zenhabits.net/"/>
+            <outline type="rss" text="Wait But Why" title="Wait But Why" xmlUrl="http://waitbutwhy.com/feed" htmlUrl="https://waitbutwhy.com/"/>
+            <outline type="rss" text="furbo.org" title="furbo.org" xmlUrl="http://furbo.org/feed/" htmlUrl="https://furbo.org"/>
+            <outline type="rss" text="matklad" title="matklad" xmlUrl="https://matklad.github.io//feed.xml" htmlUrl="https://matklad.github.io"/>
+            <outline type="rss" text="Ant.Karlov" title="Ant.Karlov" xmlUrl="http://www.ant-karlov.ru/rss-blog.xml" htmlUrl="http://www.ant-karlov.ru/"/>
+            <outline type="rss" text="Expresiones españolas para Erasmus en apuros" title="Expresiones españolas para Erasmus en apuros" xmlUrl="http://erasmusv.wordpress.com/feed/" htmlUrl="https://expresionesyrefranes.com"/>
+        </outline>
+        <outline text="Vim" title="Vim">
+            <outline type="rss" text="Vimways" title="Vimways" xmlUrl="https://vimways.org/index.xml" htmlUrl="https://vimways.org/"/>
+            <outline type="rss" text="VimGolf: Latest Challenges" title="VimGolf: Latest Challenges" xmlUrl="http://feeds.vimgolf.com/latest-challenges" htmlUrl="http://www.vimgolf.com/"/>
+        </outline>
+        <outline text="Functional Programming" title="Functional Programming">
+            <outline type="rss" text="F# for Fun and Profit" title="F# for Fun and Profit" xmlUrl="http://feeds.feedburner.com/Fsharpforfunandprofit?format=xml" htmlUrl="https://fsharpforfunandprofit.com/"/>
+            <outline type="rss" text="Hackflow" title="Hackflow" xmlUrl="http://hackflow.com/atom.xml" htmlUrl="http://hackflow.com/"/>
+        </outline>
+        <outline text="Must Read" title="Must Read">
+            <outline type="rss" text="Use Your Loaf - iOS Development News &amp; Tips" title="Use Your Loaf - iOS Development News &amp; Tips" xmlUrl="http://useyourloaf.com/blog/rss.xml" htmlUrl="https://useyourloaf.com/blog/"/>
+            <outline type="rss" text="Point-Free Pointers" title="Point-Free Pointers" xmlUrl="https://www.pointfree.co/blog/feed/atom.xml" htmlUrl="https://www.pointfree.co/blog"/>
+            <outline type="rss" text="SwiftLee" title="SwiftLee" xmlUrl="https://www.avanderlee.com/feed/" htmlUrl="https://www.avanderlee.com/"/>
+            <outline type="rss" text="Chris Eidhof" title="Chris Eidhof" xmlUrl="http://chris.eidhof.nl//index.xml" htmlUrl="http://chris.eidhof.nl"/>
+            <outline type="rss" text="Bruno Rocha" title="Bruno Rocha" xmlUrl="https://swiftrocks.com/rss.xml" htmlUrl="https://swiftrocks.com"/>
+            <outline type="rss" text="John Sundell" title="John Sundell" xmlUrl="https://www.swiftbysundell.com/posts?format=RSS" htmlUrl="https://www.swiftbysundell.com"/>
+            <outline type="rss" text="Khanlou" title="Khanlou" xmlUrl="http://khanlou.com/feed/" htmlUrl="https://khanlou.com/"/>
+        </outline>
+        <outline type="rss" text="Point-Free Pointers" title="Point-Free Pointers" xmlUrl="https://www.pointfree.co/blog/feed/atom.xml" htmlUrl="https://www.pointfree.co/blog"/>
+        <outline type="rss" text="SwiftLee" title="SwiftLee" xmlUrl="https://www.avanderlee.com/feed/" htmlUrl="https://www.avanderlee.com/"/>
+        <outline type="rss" text="Khanlou" title="Khanlou" xmlUrl="http://khanlou.com/feed/" htmlUrl="https://khanlou.com/"/>
+    </body>
+</opml>
