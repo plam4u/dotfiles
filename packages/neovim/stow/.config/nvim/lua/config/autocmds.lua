@@ -53,3 +53,12 @@ vim.api.nvim_create_autocmd("FileType", {
     vim.opt_local.spell = false
   end,
 })
+
+local group = vim.api.nvim_create_augroup("WinSeparatorHL", { clear = true })
+
+vim.api.nvim_create_autocmd({ "ColorScheme", "VimEnter" }, {
+  group = group,
+  callback = function()
+    vim.api.nvim_set_hl(0, "WinSeparator", { fg = "#5c6370", bg = "NONE" })
+  end,
+})
