@@ -1,6 +1,6 @@
 return {
   "nvim-neo-tree/neo-tree.nvim",
-  enabled = false,
+  enabled = true,
   opts = {
     auto_clean_after_session_restore = true, -- Automatically clean up broken neo-tree buffers saved in sessions
     close_if_last_window = true, -- Close Neo-tree if it is the last window left in the tab

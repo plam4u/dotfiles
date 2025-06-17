@@ -30,7 +30,7 @@ return {
   keys = {
     -- Open the file explorer
     {
-      "<leader>e",
+      "<leader>r",
       function()
         if not MiniFiles.close() then
           -- if not MiniFiles.is_open() then
