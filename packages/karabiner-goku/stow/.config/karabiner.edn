@@ -359,7 +359,7 @@
           [:non_us_backslash :left_control nil {:alone :non_us_backslash}]
 
           ;; easy CTRL key with the right pinky
-          [:slash :right_control nil {:alone :slash}]
+          ; [:slash :right_control nil {:alone :slash}]
 
           ;; caps_lock to escape
           [:##caps_lock :left_control nil {:alone :escape}]

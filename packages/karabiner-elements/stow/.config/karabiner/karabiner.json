@@ -3411,25 +3411,6 @@
           "type" : "basic"
         }, {
           "to_if_alone" : [ {
-            "key_code" : "slash"
-          } ],
-          "from" : {
-            "key_code" : "slash"
-          },
-          "to" : [ {
-            "key_code" : "right_control"
-          } ],
-          "conditions" : [ {
-            "identifiers" : [ {
-              "vendor_id" : 17485,
-              "product_id" : 13622,
-              "is_keyboard" : true
-            } ],
-            "type" : "device_unless"
-          } ],
-          "type" : "basic"
-        }, {
-          "to_if_alone" : [ {
             "key_code" : "escape"
           } ],
           "from" : {
