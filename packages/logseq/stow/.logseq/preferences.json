@@ -1,0 +1,26 @@
+{
+  "theme": {
+    "name": "All Day Theme",
+    "url": "file:///Users/plam/.logseq/plugins/logseq-allday-theme/custom.css",
+    "pid": "logseq-allday-theme"
+  },
+  "themes": {
+    "mode": "dark",
+    "light": {
+      "name": "Luma Light",
+      "url": "file:///Users/plam/.logseq/plugins/logseq-luma/custom.css",
+      "description": "A minimal and detail oriented light theme for Logseq",
+      "mode": "light",
+      "pid": "logseq-luma"
+    },
+    "dark": {
+      "name": "Catppuccin Frappé",
+      "url": "file:///Users/plam/.logseq/plugins/logseq-catppuccin/ctp-frappe.css",
+      "description": "Catppuccin Frappé",
+      "mode": "dark",
+      "pid": "logseq-catppuccin",
+      "selected": false
+    }
+  },
+  "externals": []
+}

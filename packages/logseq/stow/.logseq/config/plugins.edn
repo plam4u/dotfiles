@@ -1,0 +1,2 @@
+{:logseq-catppuccin {:version "v0.6.4", :repo "catppuccin/logseq", :effect false, :theme true}
+ :logseq-vim-shortcuts {:version "v0.1.22", :repo "vipzhicheng/logseq-plugin-vim-shortcuts", :effect true, :theme false}}
