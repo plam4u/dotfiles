@@ -185,7 +185,7 @@
           [:##h [:!TOSg]] ;; Hide App
           [:##j [:toggle-id "REPLACE_ME"]]
           [:##k [:toggle-id "com.brave.Browser"]]
-          [:##l [:toggle-id "REPLACE_ME"]]
+          [:##l [:toggle-id "com.electron.logseq"]]
           [:##semicolon [:toggle-id "REPLACE_ME"]]
 
           ;; Row 5 (Shift, Z, X, C, V, B, N, M, Comma, Period)
