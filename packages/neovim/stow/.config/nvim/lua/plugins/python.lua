@@ -131,8 +131,8 @@ return {
           },
           {
             elements = {
-              -- Remove "console" from here to hide console
               "repl",
+              "console",
             },
             size = 0.25,
             position = "bottom",
