@@ -29,15 +29,15 @@
            }
  :simlayers {
              :tab-mode {:key :tab}
-             :semicolon-mode {:key :semicolon}
-             :comma-mode {:key :comma}
-             :period-mode {:key :period}
-             :quote-mode {:key :quote}
-             :q-mode {:key :q}
-             :b-mode {:key :b}
-             :n-mode {:key :f12}
-             :h-mode {:key :f12}
-             :g-mode {:key :f12}
+             ; :semicolon-mode {:key :f12}
+             ; :comma-mode {:key :f12}
+             ; :period-mode {:key :f12}
+             ; :quote-mode {:key :f12}
+             ; :q-mode {:key :f12}
+             ; :b-mode {:key :f12}
+             ; :n-mode {:key :f12}
+             ; :h-mode {:key :f12}
+             ; :g-mode {:key :f12}
              }
  :layers {}
  :templates {
@@ -66,6 +66,7 @@
           [:!TOSg :!Ch]
           ]}
         {:des "iTerm2" :rules [:iterm
+          ; Forward to tmux select window
           [:!C1 :!OS1] ; Cmd+1 -> Alt+Shift+1
           [:!C2 :!OS2] ; Cmd+2 -> Alt+Shift+2
           [:!C3 :!OS3] ; Cmd+3 -> Alt+Shift+3
@@ -175,7 +176,7 @@
           [:##t [:toggle-id "ru.keepcoder.Telegram"]]
           [:##y [:toggle-id "com.brave.Browser.app.agimnkijcaahngcdmfeangaknmldooml"]] ; YouTube
           [:##u [:toggle-id "com.apple.Music"]]
-          [:##i [:toggle-id "REPLACE_ME"]]
+          [:##i [:toggle-id "com.ranchero.NetNewsWire-Evergreen"]]
           [:##o [:toggle-id "md.obsidian"]]
           [:##p [:toggle-id "com.apple.Preview"]]
 
@@ -218,7 +219,6 @@
 
         {:des "Comma mode" :rules [:comma-mode
           ;;
-          [:##m [:toggle-id "md.obsidian"]]
           ]}
 
         {:des "Period mode" :rules [:period-mode
@@ -231,7 +231,6 @@
 
         {:des "Q-mode" :rules [:q-mode
           ;;
-          [:##e [:toggle-id "md.obsidian"]]
           ]}
 
         {:des "H-mode" :rules [:h-mode
