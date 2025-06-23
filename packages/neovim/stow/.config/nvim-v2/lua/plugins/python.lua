@@ -100,14 +100,14 @@ return {
         end,
         desc = "Run Config 1",
       },
-      {
-        "<leader><leader>d",
-        function()
-          local dap = require("dap")
-          dap.run_last()
-        end,
-        desc = "Run Last Config",
-      },
+      -- {
+      --   "<leader><leader>d",
+      --   function()
+      --     local dap = require("dap")
+      --     dap.run_last()
+      --   end,
+      --   desc = "Run Last Config",
+      -- },
     },
   },
   {
