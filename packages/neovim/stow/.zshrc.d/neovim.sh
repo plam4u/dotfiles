@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 
-alias v="nvim"
-alias v.="nvim ."
-# alias vl="NVIM_APPNAME=neovim-lazy nvim"
-# export PATH="$HOME/bin:$PATH"
-export LVRC="$HOME/.local/share/neovim-lazy/lazy/LazyVim/lua/lazyvim/plugins/init.lua"
-export MYLVRC="$HOME/dotfiles/packages/neovim/stow/.config/nvim/lua/config/autocmds.lua"
+alias v="NVIM_APPNAME=nvim-v2 nvim"
+alias v2="NVIM_APPNAME=nvim-v2 nvim"
+alias v1="NVIM_APPNAME=nvim-v1 nvim"
+
+# test other neovim instances
+alias vlz="NVIM_APPNAME=nvim-lz nvim" # LazyVim
+alias vtj="NVIM_APPNAME=nvim-tj nvim" # TJ Devries
+
 export GITHUB_COPILOT_TELEMETRY_DISABLED=1
