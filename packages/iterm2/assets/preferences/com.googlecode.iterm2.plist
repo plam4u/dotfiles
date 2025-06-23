@@ -1107,6 +1107,266 @@ Copy Mode</string>
 					<key>Version</key>
 					<integer>2</integer>
 				</dict>
+				<key>0x31-0x100000-0x12</key>
+				<dict>
+					<key>Action</key>
+					<integer>11</integer>
+					<key>Apply Mode</key>
+					<integer>0</integer>
+					<key>Escaping</key>
+					<integer>2</integer>
+					<key>Text</key>
+					<string>0x02 0x1b 0x21</string>
+					<key>Version</key>
+					<integer>2</integer>
+				</dict>
+				<key>0x32-0x100000-0x13</key>
+				<dict>
+					<key>Action</key>
+					<integer>11</integer>
+					<key>Apply Mode</key>
+					<integer>0</integer>
+					<key>Escaping</key>
+					<integer>2</integer>
+					<key>Text</key>
+					<string>0x02 0x1b 0x40</string>
+					<key>Version</key>
+					<integer>2</integer>
+				</dict>
+				<key>0x33-0x100000-0x14</key>
+				<dict>
+					<key>Action</key>
+					<integer>11</integer>
+					<key>Apply Mode</key>
+					<integer>0</integer>
+					<key>Escaping</key>
+					<integer>2</integer>
+					<key>Text</key>
+					<string>0x02 0x1b 0x23</string>
+					<key>Version</key>
+					<integer>2</integer>
+				</dict>
+				<key>0x34-0x100000-0x15</key>
+				<dict>
+					<key>Action</key>
+					<integer>11</integer>
+					<key>Apply Mode</key>
+					<integer>0</integer>
+					<key>Escaping</key>
+					<integer>2</integer>
+					<key>Text</key>
+					<string>0x02 0x1b 0x24</string>
+					<key>Version</key>
+					<integer>2</integer>
+				</dict>
+				<key>0x35-0x100000-0x17</key>
+				<dict>
+					<key>Action</key>
+					<integer>11</integer>
+					<key>Apply Mode</key>
+					<integer>0</integer>
+					<key>Escaping</key>
+					<integer>2</integer>
+					<key>Text</key>
+					<string>0x02 0x1b 0x25</string>
+					<key>Version</key>
+					<integer>2</integer>
+				</dict>
+				<key>0x36-0x100000-0x16</key>
+				<dict>
+					<key>Action</key>
+					<integer>11</integer>
+					<key>Apply Mode</key>
+					<integer>0</integer>
+					<key>Escaping</key>
+					<integer>2</integer>
+					<key>Text</key>
+					<string>0x02 0x1b 0x5e</string>
+					<key>Version</key>
+					<integer>2</integer>
+				</dict>
+				<key>0x37-0x100000-0x1a</key>
+				<dict>
+					<key>Action</key>
+					<integer>11</integer>
+					<key>Apply Mode</key>
+					<integer>0</integer>
+					<key>Escaping</key>
+					<integer>2</integer>
+					<key>Text</key>
+					<string>0x02 0x1b 0x26</string>
+					<key>Version</key>
+					<integer>2</integer>
+				</dict>
+				<key>0x38-0x100000-0x1c</key>
+				<dict>
+					<key>Action</key>
+					<integer>11</integer>
+					<key>Apply Mode</key>
+					<integer>0</integer>
+					<key>Escaping</key>
+					<integer>2</integer>
+					<key>Text</key>
+					<string>0x02 0x1b 0x2a</string>
+					<key>Version</key>
+					<integer>2</integer>
+				</dict>
+				<key>0x39-0x100000-0x19</key>
+				<dict>
+					<key>Action</key>
+					<integer>11</integer>
+					<key>Apply Mode</key>
+					<integer>0</integer>
+					<key>Escaping</key>
+					<integer>2</integer>
+					<key>Text</key>
+					<string>0x02 0x1b 0x28</string>
+					<key>Version</key>
+					<integer>2</integer>
+				</dict>
+				<key>0x44-0x120000-0x2</key>
+				<dict>
+					<key>Action</key>
+					<integer>11</integer>
+					<key>Apply Mode</key>
+					<integer>0</integer>
+					<key>Escaping</key>
+					<integer>2</integer>
+					<key>Text</key>
+					<string>0x02 0x1b 0x2d</string>
+					<key>Version</key>
+					<integer>2</integer>
+				</dict>
+				<key>0x57-0x120000-0xd</key>
+				<dict>
+					<key>Action</key>
+					<integer>11</integer>
+					<key>Apply Mode</key>
+					<integer>0</integer>
+					<key>Escaping</key>
+					<integer>2</integer>
+					<key>Text</key>
+					<string>0x02 0x1b 0x4b</string>
+					<key>Version</key>
+					<integer>2</integer>
+				</dict>
+				<key>0x5b-0x100000-0x21</key>
+				<dict>
+					<key>Action</key>
+					<integer>11</integer>
+					<key>Apply Mode</key>
+					<integer>0</integer>
+					<key>Escaping</key>
+					<integer>2</integer>
+					<key>Text</key>
+					<string>0x02 0x1b 0x2c</string>
+					<key>Version</key>
+					<integer>2</integer>
+				</dict>
+				<key>0x5d-0x100000-0x1e</key>
+				<dict>
+					<key>Action</key>
+					<integer>11</integer>
+					<key>Apply Mode</key>
+					<integer>0</integer>
+					<key>Escaping</key>
+					<integer>2</integer>
+					<key>Text</key>
+					<string>0x02 0x1b 0x2e</string>
+					<key>Version</key>
+					<integer>2</integer>
+				</dict>
+				<key>0x64-0x100000-0x2</key>
+				<dict>
+					<key>Action</key>
+					<integer>11</integer>
+					<key>Apply Mode</key>
+					<integer>0</integer>
+					<key>Escaping</key>
+					<integer>2</integer>
+					<key>Text</key>
+					<string>0x02 0x1b 0x27</string>
+					<key>Version</key>
+					<integer>2</integer>
+				</dict>
+				<key>0x68-0x100000-0x4</key>
+				<dict>
+					<key>Action</key>
+					<integer>11</integer>
+					<key>Apply Mode</key>
+					<integer>0</integer>
+					<key>Escaping</key>
+					<integer>2</integer>
+					<key>Text</key>
+					<string>0x02 0x1b 0x68</string>
+					<key>Version</key>
+					<integer>2</integer>
+				</dict>
+				<key>0x6c-0x100000-0x25</key>
+				<dict>
+					<key>Action</key>
+					<integer>11</integer>
+					<key>Apply Mode</key>
+					<integer>0</integer>
+					<key>Escaping</key>
+					<integer>2</integer>
+					<key>Text</key>
+					<string>0x02 0x1b 0x6c</string>
+					<key>Version</key>
+					<integer>2</integer>
+				</dict>
+				<key>0x6e-0x100000-0x2d</key>
+				<dict>
+					<key>Action</key>
+					<integer>11</integer>
+					<key>Apply Mode</key>
+					<integer>0</integer>
+					<key>Escaping</key>
+					<integer>2</integer>
+					<key>Text</key>
+					<string>0x02 0x1b 0x6e</string>
+					<key>Version</key>
+					<integer>2</integer>
+				</dict>
+				<key>0x73-0x100000-0x1</key>
+				<dict>
+					<key>Action</key>
+					<integer>11</integer>
+					<key>Apply Mode</key>
+					<integer>0</integer>
+					<key>Escaping</key>
+					<integer>2</integer>
+					<key>Text</key>
+					<string>0x02 0x1b 0x73</string>
+					<key>Version</key>
+					<integer>2</integer>
+				</dict>
+				<key>0x77-0x100000-0xd</key>
+				<dict>
+					<key>Action</key>
+					<integer>11</integer>
+					<key>Apply Mode</key>
+					<integer>0</integer>
+					<key>Escaping</key>
+					<integer>2</integer>
+					<key>Text</key>
+					<string>0x02 0x1b 0x6b</string>
+					<key>Version</key>
+					<integer>2</integer>
+				</dict>
+				<key>0x7a-0x100000-0x6</key>
+				<dict>
+					<key>Action</key>
+					<integer>11</integer>
+					<key>Apply Mode</key>
+					<integer>0</integer>
+					<key>Escaping</key>
+					<integer>2</integer>
+					<key>Text</key>
+					<string>0x02 0x1b 0x7a</string>
+					<key>Version</key>
+					<integer>2</integer>
+				</dict>
 			</dict>
 			<key>Left Command Key</key>
 			<integer>2</integer>
@@ -1340,6 +1600,10 @@ Copy Mode</string>
 	<real>0.39866865139563101</real>
 	<key>StatusBarPosition</key>
 	<integer>0</integer>
+	<key>SwitchTabModifier</key>
+	<integer>9</integer>
+	<key>SwitchWindowModifier</key>
+	<integer>9</integer>
 	<key>TabStyleWithAutomaticOption</key>
 	<integer>5</integer>
 	<key>TabViewType</key>
