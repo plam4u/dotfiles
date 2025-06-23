@@ -9,7 +9,7 @@ return {
       pattern = "MiniFilesExplorerOpen",
       callback = function()
         set_mark("h", "~", "Home directory")
-        set_mark("d", vim.fn.expand("~/dev"), "dev directory")
+        set_mark("d", vim.fn.expand("~/dev"), "Projects (~/dev)")
         set_mark("c", vim.fn.stdpath("config"), "Config")
         set_mark("w", vim.fn.getcwd, "Working directory")
         set_mark("r", root_dir, "Shell start dir")
@@ -17,7 +17,7 @@ return {
     })
     return vim.tbl_deep_extend("force", opts or {}, {
       windows = {
-        preview = false,
+        preview = true,
         width_focus = 35,
         width_nofocus = 15,
         width_preview = 25,
@@ -26,6 +26,21 @@ return {
         -- Whether to use for editing directories
         -- Disabled by default in LazyVim because neo-tree is used for that
         use_as_default_explorer = true,
+      },
+      mappings = {
+        close = "q",
+        go_in = "L",
+        go_in_plus = "l",
+        go_out = "h",
+        go_out_plus = "H",
+        mark_goto = "'",
+        mark_set = "m",
+        reset = "<BS>",
+        reveal_cwd = "@",
+        show_help = "g?",
+        synchronize = "=",
+        trim_left = "<",
+        trim_right = ">",
       },
     })
   end,
@@ -47,14 +62,6 @@ return {
       end,
       desc = "Open file explorer",
     },
-    -- -- Open the file explorer in current directory
-    -- {
-    --   "<leader>e",
-    --   function()
-    --     require("mini.files").open(vim.fn.expand("%:p:h"))
-    --   end,
-    --   desc = "Open file explorer in current directory",
-    -- },
     {
       "gP",
       function()
@@ -68,7 +75,7 @@ return {
     {
       "gp",
       function()
-        vim.g.mf_custom_state = vim.g.mf_custom_state or { windows = { preview = false, width_preview = 0 } }
+        vim.g.mf_custom_state = vim.g.mf_custom_state or { windows = { preview = true, width_preview = 25 } }
         local state = vim.g.mf_custom_state
         if not state.windows.preview then
           state.windows = { preview = true, width_preview = 25 }
@@ -106,6 +113,14 @@ return {
       end,
       ft = "minifiles",
       desc = "OS open",
+    },
+    {
+      "<C-s>",
+      function()
+        MiniFiles.synchronize()
+      end,
+      ft = "minifiles",
+      desc = "Synchronize",
     },
   },
 }
