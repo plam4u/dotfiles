@@ -3,10 +3,12 @@
 -- Add any additional options here
 
 vim.g.snacks_animate = false
-vim.opt.spell = false
 vim.g.ai_cmp = true
 vim.o.scrolloff = 1
 vim.g.copilot_telemetry = 0
+
+vim.opt.spell = false
+vim.opt.formatoptions:remove("o")
 vim.opt.fillchars = {
   vert = "│",
   horiz = "─",

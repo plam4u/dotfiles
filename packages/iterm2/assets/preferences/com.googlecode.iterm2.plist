@@ -1276,6 +1276,19 @@ Copy Mode</string>
 					<key>Version</key>
 					<integer>2</integer>
 				</dict>
+				<key>0x63-0x100000-0x8</key>
+				<dict>
+					<key>Action</key>
+					<integer>11</integer>
+					<key>Apply Mode</key>
+					<integer>0</integer>
+					<key>Escaping</key>
+					<integer>2</integer>
+					<key>Text</key>
+					<string>0x02 0x1b 0x79</string>
+					<key>Version</key>
+					<integer>2</integer>
+				</dict>
 				<key>0x64-0x100000-0x2</key>
 				<dict>
 					<key>Action</key>
@@ -1586,6 +1599,8 @@ Copy Mode</string>
 			<string>kNextWindowPointerAction</string>
 		</dict>
 	</dict>
+	<key>Print In Black And White</key>
+	<true/>
 	<key>PromptOnQuit</key>
 	<false/>
 	<key>ShowFullScreenTabBar</key>
