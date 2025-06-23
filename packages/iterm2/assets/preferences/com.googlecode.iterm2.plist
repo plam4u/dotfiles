@@ -1116,7 +1116,7 @@ Copy Mode</string>
 					<key>Escaping</key>
 					<integer>2</integer>
 					<key>Text</key>
-					<string>0x02 0x1b 0x21</string>
+					<string>0x1c 0x1b 0x21</string>
 					<key>Version</key>
 					<integer>2</integer>
 				</dict>
@@ -1129,7 +1129,7 @@ Copy Mode</string>
 					<key>Escaping</key>
 					<integer>2</integer>
 					<key>Text</key>
-					<string>0x02 0x1b 0x40</string>
+					<string>0x1c 0x1b 0x40</string>
 					<key>Version</key>
 					<integer>2</integer>
 				</dict>
@@ -1142,7 +1142,7 @@ Copy Mode</string>
 					<key>Escaping</key>
 					<integer>2</integer>
 					<key>Text</key>
-					<string>0x02 0x1b 0x23</string>
+					<string>0x1c 0x1b 0x23</string>
 					<key>Version</key>
 					<integer>2</integer>
 				</dict>
@@ -1155,7 +1155,7 @@ Copy Mode</string>
 					<key>Escaping</key>
 					<integer>2</integer>
 					<key>Text</key>
-					<string>0x02 0x1b 0x24</string>
+					<string>0x1c 0x1b 0x24</string>
 					<key>Version</key>
 					<integer>2</integer>
 				</dict>
@@ -1168,7 +1168,7 @@ Copy Mode</string>
 					<key>Escaping</key>
 					<integer>2</integer>
 					<key>Text</key>
-					<string>0x02 0x1b 0x25</string>
+					<string>0x1c 0x1b 0x25</string>
 					<key>Version</key>
 					<integer>2</integer>
 				</dict>
@@ -1181,7 +1181,7 @@ Copy Mode</string>
 					<key>Escaping</key>
 					<integer>2</integer>
 					<key>Text</key>
-					<string>0x02 0x1b 0x5e</string>
+					<string>0x1c 0x1b 0x5e</string>
 					<key>Version</key>
 					<integer>2</integer>
 				</dict>
@@ -1194,7 +1194,7 @@ Copy Mode</string>
 					<key>Escaping</key>
 					<integer>2</integer>
 					<key>Text</key>
-					<string>0x02 0x1b 0x26</string>
+					<string>0x1c 0x1b 0x26</string>
 					<key>Version</key>
 					<integer>2</integer>
 				</dict>
@@ -1207,7 +1207,7 @@ Copy Mode</string>
 					<key>Escaping</key>
 					<integer>2</integer>
 					<key>Text</key>
-					<string>0x02 0x1b 0x2a</string>
+					<string>0x1c 0x1b 0x2a</string>
 					<key>Version</key>
 					<integer>2</integer>
 				</dict>
@@ -1220,7 +1220,7 @@ Copy Mode</string>
 					<key>Escaping</key>
 					<integer>2</integer>
 					<key>Text</key>
-					<string>0x02 0x1b 0x28</string>
+					<string>0x1c 0x1b 0x28</string>
 					<key>Version</key>
 					<integer>2</integer>
 				</dict>
@@ -1233,7 +1233,7 @@ Copy Mode</string>
 					<key>Escaping</key>
 					<integer>2</integer>
 					<key>Text</key>
-					<string>0x02 0x1b 0x2d</string>
+					<string>0x1c 0x1b 0x2d</string>
 					<key>Version</key>
 					<integer>2</integer>
 				</dict>
@@ -1246,7 +1246,7 @@ Copy Mode</string>
 					<key>Escaping</key>
 					<integer>2</integer>
 					<key>Text</key>
-					<string>0x02 0x1b 0x4b</string>
+					<string>0x1c 0x1b 0x4b</string>
 					<key>Version</key>
 					<integer>2</integer>
 				</dict>
@@ -1259,7 +1259,7 @@ Copy Mode</string>
 					<key>Escaping</key>
 					<integer>2</integer>
 					<key>Text</key>
-					<string>0x02 0x1b 0x2c</string>
+					<string>0x1c 0x1b 0x2c</string>
 					<key>Version</key>
 					<integer>2</integer>
 				</dict>
@@ -1272,7 +1272,7 @@ Copy Mode</string>
 					<key>Escaping</key>
 					<integer>2</integer>
 					<key>Text</key>
-					<string>0x02 0x1b 0x2e</string>
+					<string>0x1c 0x1b 0x2e</string>
 					<key>Version</key>
 					<integer>2</integer>
 				</dict>
@@ -1285,7 +1285,7 @@ Copy Mode</string>
 					<key>Escaping</key>
 					<integer>2</integer>
 					<key>Text</key>
-					<string>0x02 0x1b 0x79</string>
+					<string>0x1c 0x1b 0x79</string>
 					<key>Version</key>
 					<integer>2</integer>
 				</dict>
@@ -1298,7 +1298,7 @@ Copy Mode</string>
 					<key>Escaping</key>
 					<integer>2</integer>
 					<key>Text</key>
-					<string>0x02 0x1b 0x27</string>
+					<string>0x1c 0x1b 0x27</string>
 					<key>Version</key>
 					<integer>2</integer>
 				</dict>
@@ -1311,7 +1311,7 @@ Copy Mode</string>
 					<key>Escaping</key>
 					<integer>2</integer>
 					<key>Text</key>
-					<string>0x02 0x1b 0x68</string>
+					<string>0x1c 0x1b 0x68</string>
 					<key>Version</key>
 					<integer>2</integer>
 				</dict>
@@ -1324,7 +1324,7 @@ Copy Mode</string>
 					<key>Escaping</key>
 					<integer>2</integer>
 					<key>Text</key>
-					<string>0x02 0x1b 0x6c</string>
+					<string>0x1c 0x1b 0x6c</string>
 					<key>Version</key>
 					<integer>2</integer>
 				</dict>
@@ -1337,7 +1337,7 @@ Copy Mode</string>
 					<key>Escaping</key>
 					<integer>2</integer>
 					<key>Text</key>
-					<string>0x02 0x1b 0x6e</string>
+					<string>0x1c 0x1b 0x6e</string>
 					<key>Version</key>
 					<integer>2</integer>
 				</dict>
@@ -1350,7 +1350,7 @@ Copy Mode</string>
 					<key>Escaping</key>
 					<integer>2</integer>
 					<key>Text</key>
-					<string>0x02 0x1b 0x73</string>
+					<string>0x1c 0x1b 0x73</string>
 					<key>Version</key>
 					<integer>2</integer>
 				</dict>
@@ -1363,7 +1363,7 @@ Copy Mode</string>
 					<key>Escaping</key>
 					<integer>2</integer>
 					<key>Text</key>
-					<string>0x02 0x1b 0x6b</string>
+					<string>0x1c 0x1b 0x6b</string>
 					<key>Version</key>
 					<integer>2</integer>
 				</dict>
@@ -1376,7 +1376,7 @@ Copy Mode</string>
 					<key>Escaping</key>
 					<integer>2</integer>
 					<key>Text</key>
-					<string>0x02 0x1b 0x7a</string>
+					<string>0x1c 0x1b 0x7a</string>
 					<key>Version</key>
 					<integer>2</integer>
 				</dict>
