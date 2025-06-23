@@ -1,6 +1,7 @@
 return {
   "echasnovski/mini.files",
   opts = function(_, opts)
+    local root_dir = vim.uv.cwd()
     local set_mark = function(id, path, desc)
       MiniFiles.set_bookmark(id, path, { desc = desc })
     end
@@ -11,6 +12,7 @@ return {
         set_mark("d", vim.fn.expand("~/dev"), "dev directory")
         set_mark("c", vim.fn.stdpath("config"), "Config")
         set_mark("w", vim.fn.getcwd, "Working directory")
+        set_mark("r", root_dir, "Shell start dir")
       end,
     })
     return vim.tbl_deep_extend("force", opts or {}, {
