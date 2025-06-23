@@ -3,23 +3,18 @@ return {
     "ibhagwan/fzf-lua",
     cmd = "FzfLua",
     opts = function(_, opts)
-      local fzf = require("fzf-lua")
-      local actions = fzf.actions
       local config = {
-        files = {
-          actions = {
-            ["ctrl-i"] = { actions.toggle_ignore },
-            ["ctrl-h"] = { actions.toggle_hidden },
-          },
-        },
-        grep = {
-          actions = {
-            ["ctrl-i"] = { actions.toggle_ignore },
-            ["ctrl-h"] = { actions.toggle_hidden },
-          },
-        },
+        files = { hidden = true },
+        grep = { hidden = true },
       }
       return vim.tbl_deep_extend("force", opts, config)
     end,
+    keys = {
+      { "<leader>fF", LazyVim.pick("files"), desc = "Find Files (cwd)" },
+      { "<leader>ff", LazyVim.pick("files", { root = false }), desc = "Find Files (Root dir)" },
+      { "<leader>sg", LazyVim.pick("live_grep", { root = false }), desc = "Grep (cwd)" },
+      { "<leader>/", LazyVim.pick("live_grep", { root = false }), desc = "Grep (cwd)" },
+      { "<leader>sG", LazyVim.pick("live_grep"), desc = "Grep (Root Dir)" },
+    },
   },
 }
