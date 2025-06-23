@@ -61,7 +61,7 @@ return {
   "rockyzhang24/arctic.nvim",
   "folke/tokyonight.nvim",
   "Shatur/neovim-ayu",
-  "RRethy/base16-nvim",
+  -- "RRethy/base16-nvim",
   "xero/miasma.nvim",
   "cocopon/iceberg.vim",
   "kepano/flexoki-neovim",
