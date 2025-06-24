@@ -63,6 +63,20 @@ return {
       desc = "Open file explorer",
     },
     {
+      "<leader>fm",
+      function()
+        require("mini.files").open(vim.api.nvim_buf_get_name(0), true, vim.g.mf_custom_state)
+      end,
+      desc = "Open mini.files (Directory of Current File)",
+    },
+    {
+      "<leader>fM",
+      function()
+        require("mini.files").open(vim.uv.cwd(), true, vim.g.mf_custom_state)
+      end,
+      desc = "Open mini.files (cwd)",
+    },
+    {
       "gP",
       function()
         local config = require("mini.files").config
