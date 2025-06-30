@@ -2,8 +2,9 @@ let mapleader = ' '
 
 set number relativenumber
 set ideajoin
-set scrolloff=4
+set scrolloff=1
 set smartcase
+set clipboard=unnamedplus
 
 nmap <S-Down> :action EditorCloneCaretBelow<CR>
 nmap <S-Up> :action EditorCloneCaretAbove<CR>
