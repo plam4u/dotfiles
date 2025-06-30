@@ -1,4 +1,5 @@
 if vim.g.neovide then
+  print("Running Neovide configuration...")
   vim.g.neovide_input_macos_option_key_is_meta = "only_left"
   vim.opt.clipboard = "unnamedplus"
   vim.keymap.set({ "n", "v" }, "<D-v>", '"+p', { noremap = true, silent = true })
@@ -10,4 +11,6 @@ if vim.g.neovide then
     end)
     return ""
   end, { expr = true })
+else
+  print("Not running Neovide configuration.")
 end
