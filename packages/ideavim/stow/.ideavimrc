@@ -5,6 +5,7 @@ set ideajoin
 set scrolloff=1
 set smartcase
 set clipboard=unnamedplus
+set clipboard^=ideaput
 
 nmap <S-Down> :action EditorCloneCaretBelow<CR>
 nmap <S-Up> :action EditorCloneCaretAbove<CR>
@@ -100,5 +101,3 @@ let g:highlightedyank_highlight_duration = "50"
 "   let g:highlightedyank_highlight_foreground_color = "rgba(0, 0, 0, 255)"
 " 
 " https://github.com/machakann/vim-highlightedyank/blob/master/doc/highlightedyank.txt
-
-
