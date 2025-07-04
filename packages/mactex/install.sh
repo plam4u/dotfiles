@@ -3,3 +3,5 @@
 # change permissions to allow the current user to install packages
 sudo chown -R "$(whoami)":admin /usr/local /opt/homebrew
 brew install --cask mactex
+
+# for PDF viewing, see "packages/skim" package
