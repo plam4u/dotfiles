@@ -56,6 +56,7 @@
                 :arc ["^company\\.thebrowser\\.Browser"]
                 :iterm ["^com\\.googlecode\\.iterm2"]
                 :kitty ["^net\\.kovidgoyal\\.kitty"]
+                :clion ["^com\\.jetbrains\\.CLion"]
                 }
 
  :main [
@@ -64,6 +65,9 @@
           ]}
         {:des "Arc" :rules [:arc
           [:!TOSg :!Ch]
+          ]}
+        {:des "CLion" :rules [:clion
+          [:!CTd :!TSd]
           ]}
         {:des "iTerm2" :rules [:iterm
           ; Forward to tmux select window
