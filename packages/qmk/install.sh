@@ -12,7 +12,7 @@ fi
 echo
 echo "Running \"qmk setup -H ~/dev/qmk_firmware\"..."
 (
-  cd ~/dev/qmk_firmware
+  cd ~/dev/qmk_firmware || exit
 
   # upstream is required
   git remote add upstream https://github.com/qmk/qmk_firmware.git
@@ -20,6 +20,22 @@ echo "Running \"qmk setup -H ~/dev/qmk_firmware\"..."
   # throws an error
   git rm --cached lib/ugfx &>/dev/null
   git submodule update --init --recursive
+
+  # Flashing for bootloader: caterina
+  # Waiting for USB serial port - reset your controller now (Ctrl+C to cancel)....
+  # Device /dev/tty.usbmodem11324401 has appeared; assuming it is the controller.
+  # Waiting for /dev/tty.usbmodem11324401 to become writable.
+  # Error: programmer type pickit5_updi not found [/opt/homebrew/etc/avrdude.conf:2660]
+  # Error: unable to process system wide configuration file /opt/homebrew/etc/avrdude.conf
+  # gmake: *** [platforms/avr/flash.mk:173: flash] Error 1
+  rm /opt/homebrew/etc/avrdude.conf
+  brew reinstall avrdude
+
+  # fixes an issue with missing arm-none-eabi-size binary.
+  brew reinstall arm-none-eabi-gcc
+  # Run after installiing arm-none-eabi-gcc to confirm all is good.
+  #   which arm-none-eabi-size
+  #   ls /opt/homebrew/bin/arm-none-eabi-size
 
   # export PATH for QMK-installed dependencies needed by QMK setup
   export PATH="/opt/homebrew/opt/avr-gcc@8/bin:$PATH"
