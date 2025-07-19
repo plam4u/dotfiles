@@ -278,46 +278,38 @@
           [:!TOSr [:!TOSo]]
 
           ;; ========================
-          ;; LOWER2 (Left Thumb Combo (ESC+SPC))
+          ;; Layer LOWER2
           ;; ========================
           ;; QWERT
-          [:!Sf11 [:toggle-id "com.apple.Notes"]]
+          [:!Sf11 [:toggle-id "com.apple.Music"]]
           [:!Sf12 [:toggle-id "com.apple.iCal"]]
           [:!Sf13 [:toggle-id "com.apple.reminders"]]
           [:!Sf14 [:toggle-id "ru.keepcoder.Telegram"]]
-          [:!Sf15 [:toggle-id "com.apple.Safari"]]
+          [:!Sf15 [:toggle-id "com.brave.Browser"]]
 
           ;; ASDFG
-          ;; !Sf16 - A, !Sf17 - S, !Sf18 - D, !Sf19 - F, !Sf20 - G
-
-          ; [:!Sf16 [:toggle-id "md.obsidian"]]
-          ; [:!Sf17 [:toggle-id "com.tinyspeck.slackmacgap"]]
-          ; [:!Sf17 [:toggle-id "com.brave.Browser"]]
-          ; [:!Sf18 [:toggle-id "com.brave.Browser"]]
-          ; [:!Sf18 [:toggle-id "company.thebrowser.Browser"]]
+          [:!Sf16 [:toggle-id "com.apple.MobileSMS"]]
+          [:!Sf17 [:toggle-id "-"]]
           [:!Sf18 [:toggle-id "md.obsidian"]]
-          ; [:!Sf19 [:toggle-id "com.apple.dt.Xcode"]]
-          [:!Sf19 [:toggle-id "com.brave.Browser"]]
-          ; [:!Sf20 [:toggle-id "com.apple.Music"]]
+          [:!Sf19 [:toggle-id "com.apple.finder"]]
+          [:!Sf20 [:toggle-id "com.apple.mail"]]
           
-          ;; Lower Row (Modifiers)
-           
           ;; ========================
-          ;; LOWER4 (Left Thumb + Ring Row 5) 
+          ;; Layer RAISE2
           ;; ========================
-          ;; Upper Row (B)
-          ; [:!Of11 [:toggle-id "com.apple.Notes"]]
-          ; [:!Of12 [:toggle-id "com.apple.Notes"]]
-          ; [:!Of13 [:toggle-id "com.apple.Notes"]]
-          ; [:!Of14 [:toggle-id "com.apple.Notes"]]
-          ; [:!Of15 [:toggle-id "com.apple.Notes"]]
+          ;; QWERT
+          [:!Of11 [:toggle-id "-"]]
+          [:!Of12 [:toggle-id "-"]]
+          [:!Of13 [:toggle-id "-"]]
+          [:!Of14 [:toggle-id "-"]]
+          [:!Of15 [:toggle-id "-"]]
 
-          ;; Home Row (B)
-          [:!Of16 [:toggle-id "com.apple.Notes"]]
-          [:!Of17 [:toggle-id "com.apple.Notes"]]
-          [:!Of18 [:toggle-id "com.apple.Notes"]]
-          [:!Of19 [:toggle-id "com.apple.Notes"]]
-          [:!Of20 [:toggle-id "com.apple.Notes"]]
+          ;; ASDFG
+          [:!Of16 [:toggle-id "-"]]
+          [:!Of17 [:toggle-id "-"]]
+          [:!Of18 [:toggle-id "-"]]
+          [:!Of19 [:toggle-id "-"]]
+          [:!Of20 [:toggle-id "-"]]
           
           ;; Lower Row 3 (Modifiers)
 

@@ -2175,7 +2175,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.Notes"
+            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.Music"
           } ],
           "conditions" : [ {
             "identifiers" : [ {
@@ -2251,7 +2251,45 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.Safari"
+            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.brave.Browser"
+          } ],
+          "conditions" : [ {
+            "identifiers" : [ {
+              "vendor_id" : 17485,
+              "product_id" : 13622,
+              "is_keyboard" : true
+            } ],
+            "type" : "device_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "from" : {
+            "key_code" : "f16",
+            "modifiers" : {
+              "mandatory" : [ "left_shift" ]
+            }
+          },
+          "to" : [ {
+            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.MobileSMS"
+          } ],
+          "conditions" : [ {
+            "identifiers" : [ {
+              "vendor_id" : 17485,
+              "product_id" : 13622,
+              "is_keyboard" : true
+            } ],
+            "type" : "device_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "from" : {
+            "key_code" : "f17",
+            "modifiers" : {
+              "mandatory" : [ "left_shift" ]
+            }
+          },
+          "to" : [ {
+            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=-"
           } ],
           "conditions" : [ {
             "identifiers" : [ {
@@ -2289,7 +2327,121 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.brave.Browser"
+            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.finder"
+          } ],
+          "conditions" : [ {
+            "identifiers" : [ {
+              "vendor_id" : 17485,
+              "product_id" : 13622,
+              "is_keyboard" : true
+            } ],
+            "type" : "device_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "from" : {
+            "key_code" : "f20",
+            "modifiers" : {
+              "mandatory" : [ "left_shift" ]
+            }
+          },
+          "to" : [ {
+            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.mail"
+          } ],
+          "conditions" : [ {
+            "identifiers" : [ {
+              "vendor_id" : 17485,
+              "product_id" : 13622,
+              "is_keyboard" : true
+            } ],
+            "type" : "device_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "from" : {
+            "key_code" : "f11",
+            "modifiers" : {
+              "mandatory" : [ "left_option" ]
+            }
+          },
+          "to" : [ {
+            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=-"
+          } ],
+          "conditions" : [ {
+            "identifiers" : [ {
+              "vendor_id" : 17485,
+              "product_id" : 13622,
+              "is_keyboard" : true
+            } ],
+            "type" : "device_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "from" : {
+            "key_code" : "f12",
+            "modifiers" : {
+              "mandatory" : [ "left_option" ]
+            }
+          },
+          "to" : [ {
+            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=-"
+          } ],
+          "conditions" : [ {
+            "identifiers" : [ {
+              "vendor_id" : 17485,
+              "product_id" : 13622,
+              "is_keyboard" : true
+            } ],
+            "type" : "device_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "from" : {
+            "key_code" : "f13",
+            "modifiers" : {
+              "mandatory" : [ "left_option" ]
+            }
+          },
+          "to" : [ {
+            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=-"
+          } ],
+          "conditions" : [ {
+            "identifiers" : [ {
+              "vendor_id" : 17485,
+              "product_id" : 13622,
+              "is_keyboard" : true
+            } ],
+            "type" : "device_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "from" : {
+            "key_code" : "f14",
+            "modifiers" : {
+              "mandatory" : [ "left_option" ]
+            }
+          },
+          "to" : [ {
+            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=-"
+          } ],
+          "conditions" : [ {
+            "identifiers" : [ {
+              "vendor_id" : 17485,
+              "product_id" : 13622,
+              "is_keyboard" : true
+            } ],
+            "type" : "device_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "from" : {
+            "key_code" : "f15",
+            "modifiers" : {
+              "mandatory" : [ "left_option" ]
+            }
+          },
+          "to" : [ {
+            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=-"
           } ],
           "conditions" : [ {
             "identifiers" : [ {
@@ -2308,7 +2460,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.Notes"
+            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=-"
           } ],
           "conditions" : [ {
             "identifiers" : [ {
@@ -2327,7 +2479,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.Notes"
+            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=-"
           } ],
           "conditions" : [ {
             "identifiers" : [ {
@@ -2346,7 +2498,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.Notes"
+            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=-"
           } ],
           "conditions" : [ {
             "identifiers" : [ {
@@ -2365,7 +2517,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.Notes"
+            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=-"
           } ],
           "conditions" : [ {
             "identifiers" : [ {
@@ -2384,7 +2536,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.Notes"
+            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=-"
           } ],
           "conditions" : [ {
             "identifiers" : [ {
