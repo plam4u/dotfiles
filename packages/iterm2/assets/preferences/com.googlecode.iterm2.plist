@@ -32,6 +32,19 @@
 			<key>Version</key>
 			<integer>2</integer>
 		</dict>
+		<key>0x61-0x100000-0x0</key>
+		<dict>
+			<key>Action</key>
+			<integer>13</integer>
+			<key>Apply Mode</key>
+			<integer>0</integer>
+			<key>Escaping</key>
+			<integer>2</integer>
+			<key>Text</key>
+			<string></string>
+			<key>Version</key>
+			<integer>2</integer>
+		</dict>
 		<key>0x63-0x140000-0x8</key>
 		<dict>
 			<key>Action</key>
@@ -1250,6 +1263,32 @@ Copy Mode</string>
 					<key>Version</key>
 					<integer>2</integer>
 				</dict>
+				<key>0x45-0x1e0000-0xe</key>
+				<dict>
+					<key>Action</key>
+					<integer>11</integer>
+					<key>Apply Mode</key>
+					<integer>0</integer>
+					<key>Escaping</key>
+					<integer>2</integer>
+					<key>Text</key>
+					<string>0x1c 0x1b 0x48</string>
+					<key>Version</key>
+					<integer>2</integer>
+				</dict>
+				<key>0x52-0x1e0000-0xf</key>
+				<dict>
+					<key>Action</key>
+					<integer>11</integer>
+					<key>Apply Mode</key>
+					<integer>0</integer>
+					<key>Escaping</key>
+					<integer>2</integer>
+					<key>Text</key>
+					<string>0x1c 0x1b 0x4c</string>
+					<key>Version</key>
+					<integer>2</integer>
+				</dict>
 				<key>0x57-0x120000-0xd</key>
 				<dict>
 					<key>Action</key>
@@ -1289,6 +1328,19 @@ Copy Mode</string>
 					<key>Version</key>
 					<integer>2</integer>
 				</dict>
+				<key>0x61-0x100000-0x0</key>
+				<dict>
+					<key>Action</key>
+					<integer>11</integer>
+					<key>Apply Mode</key>
+					<integer>0</integer>
+					<key>Escaping</key>
+					<integer>2</integer>
+					<key>Text</key>
+					<string>0x1c 0x4c</string>
+					<key>Version</key>
+					<integer>2</integer>
+				</dict>
 				<key>0x63-0x100000-0x8</key>
 				<dict>
 					<key>Action</key>
@@ -1312,32 +1364,6 @@ Copy Mode</string>
 					<integer>2</integer>
 					<key>Text</key>
 					<string>0x1c 0x1b 0x27</string>
-					<key>Version</key>
-					<integer>2</integer>
-				</dict>
-				<key>0x68-0x100000-0x4</key>
-				<dict>
-					<key>Action</key>
-					<integer>11</integer>
-					<key>Apply Mode</key>
-					<integer>0</integer>
-					<key>Escaping</key>
-					<integer>2</integer>
-					<key>Text</key>
-					<string>0x1c 0x1b 0x68</string>
-					<key>Version</key>
-					<integer>2</integer>
-				</dict>
-				<key>0x6c-0x100000-0x25</key>
-				<dict>
-					<key>Action</key>
-					<integer>11</integer>
-					<key>Apply Mode</key>
-					<integer>0</integer>
-					<key>Escaping</key>
-					<integer>2</integer>
-					<key>Text</key>
-					<string>0x1c 0x1b 0x6c</string>
 					<key>Version</key>
 					<integer>2</integer>
 				</dict>
@@ -1402,7 +1428,7 @@ Copy Mode</string>
 					<key>Escaping</key>
 					<integer>2</integer>
 					<key>Text</key>
-					<string>0x1c 0x1b 0x48</string>
+					<string>0x1c 0x1b 0x68</string>
 					<key>Version</key>
 					<integer>2</integer>
 				</dict>
@@ -1415,7 +1441,7 @@ Copy Mode</string>
 					<key>Escaping</key>
 					<integer>2</integer>
 					<key>Text</key>
-					<string>0x1c 0x1b 0x4c</string>
+					<string>0x1c 0x1b 0x6c</string>
 					<key>Version</key>
 					<integer>2</integer>
 				</dict>
