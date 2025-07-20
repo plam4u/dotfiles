@@ -20,7 +20,7 @@ return {
         preview = true,
         width_focus = 35,
         width_nofocus = 15,
-        width_preview = 25,
+        width_preview = 70,
       },
       options = {
         -- Whether to use for editing directories
@@ -89,7 +89,7 @@ return {
     {
       "gp",
       function()
-        vim.g.mf_custom_state = vim.g.mf_custom_state or { windows = { preview = true, width_preview = 25 } }
+        vim.g.mf_custom_state = vim.g.mf_custom_state or { windows = { preview = true, width_preview = 70 } }
         local state = vim.g.mf_custom_state
         if not state.windows.preview then
           state.windows = { preview = true, width_preview = 25 }
