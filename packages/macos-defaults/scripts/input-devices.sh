@@ -43,3 +43,5 @@ defaults write NSGlobalDomain AppleKeyboardUIMode -int 3
 # Show language menu in the top right corner of the boot screen
 # sudo defaults write "/Library/Preferences/com.apple.loginwindow" showInputMenu -bool true
 
+# do not show launch screen when pressing PS button on PS4 controller
+defaults write com.apple.GameController bluetoothPrefsMenuLongPressAction -integer 0
