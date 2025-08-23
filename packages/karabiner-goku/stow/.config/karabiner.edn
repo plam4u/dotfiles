@@ -336,6 +336,9 @@
           ; [:!Of21 [:toggle-id "com.apple.iCal"]]
           ]}
 
+        {:des "Plamen's Wireless Keyboard 2G" :rules [:mbp-kb3
+          [:##non_us_backslash :##grave_accent_and_tilde]
+        ]}
         {:des "Apple Internal Keyboard" :rules [:!dm-kb
           ;; arrow keys
           [:!Q##h :left_arrow]
