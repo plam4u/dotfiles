@@ -57,6 +57,7 @@
                 :iterm ["^com\\.googlecode\\.iterm2"]
                 :kitty ["^net\\.kovidgoyal\\.kitty"]
                 :clion ["^com\\.jetbrains\\.CLion"]
+                :steam ["^com\\.valvesoftware\\.steam"]
                 }
 
  :main [
@@ -65,6 +66,10 @@
           ]}
         {:des "Arc" :rules [:arc
           [:!TOSg :!Ch]
+          ]}
+        {:des "Steam" :rules [:steam
+          [:!Copen_bracket :!Oleft_arrow]
+          [:!Cclose_bracket :!Oright_arrow]
           ]}
         {:des "CLion" :rules [:clion
           [:!CTd :!TSd]
