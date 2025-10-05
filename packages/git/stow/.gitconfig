@@ -4,12 +4,7 @@
 [core]
 	excludesfile = /Users/plam/.gitignore_global
 	editor = vim
-[difftool "sourcetree"]
-	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
-	path =
-[mergetool "sourcetree"]
-	cmd = /Applications/Sourcetree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
-	trustExitCode = true
+	ignorecase = false
 [diff]
 	tool = vimdiff
 [merge]
@@ -29,7 +24,7 @@
     search = !git log --all --pretty=format:'%Cred%h%Creset - %s %Cgreen(%cr) %C(bold blue)%an%Creset' --abbrev-commit --date=relative --no-merges --regexp-ignore-case --grep
     nevermind = !git reset --hard HEAD && git clean -fdx
 [init]
-	defaultBranch = master
+	defaultBranch = main
 [branch]
 	autosetuprebase = always
 [filter "lfs"]
