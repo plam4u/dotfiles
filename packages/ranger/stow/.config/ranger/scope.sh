@@ -118,42 +118,6 @@ handle_extension() {
     esac
 }
 
-# handle_image() {
-#     ## Size of the preview if there are multiple options or it has to be
-#     ## rendered from vector graphics. If the conversion program allows
-#     ## specifying only one dimension while keeping the aspect ratio, the width
-#     ## will be used.
-#     local DEFAULT_SIZE="1920x1080"
-#
-#     local mimetype="${1}"
-#     case "${mimetype}" in
-#         ## SVG
-#         # image/svg+xml|image/svg)
-#         #     convert -- "${FILE_PATH}" "${IMAGE_CACHE_PATH}" && exit 6
-#         #     exit 1;;
-#
-#         ## DjVu
-#         # image/vnd.djvu)
-#         #     ddjvu -format=tiff -quality=90 -page=1 -size="${DEFAULT_SIZE}" \
-#         #           - "${IMAGE_CACHE_PATH}" < "${FILE_PATH}" \
-#         #           && exit 6 || exit 1;;
-#
-#         ## Image
-#         image/*)
-#             local orientation
-#             orientation="$( identify -format '%[EXIF:Orientation]\n' -- "${FILE_PATH}" )"
-#             ## If orientation data is present and the image actually
-#             ## needs rotating ("1" means no rotation)...
-#             if [[ -n "$orientation" && "$orientation" != 1 ]]; then
-#                 ## ...auto-rotate the image according to the EXIF data.
-#                 convert -- "${FILE_PATH}" -auto-orient "${IMAGE_CACHE_PATH}" && exit 6
-#             fi
-#
-#             ## `w3mimgdisplay` will be called for all images (unless overriden
-#             ## as above), but might fail for unsupported types.
-#             exit 7;;
-
-
 handle_image() {
     ## Size of the preview if there are multiple options or it has to be
     ## rendered from vector graphics. If the conversion program allows
@@ -163,40 +127,32 @@ handle_image() {
 
     local mimetype="${1}"
     case "${mimetype}" in
-    ## SVG
-    # image/svg+xml|image/svg)
-    #     convert -- "${FILE_PATH}" "${IMAGE_CACHE_PATH}" && exit 6
-    #     exit 1;;
+        ## SVG
+        # image/svg+xml|image/svg)
+        #     convert -- "${FILE_PATH}" "${IMAGE_CACHE_PATH}" && exit 6
+        #     exit 1;;
 
-    ## DjVu
-    # image/vnd.djvu)
-    #     ddjvu -format=tiff -quality=90 -page=1 -size="${DEFAULT_SIZE}" \
-    #           - "${IMAGE_CACHE_PATH}" < "${FILE_PATH}" \
-    #           && exit 6 || exit 1;;
+        ## DjVu
+        # image/vnd.djvu)
+        #     ddjvu -format=tiff -quality=90 -page=1 -size="${DEFAULT_SIZE}" \
+        #           - "${IMAGE_CACHE_PATH}" < "${FILE_PATH}" \
+        #           && exit 6 || exit 1;;
 
-    ## Image
-    image/*)
-        # Check if we're in iTerm2 and imgcat is available
-        if [[ "$TERM_PROGRAM" == "iTerm.app" ]] && command -v imgcat >/dev/null 2>&1; then
-            # For iTerm2, use imgcat to display images directly
-            imgcat "${FILE_PATH}" && exit 5
-        fi
-        
-        local orientation
-        orientation="$(identify -format '%[EXIF:Orientation]\n' -- "${FILE_PATH}")"
-        ## If orientation data is present and the image actually
-        ## needs rotating ("1" means no rotation)...
-        if [[ -n "$orientation" && "$orientation" != 1 ]]; then
-            ## ...auto-rotate the image according to the EXIF data.
-            convert -- "${FILE_PATH}" -auto-orient "${IMAGE_CACHE_PATH}" && exit 6
-        fi
+        ## Image
+        image/*)
+            local orientation
+            orientation="$( identify -format '%[EXIF:Orientation]\n' -- "${FILE_PATH}" )"
+            ## If orientation data is present and the image actually
+            ## needs rotating ("1" means no rotation)...
+            if [[ -n "$orientation" && "$orientation" != 1 ]]; then
+                ## ...auto-rotate the image according to the EXIF data.
+                convert -- "${FILE_PATH}" -auto-orient "${IMAGE_CACHE_PATH}" && exit 6
+            fi
 
-        ## `w3mimgdisplay` will be called for all images (unless overriden
-        ## as above), but might fail for unsupported types.
-        exit 7
-        ;;
+            ## `w3mimgdisplay` will be called for all images (unless overriden
+            ## as above), but might fail for unsupported types.
+            exit 7;;
 
-    # ... rest of the function remains the same
         ## Video
         # video/*)
         #     # Thumbnail
