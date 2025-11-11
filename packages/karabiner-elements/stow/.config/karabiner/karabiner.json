@@ -2204,25 +2204,6 @@
           "type" : "basic"
         }, {
           "from" : {
-            "key_code" : "f11",
-            "modifiers" : {
-              "mandatory" : [ "left_shift" ]
-            }
-          },
-          "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.Music"
-          } ],
-          "conditions" : [ {
-            "identifiers" : [ {
-              "vendor_id" : 17485,
-              "product_id" : 13622,
-              "is_keyboard" : true
-            } ],
-            "type" : "device_if"
-          } ],
-          "type" : "basic"
-        }, {
-          "from" : {
             "key_code" : "f12",
             "modifiers" : {
               "mandatory" : [ "left_shift" ]
@@ -2318,13 +2299,13 @@
           "type" : "basic"
         }, {
           "from" : {
-            "key_code" : "f17",
+            "key_code" : "f11",
             "modifiers" : {
               "mandatory" : [ "left_shift" ]
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=-"
+            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=company.thebrowser.Browser"
           } ],
           "conditions" : [ {
             "identifiers" : [ {
