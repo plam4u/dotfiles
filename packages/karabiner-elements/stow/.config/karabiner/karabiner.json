@@ -20,7 +20,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.neovide.neovide"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=com.neovide.neovide\""
           } ],
           "type" : "basic"
         } ]
@@ -709,7 +709,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.brave.Browser.app.fmpnliohjhemenmnlpbfagaolkdacoja"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=com.brave.Browser.app.fmpnliohjhemenmnlpbfagaolkdacoja\""
           } ],
           "conditions" : [ {
             "name" : "tab-mode",
@@ -728,7 +728,7 @@
               "value" : 1
             }
           }, {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.brave.Browser.app.fmpnliohjhemenmnlpbfagaolkdacoja"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=com.brave.Browser.app.fmpnliohjhemenmnlpbfagaolkdacoja\""
           } ],
           "from" : {
             "simultaneous" : [ {
@@ -757,7 +757,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.reminders"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=com.apple.reminders\""
           } ],
           "conditions" : [ {
             "name" : "tab-mode",
@@ -776,7 +776,7 @@
               "value" : 1
             }
           }, {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.reminders"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=com.apple.reminders\""
           } ],
           "from" : {
             "simultaneous" : [ {
@@ -805,7 +805,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=ru.keepcoder.Telegram"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=ru.keepcoder.Telegram\""
           } ],
           "conditions" : [ {
             "name" : "tab-mode",
@@ -824,7 +824,7 @@
               "value" : 1
             }
           }, {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=ru.keepcoder.Telegram"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=ru.keepcoder.Telegram\""
           } ],
           "from" : {
             "simultaneous" : [ {
@@ -853,7 +853,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.brave.Browser.app.agimnkijcaahngcdmfeangaknmldooml"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=com.brave.Browser.app.agimnkijcaahngcdmfeangaknmldooml\""
           } ],
           "conditions" : [ {
             "name" : "tab-mode",
@@ -872,7 +872,7 @@
               "value" : 1
             }
           }, {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.brave.Browser.app.agimnkijcaahngcdmfeangaknmldooml"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=com.brave.Browser.app.agimnkijcaahngcdmfeangaknmldooml\""
           } ],
           "from" : {
             "simultaneous" : [ {
@@ -901,7 +901,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.Music"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=com.apple.Music\""
           } ],
           "conditions" : [ {
             "name" : "tab-mode",
@@ -920,7 +920,7 @@
               "value" : 1
             }
           }, {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.Music"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=com.apple.Music\""
           } ],
           "from" : {
             "simultaneous" : [ {
@@ -949,7 +949,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.ranchero.NetNewsWire-Evergreen"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=com.ranchero.NetNewsWire-Evergreen\""
           } ],
           "conditions" : [ {
             "name" : "tab-mode",
@@ -968,7 +968,7 @@
               "value" : 1
             }
           }, {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.ranchero.NetNewsWire-Evergreen"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=com.ranchero.NetNewsWire-Evergreen\""
           } ],
           "from" : {
             "simultaneous" : [ {
@@ -997,7 +997,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=md.obsidian"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=md.obsidian\""
           } ],
           "conditions" : [ {
             "name" : "tab-mode",
@@ -1016,7 +1016,7 @@
               "value" : 1
             }
           }, {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=md.obsidian"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=md.obsidian\""
           } ],
           "from" : {
             "simultaneous" : [ {
@@ -1045,7 +1045,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.Preview"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=com.apple.Preview\""
           } ],
           "conditions" : [ {
             "name" : "tab-mode",
@@ -1064,7 +1064,7 @@
               "value" : 1
             }
           }, {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.Preview"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=com.apple.Preview\""
           } ],
           "from" : {
             "simultaneous" : [ {
@@ -1093,7 +1093,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.finder"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=com.apple.finder\""
           } ],
           "conditions" : [ {
             "name" : "tab-mode",
@@ -1112,7 +1112,7 @@
               "value" : 1
             }
           }, {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.finder"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=com.apple.finder\""
           } ],
           "from" : {
             "simultaneous" : [ {
@@ -1141,7 +1141,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.brave.Browser.app.mnhkaebcjjhencmpkapnbdaogjamfbcj"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=com.brave.Browser.app.mnhkaebcjjhencmpkapnbdaogjamfbcj\""
           } ],
           "conditions" : [ {
             "name" : "tab-mode",
@@ -1160,7 +1160,7 @@
               "value" : 1
             }
           }, {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.brave.Browser.app.mnhkaebcjjhencmpkapnbdaogjamfbcj"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=com.brave.Browser.app.mnhkaebcjjhencmpkapnbdaogjamfbcj\""
           } ],
           "from" : {
             "simultaneous" : [ {
@@ -1239,7 +1239,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=REPLACE_ME"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=REPLACE_ME\""
           } ],
           "conditions" : [ {
             "name" : "tab-mode",
@@ -1258,7 +1258,7 @@
               "value" : 1
             }
           }, {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=REPLACE_ME"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=REPLACE_ME\""
           } ],
           "from" : {
             "simultaneous" : [ {
@@ -1287,7 +1287,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.brave.Browser"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=com.brave.Browser\""
           } ],
           "conditions" : [ {
             "name" : "tab-mode",
@@ -1306,7 +1306,7 @@
               "value" : 1
             }
           }, {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.brave.Browser"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=com.brave.Browser\""
           } ],
           "from" : {
             "simultaneous" : [ {
@@ -1335,7 +1335,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.electron.logseq"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=com.electron.logseq\""
           } ],
           "conditions" : [ {
             "name" : "tab-mode",
@@ -1354,7 +1354,7 @@
               "value" : 1
             }
           }, {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.electron.logseq"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=com.electron.logseq\""
           } ],
           "from" : {
             "simultaneous" : [ {
@@ -1383,7 +1383,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=REPLACE_ME"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=REPLACE_ME\""
           } ],
           "conditions" : [ {
             "name" : "tab-mode",
@@ -1402,7 +1402,7 @@
               "value" : 1
             }
           }, {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=REPLACE_ME"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=REPLACE_ME\""
           } ],
           "from" : {
             "simultaneous" : [ {
@@ -1431,7 +1431,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.iCal"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=com.apple.iCal\""
           } ],
           "conditions" : [ {
             "name" : "tab-mode",
@@ -1450,7 +1450,7 @@
               "value" : 1
             }
           }, {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.iCal"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=com.apple.iCal\""
           } ],
           "from" : {
             "simultaneous" : [ {
@@ -1479,7 +1479,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=REPLACE_ME"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=REPLACE_ME\""
           } ],
           "conditions" : [ {
             "name" : "tab-mode",
@@ -1498,7 +1498,7 @@
               "value" : 1
             }
           }, {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=REPLACE_ME"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=REPLACE_ME\""
           } ],
           "from" : {
             "simultaneous" : [ {
@@ -1527,7 +1527,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=REPLACE_ME"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=REPLACE_ME\""
           } ],
           "conditions" : [ {
             "name" : "tab-mode",
@@ -1546,7 +1546,7 @@
               "value" : 1
             }
           }, {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=REPLACE_ME"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=REPLACE_ME\""
           } ],
           "from" : {
             "simultaneous" : [ {
@@ -1575,7 +1575,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.Notes"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=com.apple.Notes\""
           } ],
           "conditions" : [ {
             "name" : "tab-mode",
@@ -1594,7 +1594,7 @@
               "value" : 1
             }
           }, {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.Notes"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=com.apple.Notes\""
           } ],
           "from" : {
             "simultaneous" : [ {
@@ -1623,7 +1623,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.mail"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=com.apple.mail\""
           } ],
           "conditions" : [ {
             "name" : "tab-mode",
@@ -1642,7 +1642,7 @@
               "value" : 1
             }
           }, {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.mail"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=com.apple.mail\""
           } ],
           "from" : {
             "simultaneous" : [ {
@@ -1967,7 +1967,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.workflowy.desktop"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=com.workflowy.desktop\""
           } ],
           "conditions" : [ {
             "name" : "g-mode",
@@ -1983,7 +1983,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=ru.keepcoder.Telegram"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=ru.keepcoder.Telegram\""
           } ],
           "conditions" : [ {
             "name" : "g-mode",
@@ -1999,7 +1999,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.MobileSMS"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=com.apple.MobileSMS\""
           } ],
           "conditions" : [ {
             "name" : "g-mode",
@@ -2015,7 +2015,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=WhatsApp"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=WhatsApp\""
           } ],
           "conditions" : [ {
             "name" : "g-mode",
@@ -2031,7 +2031,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.facebook.archon.developerID"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=com.facebook.archon.developerID\""
           } ],
           "conditions" : [ {
             "name" : "g-mode",
@@ -2047,7 +2047,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.Preview"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=com.apple.Preview\""
           } ],
           "conditions" : [ {
             "name" : "g-mode",
@@ -2063,7 +2063,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.Safari"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=com.apple.Safari\""
           } ],
           "conditions" : [ {
             "name" : "g-mode",
@@ -2079,7 +2079,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=org.mozilla.firefox"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=org.mozilla.firefox\""
           } ],
           "conditions" : [ {
             "name" : "g-mode",
@@ -2095,7 +2095,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.ranchero.NetNewsWire-Evergreen"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=com.ranchero.NetNewsWire-Evergreen\""
           } ],
           "conditions" : [ {
             "name" : "g-mode",
@@ -2111,7 +2111,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.podcasts"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=com.apple.podcasts\""
           } ],
           "conditions" : [ {
             "name" : "g-mode",
@@ -2210,7 +2210,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.iCal"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=com.apple.iCal\""
           } ],
           "conditions" : [ {
             "identifiers" : [ {
@@ -2229,7 +2229,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.reminders"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=com.apple.reminders\""
           } ],
           "conditions" : [ {
             "identifiers" : [ {
@@ -2248,7 +2248,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=ru.keepcoder.Telegram"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=ru.keepcoder.Telegram\""
           } ],
           "conditions" : [ {
             "identifiers" : [ {
@@ -2267,7 +2267,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.brave.Browser"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=com.brave.Browser\""
           } ],
           "conditions" : [ {
             "identifiers" : [ {
@@ -2286,7 +2286,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.MobileSMS"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=com.apple.MobileSMS\""
           } ],
           "conditions" : [ {
             "identifiers" : [ {
@@ -2305,7 +2305,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=company.thebrowser.Browser"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=company.thebrowser.Browser\""
           } ],
           "conditions" : [ {
             "identifiers" : [ {
@@ -2324,7 +2324,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=md.obsidian"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=md.obsidian\""
           } ],
           "conditions" : [ {
             "identifiers" : [ {
@@ -2343,7 +2343,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.finder"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=com.apple.finder\""
           } ],
           "conditions" : [ {
             "identifiers" : [ {
@@ -2362,7 +2362,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=com.apple.mail"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=com.apple.mail\""
           } ],
           "conditions" : [ {
             "identifiers" : [ {
@@ -2381,7 +2381,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=-"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=-\""
           } ],
           "conditions" : [ {
             "identifiers" : [ {
@@ -2400,7 +2400,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=-"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=-\""
           } ],
           "conditions" : [ {
             "identifiers" : [ {
@@ -2419,7 +2419,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=-"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=-\""
           } ],
           "conditions" : [ {
             "identifiers" : [ {
@@ -2438,7 +2438,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=-"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=-\""
           } ],
           "conditions" : [ {
             "identifiers" : [ {
@@ -2457,7 +2457,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=-"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=-\""
           } ],
           "conditions" : [ {
             "identifiers" : [ {
@@ -2476,7 +2476,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=-"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=-\""
           } ],
           "conditions" : [ {
             "identifiers" : [ {
@@ -2495,7 +2495,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=-"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=-\""
           } ],
           "conditions" : [ {
             "identifiers" : [ {
@@ -2514,7 +2514,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=-"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=-\""
           } ],
           "conditions" : [ {
             "identifiers" : [ {
@@ -2533,7 +2533,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=-"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=-\""
           } ],
           "conditions" : [ {
             "identifiers" : [ {
@@ -2552,7 +2552,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g hammerspoon://toggle-app-by-id?id=-"
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=-\""
           } ],
           "conditions" : [ {
             "identifiers" : [ {

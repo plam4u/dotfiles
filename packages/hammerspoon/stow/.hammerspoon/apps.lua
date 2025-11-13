@@ -18,10 +18,11 @@ function tablelength(T)
 end
 
 local function toggleAppByID(bundleID)
-	local app = hs.application.applicationsForBundleID(bundleID)[1]
-	-- for key, value in pairs(app) do
-	--     print(key, " -- ", value)
+	local bundle = hs.application.applicationsForBundleID(bundleID)
+	-- for key, value in pairs(bundle) do
+	-- 	print(key, " -- ", value)
 	-- end
+	local app = bundle[1]
 	if not app or app:isHidden() then
 		hs.application.launchOrFocusByBundleID(bundleID)
 	elseif hs.application.frontmostApplication() ~= app then

@@ -41,8 +41,8 @@
              }
  :layers {}
  :templates {
-             :toggle-nm   "open -g hammerspoon://toggle-app-by-name?name=%s"
-             :toggle-id   "open -g hammerspoon://toggle-app-by-id?id=%s"
+             :toggle-nm   "open -g \"hammerspoon://toggle-app-by-name?name=%s\""
+             :toggle-id   "open -g \"hammerspoon://toggle-app-by-id?id=%s\""
              }
  :applications {
                 :chrome ["^com\\.google\\.Chrome$"] ;; regex to match Chrome
