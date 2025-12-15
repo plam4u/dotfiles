@@ -1,0 +1,5 @@
+import FreeCAD, subprocess, os
+
+doc = FreeCAD.ActiveDocument
+if doc and doc.FileName:
+    subprocess.run(["open", "-R", doc.FileName])
