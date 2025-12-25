@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-# script content
+stow -t ~/Library/Preferences/ stow-manual
