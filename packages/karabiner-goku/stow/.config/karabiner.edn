@@ -58,6 +58,7 @@
                 :kitty ["^net\\.kovidgoyal\\.kitty"]
                 :clion ["^com\\.jetbrains\\.CLion"]
                 :steam ["^com\\.valvesoftware\\.steam"]
+                :dota2 ["^com\\.valvesoftware\\.dota2"]
                 }
 
  :main [
@@ -70,6 +71,10 @@
         {:des "Steam" :rules [:steam
           [:!Copen_bracket :!Oleft_arrow]
           [:!Cclose_bracket :!Oright_arrow]
+          ]}
+        {:des "Dota2" :rules [:dota2
+           [{:pkey :button1} {:pkey :button3}]
+           [{:pkey :button3} {:pkey :button1}]
           ]}
         {:des "CLion" :rules [:clion
           [:!CTd :!TSd]

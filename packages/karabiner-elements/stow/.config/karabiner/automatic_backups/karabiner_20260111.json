@@ -2862,13 +2862,6 @@
         "vendor_id" : 17485
       },
       "ignore" : false
-    }, {
-      "identifiers" : {
-        "is_pointing_device" : true,
-        "product_id" : 50503,
-        "vendor_id" : 1133
-      },
-      "ignore" : false
     } ],
     "name" : "Default",
     "selected" : true,
