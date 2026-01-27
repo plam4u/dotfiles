@@ -106,6 +106,35 @@
           "type" : "basic"
         } ]
       }, {
+        "description" : "Autodesk Fusion",
+        "manipulators" : [ {
+          "from" : {
+            "key_code" : "open_bracket",
+            "modifiers" : {
+              "mandatory" : [ "left_command" ]
+            }
+          },
+          "to" : [ ],
+          "conditions" : [ {
+            "type" : "frontmost_application_if",
+            "bundle_identifiers" : [ "^com\\.autodesk\\.fusion360" ]
+          } ],
+          "type" : "basic"
+        }, {
+          "from" : {
+            "key_code" : "close_bracket",
+            "modifiers" : {
+              "mandatory" : [ "left_command" ]
+            }
+          },
+          "to" : [ ],
+          "conditions" : [ {
+            "type" : "frontmost_application_if",
+            "bundle_identifiers" : [ "^com\\.autodesk\\.fusion360" ]
+          } ],
+          "type" : "basic"
+        } ]
+      }, {
         "description" : "CLion",
         "manipulators" : [ {
           "from" : {

@@ -59,6 +59,7 @@
                 :clion ["^com\\.jetbrains\\.CLion"]
                 :steam ["^com\\.valvesoftware\\.steam"]
                 :dota2 ["^com\\.valvesoftware\\.dota2"]
+                :fusion360 ["^com\\.autodesk\\.fusion360"]
                 }
 
  :main [
@@ -75,6 +76,10 @@
         {:des "Dota2" :rules [:dota2
            [{:pkey :button1} {:pkey :button3}]
            [{:pkey :button3} {:pkey :button1}]
+          ]}
+        {:des "Autodesk Fusion" :rules [:fusion360
+           [:!Copen_bracket []]
+           [:!Cclose_bracket []]
           ]}
         {:des "CLion" :rules [:clion
           [:!CTd :!TSd]
