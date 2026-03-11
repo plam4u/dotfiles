@@ -44,41 +44,6 @@
           "type" : "basic"
         } ]
       }, {
-        "description" : "Apple Notes",
-        "manipulators" : [ {
-          "from" : {
-            "key_code" : "open_bracket",
-            "modifiers" : {
-              "mandatory" : [ "left_command" ]
-            }
-          },
-          "to" : [ {
-            "key_code" : "open_bracket",
-            "modifiers" : [ "left_command", "left_option" ]
-          } ],
-          "conditions" : [ {
-            "type" : "frontmost_application_if",
-            "bundle_identifiers" : [ "^com\\.apple\\.Notes$" ]
-          } ],
-          "type" : "basic"
-        }, {
-          "from" : {
-            "key_code" : "close_bracket",
-            "modifiers" : {
-              "mandatory" : [ "left_command" ]
-            }
-          },
-          "to" : [ {
-            "key_code" : "close_bracket",
-            "modifiers" : [ "left_command", "left_option" ]
-          } ],
-          "conditions" : [ {
-            "type" : "frontmost_application_if",
-            "bundle_identifiers" : [ "^com\\.apple\\.Notes$" ]
-          } ],
-          "type" : "basic"
-        } ]
-      }, {
         "description" : "Steam",
         "manipulators" : [ {
           "from" : {
@@ -2945,14 +2910,6 @@
         "is_keyboard" : true,
         "product_id" : 50475,
         "vendor_id" : 1133
-      },
-      "ignore_vendor_events" : true
-    }, {
-      "identifiers" : {
-        "is_game_pad" : true,
-        "is_pointing_device" : true,
-        "product_id" : 654,
-        "vendor_id" : 1118
       },
       "ignore_vendor_events" : true
     } ],

@@ -49,6 +49,7 @@
                 :brave ["^com\\.brave\\.Browser$"]
                 :xcode ["^com\\.apple\\.dt\\.Xcode$"]
                 :preview ["^com\\.apple\\.Preview$"]
+                :notes ["^com\\.apple\\.Notes$"]
                 :telegram ["^ru\\.keepcoder\\.Telegram$"]
                 :reminders ["^com\\.apple\\.reminders"]
                 :calendar ["^com\\.apple\\.iCal"]
@@ -68,6 +69,10 @@
           ]}
         {:des "Arc" :rules [:arc
           [:!TOSg :!Ch]
+          ]}
+        {:des "Apple Notes" :rules [:notes
+          [:!Copen_bracket :!COopen_bracket]
+          [:!Cclose_bracket :!COclose_bracket]
           ]}
         {:des "Steam" :rules [:steam
           [:!Copen_bracket :!Oleft_arrow]
