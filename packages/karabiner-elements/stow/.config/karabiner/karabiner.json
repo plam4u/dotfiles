@@ -2358,7 +2358,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=com.brave.Browser\""
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=com.apple.Notes\""
           } ],
           "conditions" : [ {
             "identifiers" : [ {

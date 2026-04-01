@@ -305,7 +305,8 @@
           [:!Sf12 [:toggle-id "com.apple.iCal"]]
           [:!Sf13 [:toggle-id "com.apple.reminders"]]
           [:!Sf14 [:toggle-id "ru.keepcoder.Telegram"]]
-          [:!Sf15 [:toggle-id "com.brave.Browser"]]
+          ; [:!Sf15 [:toggle-id "com.brave.Browser"]]
+          [:!Sf15 [:toggle-id "com.apple.Notes"]]
 
           ;; ASDFG
           [:!Sf16 [:toggle-id "com.apple.MobileSMS"]]
