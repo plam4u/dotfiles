@@ -14,10 +14,10 @@ after-login-command = []
 # Available commands : https://nikitabobko.github.io/AeroSpace/commands
 # after-startup-command = []
 after-startup-command = [
-    # JankyBorders has a built-in detection of already running process,
-    # so it won't be run twice on AeroSpace restart
-    'exec-and-forget borders active_color=0xff61afef inactive_color=0x00000000 width=5.0'
-    # 'exec-and-forget sketchybar'
+  # JankyBorders has a built-in detection of already running process,
+  # so it won't be run twice on AeroSpace restart
+  'exec-and-forget borders active_color=0xff61afef inactive_color=0x00000000 width=5.0',
+  # 'exec-and-forget sketchybar'
 ]
 
 # Notify Sketchybar about workspace change
@@ -65,11 +65,11 @@ on-focus-changed = "move-mouse window-lazy-center"
 #                 See: https://nikitabobko.github.io/AeroSpace/guide#assign-workspaces-to-monitors
 [gaps]
 inner.horizontal = 4
-inner.vertical =   4
-outer.left =       2
-outer.bottom =     2
-outer.top =        2
-outer.right =      2
+inner.vertical = 4
+outer.left = 2
+outer.bottom = 2
+outer.top = 2
+outer.right = 2
 
 # Floating windows
 [[on-window-detected]]
@@ -148,7 +148,7 @@ run = ['move-node-to-workspace I']
 # end tell'
 # '''
 
-cmd-h = [] # Disable "hide application"
+cmd-h = []     # Disable "hide application"
 cmd-alt-h = [] # Disable "hide others"
 
 # See: https://nikitabobko.github.io/AeroSpace/commands#layout
@@ -205,10 +205,10 @@ alt-shift-backspace = 'resize width 2200'
 # alt-y = 'workspace Y'
 # alt-z = 'workspace Z'
 
-alt-y = 'workspace Y'
-alt-u = 'workspace U'
-alt-i = 'workspace I'
-alt-o = 'workspace O'
+alt-1 = 'workspace Y'
+alt-2 = 'workspace U'
+alt-3 = 'workspace I'
+alt-4 = 'workspace O'
 
 # See: https://nikitabobko.github.io/AeroSpace/commands#move-node-to-workspace
 # alt-shift-1 = 'move-node-to-workspace 1'
@@ -243,10 +243,10 @@ alt-o = 'workspace O'
 # alt-shift-y = 'move-node-to-workspace Y'
 # alt-shift-z = 'move-node-to-workspace Z'
 
-alt-shift-y = 'move-node-to-workspace Y'
-alt-shift-u = 'move-node-to-workspace U'
-alt-shift-i = 'move-node-to-workspace I'
-alt-shift-o = 'move-node-to-workspace O'
+alt-shift-1 = 'move-node-to-workspace Y'
+alt-shift-2 = 'move-node-to-workspace U'
+alt-shift-3 = 'move-node-to-workspace I'
+alt-shift-4 = 'move-node-to-workspace O'
 
 # See: https://nikitabobko.github.io/AeroSpace/commands#workspace-back-and-forth
 alt-tab = 'workspace-back-and-forth'
@@ -262,7 +262,10 @@ alt-shift-semicolon = 'mode service'
 esc = ['reload-config', 'mode main']
 r = ['flatten-workspace-tree', 'mode main'] # reset layout
 #s = ['layout sticky tiling', 'mode main'] # sticky is not yet supported https://github.com/nikitabobko/AeroSpace/issues/2
-f = ['layout floating tiling', 'mode main'] # Toggle between floating and tiling layout
+f = [
+  'layout floating tiling',
+  'mode main',
+] # Toggle between floating and tiling layout
 backspace = ['close-all-windows-but-current', 'mode main']
 
 alt-shift-h = ['join-with left', 'mode main']
