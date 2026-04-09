@@ -3,7 +3,8 @@
 alias gac="gaa && gcmsg"
 alias gcne="gc --no-edit"
 alias gmm="gb -D backup; gb backup && gfa && gm origin/master --no-edit"
-alias gwa=gitWorkTreeAdd
+alias gwar=gitWorkTreeAddRemote
+alias gwal=gitWorkTreeAddLocal
 alias gwr=gitWorkTreeRemove
 alias ggg=gitAddAndCommitAll
 alias cc=runCrontabNow

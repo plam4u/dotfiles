@@ -116,7 +116,26 @@ function gitListObjectBySize() {
   rm "$tempFile"
 }
 
-gitWorkTreeAdd() {
+gitWorkTreeAddLocal() {
+  BRANCH_NAME=$1
+  PATH_NAME=$1
+
+  echo "> git fetch --all --prune"
+  git fetch --all --prune
+  echo
+
+  echo "> git worktree add -b $BRANCH_NAME $PATH_NAME"
+  git worktree add -b "$BRANCH_NAME" "$PATH_NAME"
+
+  echo "$BRANCH_NAME/" >>.git/info/exclude
+
+  echo "pushd $BRANCH_NAME"
+  pushd "$BRANCH_NAME" || return
+  echo
+
+}
+
+gitWorkTreeAddRemote() {
   BRANCH_NAME=$1
   PATH_NAME=$1
 
@@ -130,13 +149,8 @@ gitWorkTreeAdd() {
   echo "$BRANCH_NAME/" >>.git/info/exclude
 
   echo "pushd $BRANCH_NAME"
-  pushd "$BRANCH_NAME"
+  pushd "$BRANCH_NAME" || return
   echo
-
-  # Now managed by asdf
-  # echo "> pyenv local 2.7.18"
-  # pyenv local 2.7.18
-  # echo
 }
 
 gitWorkTreeRemove() {
@@ -149,7 +163,7 @@ gitWorkTreeRemove() {
   git stash push
   # git pull
   # git push
-  popd
+  popd || return
   git worktree remove "$BRANCH_NAME"
   git branch -D "$BRANCH_NAME"
   git clean -fdx
