@@ -20,13 +20,14 @@
             :alone   120
             :held    70}}
  :devices {
-           :mbp-kb [{:vendor_id 1452 :product_id 832}] ;; MacBook Pro 16" Internal Keyboard
-           :mbp-kb2 [{:vendor_id 1452 :product_id 835}] ;; MacBook Pro M1 Max
-           :mbp-kb3 [{:vendor_id 76 :product_id 666}] ;; Apple keyboard with Touch ID
-           :ml-kb  [{:vendor_id 12951 :product_id 6505}] ;; Moonlander
-           :dm-kb  [{:vendor_id 17485 :product_id 13622 :is_keyboard true}] ;; Dactyl-Manuform Keyboard
-           :dm-ms  [{:vendor_id 17485 :product_id 13622 :is_pointing_device true}] ;; Dactyl-Manuform Mouse
-           :ch-kb  [{:vendor_id 47789 :product_id 3 :is_keyboard true}] ;; Charybdis Mini
+           :mbp-kb [{:vendor_id 1452 :product_id 832}]                         ;; MacBook Pro 16" Internal Keyboard
+           :mbp-kb2 [{:vendor_id 1452 :product_id 835}]                        ;; MacBook Pro M1 Max
+           :mbp-kb3 [{:vendor_id 76 :product_id 666}]                          ;; Apple keyboard with Touch ID
+           :ml-kb  [{:vendor_id 12951 :product_id 6505}]                       ;; Moonlander
+           :dm-kb  [{:vendor_id 47789 :product_id 1 :is_keyboard true}]        ;; Dactyl-Manuform Keyboard
+           :dm-ms  [{:vendor_id 47789 :product_id 1 :is_pointing_device true}] ;; Dactyl-Manuform Mouse
+           :dk-kb  [{:vendor_id 47789 :product_id 2 :is_keyboard true}]        ;; Stream Deck
+           :ch-kb  [{:vendor_id 47789 :product_id 3 :is_keyboard true}]        ;; Charybdis Mini
            :ch-ms  [{:vendor_id 47789 :product_id 3 :is_pointing_device true}] ;; Charybdis Mini
            }
  :simlayers {
