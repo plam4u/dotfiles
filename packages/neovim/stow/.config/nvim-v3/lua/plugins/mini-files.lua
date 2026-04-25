@@ -9,7 +9,7 @@ return {
       pattern = "MiniFilesExplorerOpen",
       callback = function()
         set_mark("h", "~", "Home directory")
-        set_mark("d", vim.fn.expand("~/dev"), "Projects (~/dev)")
+        -- set_mark("d", vim.fn.expand("~/dev"), "Projects (~/dev)")
         set_mark("c", vim.fn.stdpath("config"), "Config")
         set_mark("w", vim.fn.getcwd, "Working directory")
         set_mark("r", root_dir, "Shell start dir")

@@ -23,9 +23,11 @@
            :mbp-kb [{:vendor_id 1452 :product_id 832}] ;; MacBook Pro 16" Internal Keyboard
            :mbp-kb2 [{:vendor_id 1452 :product_id 835}] ;; MacBook Pro M1 Max
            :mbp-kb3 [{:vendor_id 76 :product_id 666}] ;; Apple keyboard with Touch ID
+           :ml-kb  [{:vendor_id 12951 :product_id 6505}] ;; Moonlander
            :dm-kb  [{:vendor_id 17485 :product_id 13622 :is_keyboard true}] ;; Dactyl-Manuform Keyboard
            :dm-ms  [{:vendor_id 17485 :product_id 13622 :is_pointing_device true}] ;; Dactyl-Manuform Mouse
-           :ml-kb  [{:vendor_id 12951 :product_id 6505}] ;; Moonlander
+           :ch-kb  [{:vendor_id 47789 :product_id 3 :is_keyboard true}] ;; Charybdis Mini
+           :ch-ms  [{:vendor_id 47789 :product_id 3 :is_pointing_device true}] ;; Charybdis Mini
            }
  :simlayers {
              :tab-mode {:key :tab}
@@ -284,6 +286,77 @@
           [:##i [:toggle-id "org.mozilla.firefox"]]
           [:##o [:toggle-id "com.ranchero.NetNewsWire-Evergreen"]]
           [:##p [:toggle-id "com.apple.podcasts"]]
+          ]}
+
+        {:des "Charybdis Mini Mouse" :rules [:ch-ms
+          [{:pkey :button10} :!CS4]
+        ]}
+
+        {:des "Charybdis Mini Keyboard" :rules [:ch-kb
+
+          ;; mirror "mash + u/i/o" to the left hand
+          [:!TOSw [:!TOSu]]
+          [:!TOSe [:!TOSi]]
+          [:!TOSr [:!TOSo]]
+
+          ;; ========================
+          ;; Layer LOWER2
+          ;; ========================
+          ;; QWERT
+          ;; [:!Sf11 [:toggle-id "com.apple.Music"]]
+          [:!Sf12 [:toggle-id "com.apple.iCal"]]
+          [:!Sf13 [:toggle-id "com.apple.reminders"]]
+          [:!Sf14 [:toggle-id "ru.keepcoder.Telegram"]]
+          ; [:!Sf15 [:toggle-id "com.brave.Browser"]]
+          [:!Sf15 [:toggle-id "com.apple.Notes"]]
+
+          ;; ASDFG
+          [:!Sf16 [:toggle-id "com.apple.MobileSMS"]]
+          [:!Sf11 [:toggle-id "company.thebrowser.Browser"]]
+          [:!Sf18 [:toggle-id "md.obsidian"]]
+          [:!Sf19 [:toggle-id "com.apple.finder"]]
+          [:!Sf20 [:toggle-id "com.apple.mail"]]
+          
+          ;; ========================
+          ;; Layer RAISE2
+          ;; ========================
+          ;; QWERT
+          [:!Of11 [:toggle-id "-"]]
+          [:!Of12 [:toggle-id "-"]]
+          [:!Of13 [:toggle-id "-"]]
+          [:!Of14 [:toggle-id "-"]]
+          [:!Of15 [:toggle-id "-"]]
+
+          ;; ASDFG
+          [:!Of16 [:toggle-id "-"]]
+          [:!Of17 [:toggle-id "-"]]
+          [:!Of18 [:toggle-id "-"]]
+          [:!Of19 [:toggle-id "-"]]
+          [:!Of20 [:toggle-id "-"]]
+          
+          ;; Lower Row 3 (Modifiers)
+
+          ;; RIGHT SIDE
+          ;; Upper Row (C)
+          ; [:!Tf11 [:toggle-id "com.apple.iCal"]]
+          ; [:!Tf12 [:toggle-id "com.apple.iCal"]]
+          ; [:!Tf13 [:toggle-id "com.apple.iCal"]]
+          ; [:!Tf14 [:toggle-id "com.apple.iCal"]]
+          ; [:!Tf15 [:toggle-id "com.apple.iCal"]]
+
+          ;; Home Row (C)
+          ; [:!Tf16 [:toggle-id "com.apple.iCal"]]
+          ; [:!Tf17 [:toggle-id "com.apple.iCal"]]
+          ; [:!Tf18 [:toggle-id "com.apple.iCal"]]
+          ; [:!Tf19 [:toggle-id "com.apple.iCal"]]
+          ; [:!Tf20 [:toggle-id "com.apple.iCal"]]
+          
+          ;; Lower Row (C)
+          ; [:!Tf21 [:toggle-id "com.apple.iCal"]]
+          ; [:!Tf22 [:toggle-id "com.apple.iCal"]]
+          ; [:!Tf23 [:toggle-id "com.apple.iCal"]]
+          ; [:!Tf24 [:toggle-id "com.apple.iCal"]]
+          ; [:!Of21 [:toggle-id "com.apple.iCal"]]
           ]}
         
         {:des "Dactyl Manuform Mouse" :rules [:dm-ms
