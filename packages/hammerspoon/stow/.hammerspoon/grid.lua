@@ -198,5 +198,17 @@ end)
 
 --- .: minimize window
 hs.hotkey.bind(mash, ".", function()
-	hs.grid.set(getWin(), "0,0 1x1")
+	local win = getWin()
+	if not win then
+		return
+	end
+
+	local f = win:frame()
+
+	-- preserve position, only change size
+	-- hs.alert.show(string.format("x=%d y=%d w=%d h=%d", f.x, f.y, f.w, f.h))
+	f.w = 640
+	f.h = 480
+
+	win:setFrame(f)
 end)
