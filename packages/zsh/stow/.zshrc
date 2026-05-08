@@ -10,6 +10,7 @@ fi
 
 # export homebrew variables for current script
 eval $(/opt/homebrew/bin/brew shellenv)
+export PATH="$HOMEBREW_PREFIX/bin:$PATH"
 
 # dotfiles
 export DOTFILES_DIR="$HOME/dotfiles"
