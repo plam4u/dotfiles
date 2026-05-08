@@ -38,6 +38,7 @@ echo "Running \"qmk setup -H ~/dev/qmk_firmware\"..."
   #   ls /opt/homebrew/bin/arm-none-eabi-size
 
   # export PATH for QMK-installed dependencies needed by QMK setup
+  # See also: https://github.com/Homebrew/homebrew-bundle/issues/1265
   export PATH="/opt/homebrew/opt/avr-gcc@8/bin:$PATH"
   export PATH="/opt/homebrew/opt/arm-none-eabi-gcc@8/bin:$PATH"
 
