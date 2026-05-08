@@ -1,0 +1,1 @@
+export HAXE_STD_PATH="/opt/homebrew/lib/haxe/std"
