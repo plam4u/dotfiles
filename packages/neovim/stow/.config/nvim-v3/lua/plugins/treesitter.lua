@@ -1,0 +1,40 @@
+return {
+  {
+    "nvim-treesitter/nvim-treesitter",
+    build = ":TSUpdate",
+    config = function()
+      local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
+
+      parser_config.haxe = {
+        install_info = {
+          url = "https://github.com/vantreeseba/tree-sitter-haxe",
+          files = { "src/parser.c", "src/scanner.c" },
+          branch = "main",
+        },
+        filetype = "haxe",
+      }
+
+      require("nvim-treesitter.configs").setup({
+        ensure_installed = {
+          "lua",
+          "vim",
+          "vimdoc",
+          "javascript",
+          "typescript",
+          "json",
+          "haxe",
+        },
+        highlight = {
+          enable = true,
+        },
+      })
+
+      vim.filetype.add({
+        extension = {
+          hx = "haxe",
+          hxml = "hxml",
+        },
+      })
+    end,
+  },
+}

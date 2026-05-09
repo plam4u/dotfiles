@@ -1,5 +1,5 @@
 return {
-  "echasnovski/mini.files",
+  "nvim-mini/mini.files",
   opts = function(_, opts)
     local root_dir = vim.uv.cwd()
     local set_mark = function(id, path, desc)
