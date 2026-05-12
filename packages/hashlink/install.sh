@@ -49,7 +49,7 @@ EOF
   arch -x86_64 /bin/bash /tmp/hashlink-x86-build.sh
 )
 # restore ARM brew
-eval $(/opt/homebrew/bin/brew shellenv)
+eval "$(/opt/homebrew/bin/brew shellenv)"
 export PATH="$HOMEBREW_PREFIX/bin:$PATH"
 
 # Running 'brew install hashlink' generates the Caveat below:
