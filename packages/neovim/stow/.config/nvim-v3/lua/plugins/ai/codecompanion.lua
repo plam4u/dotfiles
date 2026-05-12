@@ -268,7 +268,7 @@ return {
   --   },
   -- },
   {
-    "echasnovski/mini.diff",
+    "nvim-mini/mini.diff",
     enabled = false, -- TODO:
     config = function()
       local diff = require("mini.diff")
