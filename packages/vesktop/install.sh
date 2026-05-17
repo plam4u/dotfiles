@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-brew install vesktop
+brew install --cask vesktop
