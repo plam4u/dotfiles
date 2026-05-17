@@ -17,8 +17,11 @@ export DOTFILES_DIR="$HOME/dotfiles"
 export PATH="$DOTFILES_DIR/bin:$PATH"
 
 # editor
-export VISUAL=vim
+export VISUAL=nvim
 export EDITOR="$VISUAL"
+autoload -z edit-command-line
+zle -N edit-command-line
+bindkey '^X^E' edit-command-line
 
 # prefer US English and use UTF-8
 export LC_ALL=en_US.UTF-8
