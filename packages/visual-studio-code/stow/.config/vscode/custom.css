@@ -1,0 +1,5 @@
+.chat-input-notification-container,
+.chat-input-notification-widget,
+.chat-input-notification {
+  display: none !important;
+}
