@@ -41,6 +41,7 @@ text_editor/external/exec_flags = "{project} --goto {file}:{line}:{col}"
 text_editor/external/use_external_editor = true
 editors/3d_gizmos/gizmo_settings/bone_axis_length = 0.1
 editors/animation/default_animation_step = 0.033333335
+run/bottom_panel/action_on_play = 0
 network/connection/network_mode = 1
 _editor_settings_advanced_mode = true
 _export_preset_advanced_mode = false
