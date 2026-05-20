@@ -27,6 +27,8 @@ CachedExtensionVSIXs
 DIPS-wal
 SharedStorage-wal
 code.lock
+Service Worker
+WebStorage
 
 # User
 User/globalStorage
