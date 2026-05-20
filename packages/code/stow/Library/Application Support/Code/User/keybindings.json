@@ -1,4 +1,4 @@
-// Place your key bindings in this file to override the defaults
+// Custom user keybindings
 [
     {
         "key": "escape",
@@ -34,5 +34,47 @@
         "key": "cmd+]",
         "command": "-editor.action.indentLines",
         "when": "editorTextFocus && !editorReadonly"
+    },
+    {
+        "key": "ctrl+/",
+        "command": "-editor.action.accessibleViewAcceptInlineCompletion",
+        "when": "accessibleViewIsShown && accessibleViewCurrentProviderId == 'inlineCompletions'"
+    },
+    {
+        "key": "shift+cmd+]",
+        "command": "workbench.action.nextPanelView",
+        "when": "panelFocus"
+    },
+    {
+        "key": "shift+cmd+[",
+        "command": "workbench.action.previousPanelView",
+        "when": "panelFocus"
+    },
+    {
+        "key": "cmd+]",
+        "command": "workbench.action.terminal.focusNext",
+        "when": "terminalFocus"
+    },
+    {
+        "key": "cmd+[",
+        "command": "workbench.action.terminal.focusPrevious",
+        "when": "terminalFocus"
+    },
+    {
+        "key": "ctrl+/",
+        "command": "workbench.action.terminal.toggleTerminal",
+        "when": "terminal.active"
+    },
+    {
+        "key": "ctrl+/",
+        "command": "workbench.action.terminal.toggleTerminal"
+    },
+    {
+        "key": "alt+/",
+        "command": "workbench.action.togglePanel"
+    },
+    {
+        "key": "cmd+j",
+        "command": "workbench.action.togglePanel"
     }
 ]

@@ -141,7 +141,6 @@
     "workbench.activityBar.autoHide": true,
     "workbench.activityBar.compact": true,
     "workbench.colorTheme": "Dark Modern",
-    "workbench.activityBar.location": "hidden",
     "git.blame.statusBarItem.enabled": false,
     "chat.restoreLastPanelSession": true,
     "godotTools.editorPath.godot4": "/Applications/Godot.app/Contents/MacOS/Godot",
@@ -149,5 +148,7 @@
     "git.openRepositoryInParentFolders": "never",
     "[gdscript]": {
         "editor.defaultFormatter": "geequlim.godot-tools"
-    }
+    },
+    "window.zoomLevel": 1.25,
+    "workbench.activityBar.location": "hidden"
 }

@@ -38,3 +38,4 @@ User/profiles/builtin/agents
 User/workspaceStorage
 User/.DS_Store
 User/chatLanguageModels.json
+User/mcp.json
