@@ -1,0 +1,153 @@
+{
+    "files.autoSave": "onFocusChange",
+    "files.exclude": {
+        "**/*.uid": true,
+        "**/.godot": true,
+        "**/*.import": true
+    },
+    "cmake.configureOnOpen": true,
+    "[typescript]": {
+        "editor.defaultFormatter": "vscode.typescript-language-features"
+    },
+    "[python]": {},
+    "zenMode.fullScreen": false,
+    "jupyter.notebookFileRoot": "${workspaceFolder}",
+    "editor.renderWhitespace": "none",
+    "security.workspace.trust.untrustedFiles": "open",
+    "github.copilot.nextEditSuggestions.enabled": true,
+    "pixelbyte.love2d.path": "/Applications/love.app/Contents/MacOS/love",
+    "github.copilot.enable": {
+        "*": false,
+        "plaintext": false,
+        "markdown": false,
+        "scminput": false
+    },
+    "godot-dotnet-tools.executablePath": "/Applications/Godot_mono.app/Contents/MacOS/Godot",
+    "vim.easymotion": true,
+    "vim.incsearch": true,
+    "vim.useSystemClipboard": true,
+    "vim.useCtrlKeys": true,
+    "vim.hlsearch": true,
+    "vim.insertModeKeyBindings": [
+        {
+            "before": [
+                "j",
+                "j"
+            ],
+            "after": [
+                "<Esc>"
+            ]
+        }
+    ],
+    "vim.leader": "<space>",
+    "vim.handleKeys": {
+        "s": true,
+        "S": true,
+        "<C-d>": true,
+        "<C-s>": false,
+        "<C-z>": false
+    },
+    "vim.normalModeKeyBindingsNonRecursive": [
+        {
+            "before": [
+                "<leader>",
+                "e"
+            ],
+            "commands": [
+                "workbench.action.toggleSidebarVisibility"
+            ]
+        },
+        {
+            "before": [
+                "g",
+                "e"
+            ],
+            "commands": [
+                "workbench.action.toggleAuxiliaryBar"
+            ]
+        },
+        {
+            "before": [
+                "g",
+                "r"
+            ],
+            "commands": [
+                "editor.action.referenceSearch.trigger"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "r",
+                "e"
+            ],
+            "commands": [
+                "editor.action.rename"
+            ]
+        },
+        {
+            "before": [
+                "<Esc>"
+            ],
+            "commands": [
+                ":nohl"
+            ]
+        },
+        {
+            "before": [
+                ":"
+            ],
+            "commands": [
+                "workbench.action.showCommands",
+            ],
+            "silent": true
+        },
+        {
+            "before": [
+                "s"
+            ],
+            "commands": [
+                "flash-vscode.jump"
+            ],
+            "when": "editorTextFocus && vim.active && !inDebugRepl && (vim.mode == 'Normal' || vim.mode == 'Visual')",
+        }
+    ],
+    "extensions.experimental.affinity": {
+        "vscodevim.vim": 1
+    },
+    "editor.codeLens": false,
+    "telemetry.feedback.enabled": false,
+    "telemetry.telemetryLevel": "off",
+    "dotnetAcquisitionExtension.enableTelemetry": false,
+    "editor.formatOnSave": true,
+    "editor.multiCursorModifier": "ctrlCmd",
+    "chat.viewSessions.orientation": "stacked",
+    "update.showReleaseNotes": false,
+    "workbench.startupEditor": "none",
+    "explorer.confirmDelete": false,
+    "git.blame.editorDecoration.enabled": false,
+    "haxe.enableCodeLens": true,
+    "editor.minimap.enabled": false,
+    "editor.wordWrap": "on",
+    "chat.contextUsage.enabled": false,
+    "github.copilot.chat.rateLimitAutoSwitchToAuto": true,
+    "vscode_custom_css.imports": [
+        "file:///Users/plam/dotfiles/packages/visual-studio-code/stow/.config/vscode/custom.css"
+    ],
+    "workbench.secondarySideBar.defaultVisibility": "hidden",
+    "workbench.colorCustomizations": {},
+    "workbench.navigationControl.enabled": false,
+    "workbench.browser.showInTitleBar": false,
+    "workbench.activityBar.autoHide": true,
+    "workbench.activityBar.compact": true,
+    "workbench.colorTheme": "Dark Modern",
+    "workbench.activityBar.location": "hidden",
+    "git.blame.statusBarItem.enabled": false,
+    "chat.restoreLastPanelSession": true,
+    "godotTools.editorPath.godot4": "/Applications/Godot.app/Contents/MacOS/Godot",
+    "explorer.confirmDragAndDrop": false,
+    "git.openRepositoryInParentFolders": "never",
+    "[gdscript]": {
+        "editor.defaultFormatter": "geequlim.godot-tools"
+    }
+}
