@@ -149,6 +149,6 @@
     "[gdscript]": {
         "editor.defaultFormatter": "geequlim.godot-tools"
     },
-    "window.zoomLevel": 1.25,
-    "workbench.activityBar.location": "hidden"
+    "workbench.activityBar.location": "hidden",
+    "window.zoomLevel": 2
 }
