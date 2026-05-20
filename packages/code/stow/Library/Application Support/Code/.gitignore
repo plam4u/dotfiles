@@ -1,0 +1,38 @@
+Backups
+blob_storage
+Cache
+CachedConfigurations
+CachedData
+CachedProfilesData
+Code Cache
+DawnGraphiteCache
+DawnWebGPUCache
+GPUCache
+Local Storage
+logs
+Session Storage
+Shared Dictionary
+Cookies
+Cookies-journal
+DIPS
+languagepacks.json
+machineid
+Network Persistent State
+Preferences
+SharedStorage
+TransportSecurity
+Trust Tokens
+Trust Tokens-journal
+CachedExtensionVSIXs
+DIPS-wal
+SharedStorage-wal
+code.lock
+
+# User
+User/globalStorage
+User/History
+User/agent-sessions.code-workspace
+User/profiles/builtin/agents
+User/workspaceStorage
+User/.DS_Store
+User/chatLanguageModels.json
