@@ -150,5 +150,6 @@
         "editor.defaultFormatter": "geequlim.godot-tools"
     },
     "workbench.activityBar.location": "hidden",
-    "window.zoomLevel": 2
+    "window.zoomLevel": 2,
+    "window.commandCenter": false
 }
