@@ -29,6 +29,7 @@ SharedStorage-wal
 code.lock
 Service Worker
 WebStorage
+Local State
 
 # User
 User/globalStorage
