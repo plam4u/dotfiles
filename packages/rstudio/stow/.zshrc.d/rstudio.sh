@@ -1,1 +1,1 @@
-export SDKROOT=$(xcrun --show-sdk-path)
+# export SDKROOT=$(xcrun --show-sdk-path)
