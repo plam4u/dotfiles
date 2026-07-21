@@ -84,6 +84,7 @@
         {:des "Dota2" :rules [:dota2
            [{:pkey :button1} {:pkey :button3}]
            [{:pkey :button3} {:pkey :button1}]
+           [:!Cq :!Ctab]
           ]}
         {:des "Autodesk Fusion" :rules [:fusion360
            [:!Copen_bracket []]

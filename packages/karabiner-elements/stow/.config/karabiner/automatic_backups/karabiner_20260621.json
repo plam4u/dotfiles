@@ -139,22 +139,6 @@
             "bundle_identifiers" : [ "^com\\.valvesoftware\\.dota2" ]
           } ],
           "type" : "basic"
-        }, {
-          "from" : {
-            "key_code" : "q",
-            "modifiers" : {
-              "mandatory" : [ "left_command" ]
-            }
-          },
-          "to" : [ {
-            "key_code" : "tab",
-            "modifiers" : [ "left_command" ]
-          } ],
-          "conditions" : [ {
-            "type" : "frontmost_application_if",
-            "bundle_identifiers" : [ "^com\\.valvesoftware\\.dota2" ]
-          } ],
-          "type" : "basic"
         } ]
       }, {
         "description" : "Autodesk Fusion",
@@ -2908,6 +2892,25 @@
         }, {
           "from" : {
             "key_code" : "f20",
+            "modifiers" : {
+              "mandatory" : [ "left_shift" ]
+            }
+          },
+          "to" : [ {
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=com.apple.mail\""
+          } ],
+          "conditions" : [ {
+            "identifiers" : [ {
+              "vendor_id" : 47789,
+              "product_id" : 1,
+              "is_keyboard" : true
+            } ],
+            "type" : "device_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "from" : {
+            "key_code" : "f17",
             "modifiers" : {
               "mandatory" : [ "left_shift" ]
             }
