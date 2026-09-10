@@ -3830,15 +3830,6 @@
                         "vendor_id": 1133
                     },
                     "ignore": false
-                },
-                {
-                    "identifiers": {
-                        "is_keyboard": true,
-                        "product_id": 835,
-                        "vendor_id": 1452
-                    },
-                    "ignore": false,
-                    "manipulate_caps_lock_led": false
                 }
             ],
             "name": "Default",
