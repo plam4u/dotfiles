@@ -5,6 +5,7 @@
 	excludesfile = /Users/plam/.gitignore_global
 	editor = vim
 	ignorecase = false
+	autocrlf = input
 [diff]
 	tool = vimdiff
 [merge]
