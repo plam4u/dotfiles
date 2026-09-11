@@ -3,3 +3,6 @@
 -- Add any additional keymaps here
 
 vim.keymap.set("n", "<leader>L", "<cmd>LazyExtras<CR>", { desc = "LazyExtras" })
+vim.keymap.set("n", "<leader>se", function()
+  vim.wo.scrollbind = not vim.wo.scrollbind
+end, { desc = "Toggle scrollbind" })
