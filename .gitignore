@@ -1,2 +1,6 @@
 .DS_Store
 **/.logseq/graphs
+/packages/cliamp/stow/.config/cliamp/cliamp.log
+/packages/cliamp/stow/.config/cliamp/cliamp.sock.pid
+/packages/cliamp/stow/.config/cliamp/favorites.toml.lock
+/packages/cliamp/stow/.config/cliamp/history.toml
