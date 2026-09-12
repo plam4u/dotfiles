@@ -68,7 +68,7 @@
 
  :main [
         {:des "Global Key Bindings" :rules [
-          [:!OSz [:toggle-id "com.neovide.neovide"]]
+          ; [:!OSz [:toggle-id "com.neovide.neovide"]]
           ]}
         {:des "Arc" :rules [:arc
           [:!TOSg :!Ch]
