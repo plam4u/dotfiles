@@ -6,7 +6,6 @@ after-startup-command = [
   # so it won't be run twice on AeroSpace restart
   'exec-and-forget borders active_color=0xff61afef inactive_color=0x00000000 width=5.0',
   'exec-and-forget sketchybar',
-  'exec-and-forget ~/.config/aerospace/placeholder-windows.sh',
 ]
 exec-on-workspace-change = [
   '/bin/bash',
@@ -25,18 +24,14 @@ automatically-unhide-macos-hidden-apps = false
 persistent-workspaces = []
 
 [gaps]
-inner.horizontal = [{ monitor."LG HDR DQHD" = 0 }, 4]
-inner.vertical = [{ monitor."LG HDR DQHD" = 0 }, 4]
-outer.left = [{ monitor."LG HDR DQHD" = 0 }, 2]
-outer.bottom = [{ monitor."LG HDR DQHD" = 0 }, 2]
-outer.top = [{ monitor."LG HDR DQHD" = 0 }, 2]
-outer.right = [{ monitor."LG HDR DQHD" = 0 }, 2]
+inner.horizontal = 4
+inner.vertical = 4
+outer.left = 2
+outer.bottom = 2
+outer.top = 2
+outer.right = 2
 
 # Floating windows
-[[on-window-detected]]
-if.app-id = 'local.aerospace.placeholders'
-run = ['layout tiling']
-
 [[on-window-detected]]
 if.app-id = 'com.apple.TextEdit'
 run = ['layout floating']
