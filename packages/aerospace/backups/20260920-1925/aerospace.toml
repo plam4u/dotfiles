@@ -10,7 +10,7 @@ after-startup-command = [
 exec-on-workspace-change = [
   '/bin/bash',
   '-c',
-  '~/.config/aerospace/workspace-changed.sh',
+  'sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE',
 ]
 
 start-at-login = true
@@ -34,34 +34,22 @@ outer.right = 2
 # Floating windows
 [[on-window-detected]]
 if.app-id = 'com.apple.TextEdit'
-check-further-callbacks = true
 run = ['layout floating']
 [[on-window-detected]]
 if.app-id = 'com.sublimetext.4'
-check-further-callbacks = true
 run = ['layout floating']
 [[on-window-detected]]
 if.app-id = 'com.apple.finder'
-check-further-callbacks = true
 run = ['layout floating']
 [[on-window-detected]]
 if.app-id = 'com.apple.Music'
-check-further-callbacks = true
 run = ['layout floating']
 [[on-window-detected]]
 if.app-id = 'com.apple.clock'
-check-further-callbacks = true
 run = ['layout floating']
 [[on-window-detected]]
 if.app-id = 'com.googlecode.iterm2'
-check-further-callbacks = true
 run = ['layout floating']
-
-# Hammerspoon ignores this event on the laptop and opens the ultrawide
-# placement flow only for standard application windows.
-[[on-window-detected]]
-if = 'true'
-run = ['exec-and-forget ~/.config/aerospace/window-detected.sh']
 
 # Workspace U
 # [[on-window-detected]]

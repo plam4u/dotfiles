@@ -4,7 +4,6 @@ mash2 = { "shift", "ctrl", "alt", "cmd" }
 require("apps")
 require("grid")
 require("caffeine")
-require("window_manager").start()
 
 hs.loadSpoon("ReloadConfiguration")
 spoon.ReloadConfiguration:start()
