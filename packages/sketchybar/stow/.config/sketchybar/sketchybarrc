@@ -33,13 +33,6 @@ default=(
 )
 sketchybar --default "${default[@]}"
 
-# Transparent outer spacers keep the visible ultrawide content aligned with
-# the central 2560 pixels. Laptop layout hides them.
-sketchybar --add item adaptive.center.left left \
-           --set adaptive.center.left icon.drawing=off label.drawing=off drawing=off width=0 \
-           --add item adaptive.center.right right \
-           --set adaptive.center.right icon.drawing=off label.drawing=off drawing=off width=0
-
 ##### Adding Mission Control Space Indicators #####
 # Let's add some mission control spaces:
 # https://felixkratz.github.io/SketchyBar/config/components#space----associate-mission-control-spaces-with-an-item
@@ -111,6 +104,8 @@ sketchybar --add item clock right \
            --set codex icon="󰚩" update_freq=30 script="$PLUGIN_DIR/codex_usage.sh"
 
 ##### Force all scripts to run the first time (never do this in a script) #####
+sketchybar --update
+
 ##### AeroSpace integration
 sketchybar --add event aerospace_workspace_change
 
@@ -165,13 +160,6 @@ for sid in "${workspace_order[@]}"; do
       --subscribe "space.$sid" aerospace_workspace_change
   fi
 done
-
-sketchybar --add item aerospace_observer left \
-           --set aerospace_observer drawing=off script="$PLUGIN_DIR/aerospace_workspaces.sh" \
-           --subscribe aerospace_observer space_windows_change
-
-"$PLUGIN_DIR/display_layout.sh"
-sketchybar --update
 
 # sketchybar --add item aerospace_observer left \
 #            --set aerospace_observer drawing=off \
