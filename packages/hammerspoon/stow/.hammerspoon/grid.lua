@@ -1,26 +1,27 @@
-hs.grid.setGrid("7x7")
+hs.grid.setGrid("8x8")
 hs.grid.setMargins("0,0")
 hs.window.animationDuration = 0
 
-function toggleMenuBar()
-	cmd = [[
-    tell application "System Preferences"
-        reveal pane id "com.apple.preference.dock"
-        delay 1
-        tell application "System Events"
-            activate
-            click checkbox "Automatically hide and show the menu bar on desktop" of window "Dock & Menu Bar" of process "System Preferences"
-        end tell
-    end tell
-    ]]
-	hs.osascript.applescript(cmd)
-end
+-- local function toggleMenuBar()
+-- 	cmd = [[
+--     tell application "System Preferences"
+--         reveal pane id "com.apple.preference.dock"
+--         delay 1
+--         tell application "System Events"
+--             activate
+--             click checkbox "Automatically hide and show the menu bar on desktop" of window "Dock & Menu Bar" of process "System Preferences"
+--         end tell
+--     end tell
+--     ]]
+-- 	hs.osascript.applescript(cmd)
+-- end
+-- hs.hotkey.bind(mash, "m", toggleMenuBar)
 
-function getWin()
+local function getWin()
 	return hs.window.focusedWindow()
 end
 
-function centeredQHDWindow()
+local function centeredQHDWindow()
 	local win = hs.window.focusedWindow()
 	local f = win:frame()
 	local screen = win:screen()
@@ -35,7 +36,27 @@ function centeredQHDWindow()
 	win:setFrame(f)
 end
 
-function wideCenteredWindow(isFullHeight)
+local function sideQHDWindow(side)
+	local win = hs.window.focusedWindow()
+	local f = win:frame()
+	local screen = win:screen()
+	local max = screen:frame()
+	local targetW = 1280
+	local targetH = 1440
+
+	if side == "left" then
+		f.x = 0
+	elseif side == "right" then
+		f.x = max.w - targetW
+	end
+	-- f.x = (max.w - targetW) / 2
+	f.y = (max.h - targetH) / 2
+	f.w = targetW
+	f.h = targetH
+	win:setFrame(f)
+end
+
+local function wideCenteredWindow(isFullHeight)
 	local win = hs.window.focusedWindow()
 	local f = win:frame()
 	local screen = win:screen()
@@ -53,7 +74,7 @@ function wideCenteredWindow(isFullHeight)
 	win:setFrame(f)
 end
 
-function tileWindow(posRatio, sizeRatio)
+local function tileWindow(posRatio, sizeRatio)
 	local win = hs.window.focusedWindow()
 	local f = win:frame()
 	local screen = win:screen()
@@ -88,6 +109,48 @@ end
 -- wf.new { 'Messages' }:subscribe(wf.windowOnScreen, function()
 --     tileWindow(6/7, 1/7)
 -- end)
+--
+-- local function focusWindow(direction)
+-- 	local win = hs.window.focusedWindow()
+-- 	if not win then
+-- 		return
+-- 	end
+--
+-- 	local focus = {
+-- 		h = win.focusWindowWest,
+-- 		j = win.focusWindowSouth,
+-- 		k = win.focusWindowNorth,
+-- 		l = win.focusWindowEast,
+-- 	}
+--
+-- 	focus[direction](win)
+-- end
+--
+-- for _, key in ipairs({ "h", "j", "k", "l" }) do
+-- 	hs.hotkey.bind({ "alt" }, key, function()
+-- 		focusWindow(key)
+-- 	end)
+-- end
+
+-- local wf = hs.window.filter.defaultCurrentSpace
+--
+-- local directions = {
+-- 	h = "West",
+-- 	j = "South",
+-- 	k = "North",
+-- 	l = "East",
+-- }
+--
+-- for key, direction in pairs(directions) do
+-- 	hs.hotkey.bind({ "alt" }, key, function()
+-- 		wf["focusWindow" .. direction](wf, nil, false, true)
+-- 	end)
+-- end
+
+hs.hotkey.bind({ "alt" }, "h", hs.window.filter.focusWest)
+hs.hotkey.bind({ "alt" }, "j", hs.window.filter.focusSouth)
+hs.hotkey.bind({ "alt" }, "k", hs.window.filter.focusNorth)
+hs.hotkey.bind({ "alt" }, "l", hs.window.filter.focusEast)
 
 --- arrows: move window
 hs.hotkey.bind(mash, "k", function()
@@ -120,13 +183,16 @@ end)
 --- left - center - right
 --- |--|---|--|
 hs.hotkey.bind(mash, "u", function()
-	tileWindow(0, 2 / 7)
+	-- tileWindow(0, 2 / 7)
+	sideQHDWindow("left")
 end) -- left
 hs.hotkey.bind(mash, "i", function()
-	tileWindow(2 / 7, 3 / 7)
+	-- tileWindow(2 / 7, 3 / 7)
+	centeredQHDWindow()
 end) -- center
 hs.hotkey.bind(mash, "o", function()
-	tileWindow(5 / 7, 2 / 7)
+	-- tileWindow(5 / 7, 2 / 7)
+	sideQHDWindow("right")
 end) -- right
 
 --- 234: resize grid
@@ -169,7 +235,8 @@ hs.hotkey.bind(mash2, "5", function()
 	wideCenteredWindow(true)
 end)
 hs.hotkey.bind(mash, "6", function()
-	centeredQHDWindow()
+	-- centeredQHDWindow()
+	tileWindow(2 / 7, 3 / 7)
 end)
 
 --- /: move window to next screen
@@ -186,7 +253,6 @@ hs.hotkey.bind(mash, "t", function()
 	local win = getWin()
 	win:centerOnScreen()
 end)
--- hs.hotkey.bind(mash, "m", toggleMenuBar)
 
 --- space: maximize window
 hs.hotkey.bind(mash, "space", function()

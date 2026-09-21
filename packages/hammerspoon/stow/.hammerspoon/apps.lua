@@ -9,14 +9,6 @@ local function toggleAppByName(name)
 	end
 end
 
-function tablelength(T)
-	local count = 0
-	for _ in pairs(T) do
-		count = count + 1
-	end
-	return count
-end
-
 local function toggleAppByID(bundleID)
 	local bundle = hs.application.applicationsForBundleID(bundleID)
 	-- for key, value in pairs(bundle) do
@@ -37,12 +29,12 @@ local function toggleAppByID(bundleID)
 end
 
 hs.application.enableSpotlightForNameSearches(true)
-hs.urlevent.bind("toggle-app-by-id", function(eventName, params)
+hs.urlevent.bind("toggle-app-by-id", function(_, params)
 	-- hs.alert.closeAll()
 	-- hs.alert(params.id)
 	toggleAppByID(params.id)
 end)
-hs.urlevent.bind("toggle-app-by-name", function(eventName, params)
+hs.urlevent.bind("toggle-app-by-name", function(_, params)
 	-- hs.alert.closeAll()
 	-- hs.alert(params.name)
 	toggleAppByName(params.name)
