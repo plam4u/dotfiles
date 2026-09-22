@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-brew install --cask openscad
+brew install openscad@snapshot
