@@ -17,12 +17,18 @@ function M.setup(config)
 end
 
 function M.bindHotkeys(mapping)
-	if mapping.hide then
-		hs.hotkey.bind(mapping.hide[1], mapping.hide[2], M.hideFrontmostApp)
+	for action, hotkey in pairs(mapping) do
+		local handler = M[action]
+
+		if type(handler) ~= "function" then
+			M.logger.e("Unknown caffeine action: " .. tostring(action))
+		else
+			hs.hotkey.bind(hotkey[1], hotkey[2], handler)
+		end
 	end
 end
 
-function M.hideFrontmostApp()
+function M.hideApp()
 	local app = hs.application.frontmostApplication()
 	if app then
 		app:hide()

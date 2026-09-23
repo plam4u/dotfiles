@@ -3,7 +3,7 @@ local hyper = { "shift", "ctrl", "alt", "cmd" }
 
 require("apps").setup({
 	mapping = {
-		hide = { meh, "g" },
+		hideApp = { meh, "g" },
 	},
 })
 require("grid").setup({
@@ -61,7 +61,11 @@ require("grid").setup({
 		{ "minimizeWindow", meh, "." },
 	},
 })
-require("caffeine").setup({})
+require("caffeine").setup({
+	mapping = {
+		toggle = { meh, "y" },
+	},
+})
 require("wm").setup({
 	mapping = {
 		saveDesktop = { meh, "=" },

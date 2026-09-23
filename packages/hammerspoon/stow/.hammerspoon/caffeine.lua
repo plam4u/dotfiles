@@ -1,61 +1,76 @@
 local M = {}
+
 function M.setup(config)
 	M.config = config or {}
-	M.bindHotkeys(M.config.mapping or {})
-end
-function M.bindHotkeys(mapping)
-	if mapping.blah then
-		hs.hotkey.bind(mapping.hide.mods, mapping.hide.key, function()
-			hs.alert.show("blah")
-		end)
-	end
-end
-local caffeine = hs.menubar.new()
-local home = os.getenv("HOME")
-local icons = {
-	sleepy = hs.image.imageFromPath(home .. "/.hammerspoon/resources/coffee.empty.16.png"),
-	awake = hs.image.imageFromPath(home .. "/.hammerspoon/resources/coffee.fill.16.png"),
-}
-local shouldDisplayTitle = hs.settings.get("caffeine.shouldDisplayTitle") or false
+	M.logger = hs.logger.new("caffeine", "debug")
 
-local function setCaffeineDisplay(state)
-	if state then
-		caffeine:setIcon(icons.awake)
-		caffeine:setTitle(shouldDisplayTitle and "Awake" or nil)
-	else
-		caffeine:setIcon(icons.sleepy)
-		caffeine:setTitle(shouldDisplayTitle and "Sleepy" or nil)
-	end
-end
+	local resources = hs.configdir .. "/resources"
+	M.icons = {
+		sleepy = hs.image.imageFromPath(resources .. "/coffee.empty.16.png"),
+		awake = hs.image.imageFromPath(resources .. "/coffee.fill.16.png"),
+	}
+	M.shouldDisplayTitle = hs.settings.get("caffeine.shouldDisplayTitle") or false
 
-local function caffeineClicked(mods)
-	if mods.alt then
-		shouldDisplayTitle = not shouldDisplayTitle
-		hs.settings.set("caffeine.shouldDisplayTitle", shouldDisplayTitle)
-		setCaffeineDisplay(hs.caffeinate.get("displayIdle"))
-	else
-		local state = hs.caffeinate.toggle("displayIdle")
-		hs.settings.set("caffeine.state", state)
-		setCaffeineDisplay(state)
+	M.caffeine = hs.menubar.new()
+	if not M.caffeine then
+		M.logger.e("Failed to create caffeine menubar item")
+		return
 	end
-end
 
-if caffeine then
 	local savedState = hs.settings.get("caffeine.state")
 	if savedState ~= nil then
 		hs.caffeinate.set("displayIdle", savedState)
 	end
-	caffeine:setClickCallback(caffeineClicked)
-	setCaffeineDisplay(hs.caffeinate.get("displayIdle"))
 
-	if M.hotkey then
-		M.hotkey:delete()
-	end
-	M.hotkey = hs.hotkey.new(meh, "y", function()
-		caffeineClicked({})
-		hs.alert.show("Caffeine: " .. (hs.caffeinate.get("displayIdle") and "Awake" or "Sleepy"))
+	M.caffeine:setClickCallback(function(mods)
+		M.caffeineClicked(mods)
 	end)
-	M.hotkey:enable()
+	M.setCaffeineDisplay(hs.caffeinate.get("displayIdle"))
+	M.bindHotkeys(M.config.mapping or {})
 end
-M.caffeine = caffeine
+
+function M.bindHotkeys(mapping)
+	for action, hotkey in pairs(mapping) do
+		local handler = M[action]
+
+		if type(handler) ~= "function" then
+			M.logger.e("Unknown caffeine action: " .. tostring(action))
+		else
+			hs.hotkey.bind(hotkey[1], hotkey[2], handler)
+		end
+	end
+end
+
+function M.setCaffeineDisplay(state)
+	if state then
+		M.caffeine:setIcon(M.icons.awake)
+		M.caffeine:setTitle(M.shouldDisplayTitle and "Awake" or nil)
+	else
+		M.caffeine:setIcon(M.icons.sleepy)
+		M.caffeine:setTitle(M.shouldDisplayTitle and "Sleepy" or nil)
+	end
+end
+
+function M.caffeineClicked(mods)
+	if mods.alt then
+		M.shouldDisplayTitle = not M.shouldDisplayTitle
+
+		hs.settings.set("caffeine.shouldDisplayTitle", M.shouldDisplayTitle)
+
+		M.setCaffeineDisplay(hs.caffeinate.get("displayIdle"))
+	else
+		local state = hs.caffeinate.toggle("displayIdle")
+
+		hs.settings.set("caffeine.state", state)
+
+		M.setCaffeineDisplay(state)
+	end
+end
+
+function M.toggle()
+	M.caffeineClicked({})
+
+	hs.alert.show("Caffeine: " .. (hs.caffeinate.get("displayIdle") and "Awake" or "Sleepy"))
+end
+
 return M
