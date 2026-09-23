@@ -4,3 +4,4 @@
 /packages/cliamp/stow/.config/cliamp/cliamp.sock.pid
 /packages/cliamp/stow/.config/cliamp/favorites.toml.lock
 /packages/cliamp/stow/.config/cliamp/history.toml
+/packages/hammerspoon/stow/.hammerspoon/state/wm.json

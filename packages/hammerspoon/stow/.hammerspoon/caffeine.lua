@@ -1,4 +1,15 @@
 local M = {}
+function M.setup(config)
+	M.config = config or {}
+	M.bindHotkeys(M.config.mapping or {})
+end
+function M.bindHotkeys(mapping)
+	if mapping.blah then
+		hs.hotkey.bind(mapping.hide.mods, mapping.hide.key, function()
+			hs.alert.show("blah")
+		end)
+	end
+end
 local caffeine = hs.menubar.new()
 local home = os.getenv("HOME")
 local icons = {
@@ -40,7 +51,7 @@ if caffeine then
 	if M.hotkey then
 		M.hotkey:delete()
 	end
-	M.hotkey = hs.hotkey.new(mash, "y", function()
+	M.hotkey = hs.hotkey.new(meh, "y", function()
 		caffeineClicked({})
 		hs.alert.show("Caffeine: " .. (hs.caffeinate.get("displayIdle") and "Awake" or "Sleepy"))
 	end)

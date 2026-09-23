@@ -1,11 +1,17 @@
-mash = { "shift", "ctrl", "alt" }
-mash2 = { "shift", "ctrl", "alt", "cmd" }
+meh = { "shift", "ctrl", "alt" }
+hyper = { "shift", "ctrl", "alt", "cmd" }
 
-require("apps")
-require("grid")
-require("caffeine")
-
-hs.loadSpoon("ReloadConfiguration")
-spoon.ReloadConfiguration:start()
-
-hs.alert("Hammerspoon config loaded")
+require("apps").setup({
+	mapping = {
+		hide = { meh, "g" },
+	},
+})
+require("grid").setup({})
+require("caffeine").setup({})
+require("wm").setup({
+	mapping = {
+		saveDesktop = { hyper, "=" },
+		restoreDesktop = { meh, "=" },
+	},
+})
+require("reload").setup({})

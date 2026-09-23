@@ -1,3 +1,18 @@
+local M = {}
+
+function M.setup(config)
+	M.config = config or {}
+	M.bindHotkeys(M.config.mapping or {})
+end
+
+function M.bindHotkeys(mapping)
+	if mapping.blah then
+		hs.hotkey.bind(mapping.hide.mods, mapping.hide.key, function()
+			hs.alert.show("blah")
+		end)
+	end
+end
+
 hs.grid.setGrid("8x8")
 hs.grid.setMargins("0,0")
 hs.window.animationDuration = 0
@@ -153,117 +168,117 @@ hs.hotkey.bind({ "alt" }, "k", hs.window.filter.focusNorth)
 hs.hotkey.bind({ "alt" }, "l", hs.window.filter.focusEast)
 
 --- arrows: move window
-hs.hotkey.bind(mash, "k", function()
+hs.hotkey.bind(meh, "k", function()
 	hs.grid.pushWindowUp()
 end)
-hs.hotkey.bind(mash, "j", function()
+hs.hotkey.bind(meh, "j", function()
 	hs.grid.pushWindowDown()
 end)
-hs.hotkey.bind(mash, "h", function()
+hs.hotkey.bind(meh, "h", function()
 	hs.grid.pushWindowLeft()
 end)
-hs.hotkey.bind(mash, "l", function()
+hs.hotkey.bind(meh, "l", function()
 	hs.grid.pushWindowRight()
 end)
 
 --- ikjl: resize window
-hs.hotkey.bind(mash2, "h", function()
+hs.hotkey.bind(hyper, "h", function()
 	hs.grid.resizeWindowThinner()
 end)
-hs.hotkey.bind(mash2, "l", function()
+hs.hotkey.bind(hyper, "l", function()
 	hs.grid.resizeWindowWider()
 end)
-hs.hotkey.bind(mash2, "k", function()
+hs.hotkey.bind(hyper, "k", function()
 	hs.grid.resizeWindowShorter()
 end)
-hs.hotkey.bind(mash2, "j", function()
+hs.hotkey.bind(hyper, "j", function()
 	hs.grid.resizeWindowTaller()
 end)
 
 --- left - center - right
 --- |--|---|--|
-hs.hotkey.bind(mash, "u", function()
+hs.hotkey.bind(meh, "u", function()
 	-- tileWindow(0, 2 / 7)
 	sideQHDWindow("left")
 end) -- left
-hs.hotkey.bind(mash, "i", function()
+hs.hotkey.bind(meh, "i", function()
 	-- tileWindow(2 / 7, 3 / 7)
 	centeredQHDWindow()
 end) -- center
-hs.hotkey.bind(mash, "o", function()
+hs.hotkey.bind(meh, "o", function()
 	-- tileWindow(5 / 7, 2 / 7)
 	sideQHDWindow("right")
 end) -- right
 
 --- 234: resize grid
-hs.hotkey.bind(mash, "2", function()
+hs.hotkey.bind(meh, "2", function()
 	hs.grid.setGrid("2x2")
 	hs.alert.show("Grid set to 2x2")
 end)
-hs.hotkey.bind(mash, "3", function()
+hs.hotkey.bind(meh, "3", function()
 	hs.grid.setGrid("3x3")
 	hs.alert.show("Grid set to 3x3")
 end)
-hs.hotkey.bind(mash, "4", function()
+hs.hotkey.bind(meh, "4", function()
 	hs.grid.setGrid("4x4")
 	hs.alert.show("Grid set to 4x4")
 end)
-hs.hotkey.bind(mash, "6", function()
+hs.hotkey.bind(meh, "6", function()
 	hs.grid.setGrid("6x6")
 	hs.alert.show("Grid set to 6x6")
 end)
-hs.hotkey.bind(mash, "7", function()
+hs.hotkey.bind(meh, "7", function()
 	hs.grid.setGrid("7x7")
 	hs.alert.show("Grid set to 7x7")
 end)
-hs.hotkey.bind(mash, "8", function()
+hs.hotkey.bind(meh, "8", function()
 	hs.grid.setGrid("8x8")
 	hs.alert.show("Grid set to 8x8")
 end)
-hs.hotkey.bind(mash, "9", function()
+hs.hotkey.bind(meh, "9", function()
 	hs.grid.setGrid("9x9")
 	hs.alert.show("Grid set to 9x9")
 end)
-hs.hotkey.bind(mash, "0", function()
+hs.hotkey.bind(meh, "0", function()
 	hs.grid.setGrid("10x10")
 	hs.alert.show("Grid set to 10x10")
 end)
-hs.hotkey.bind(mash, "5", function()
+hs.hotkey.bind(meh, "5", function()
 	wideCenteredWindow(false)
 end)
-hs.hotkey.bind(mash2, "5", function()
+hs.hotkey.bind(hyper, "5", function()
 	wideCenteredWindow(true)
 end)
-hs.hotkey.bind(mash, "6", function()
+hs.hotkey.bind(meh, "6", function()
 	-- centeredQHDWindow()
 	tileWindow(2 / 7, 3 / 7)
 end)
 
 --- /: move window to next screen
-hs.hotkey.bind(mash, "/", function()
+hs.hotkey.bind(meh, "/", function()
 	local win = getWin()
 	win:moveToScreen(win:screen():next())
 end)
 
 --- ,: snap window to grid
-hs.hotkey.bind(mash, ",", function()
+hs.hotkey.bind(meh, ",", function()
 	hs.grid.snap(getWin())
 end)
-hs.hotkey.bind(mash, "t", function()
+hs.hotkey.bind(meh, "t", function()
 	local win = getWin()
 	win:centerOnScreen()
 end)
 
 --- space: maximize window
-hs.hotkey.bind(mash, "space", function()
+hs.hotkey.bind(meh, "space", function()
 	hs.grid.maximizeWindow()
 end)
-hs.hotkey.bind(mash, "n", function()
+hs.hotkey.bind(meh, "n", function()
 	hs.grid.maximizeWindow()
 end)
 
 --- .: minimize window
-hs.hotkey.bind(mash, ".", function()
+hs.hotkey.bind(meh, ".", function()
 	local win = getWin()
 	if not win then
 		return
@@ -278,3 +293,4 @@ hs.hotkey.bind(mash, ".", function()
 
 	win:setFrame(f)
 end)
+return M

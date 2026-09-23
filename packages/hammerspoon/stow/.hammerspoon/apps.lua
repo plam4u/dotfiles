@@ -1,3 +1,16 @@
+local M = {}
+
+function M.setup(config)
+	M.config = config or {}
+	M.bindHotkeys(M.config.mapping or {})
+end
+
+function M.bindHotkeys(mapping)
+	if mapping.hide then
+		hs.hotkey.bind(mapping.hide[1], mapping.hide[2], M.hideFrontmostApp)
+	end
+end
+
 local function toggleAppByName(name)
 	local app = hs.application.find(name)
 	if not app or app:isHidden() then
@@ -40,20 +53,12 @@ hs.urlevent.bind("toggle-app-by-name", function(_, params)
 	toggleAppByName(params.name)
 end)
 
-hs.hotkey.bind(mash, "g", function()
-	hs.application.frontmostApplication():hide()
-end)
-
--- hs.hotkey.bind(mash, "w", function()
--- 	spoon.ArrangeDesktop:createArrangement()
--- 	-- spoon.ArrangeDesktop:addMenuItems()
--- end)
--- hs.hotkey.bind(mash, "q", function()
--- 	-- hs.alert(spoon.ArrangeDesktop.arrangements)
--- 	spoon.ArrangeDesktop.arrangements = spoon.ArrangeDesktop:_loadConfiguration()
--- 	-- spoon.ArrangeDesktop:arrange(spoon.ArrangeDesktop.arrangements.A)
--- 	spoon.ArrangeDesktop:arrange("A")
--- end)
+function M.hideFrontmostApp()
+	local app = hs.application.frontmostApplication()
+	if app then
+		app:hide()
+	end
+end
 
 -- hs.hotkey.bind(mash, "f", function() toggleAppByName("Finder") end)
 -- hs.hotkey.bind(mash2, "f", function() toggleAppByName("Figma") end)
@@ -84,3 +89,4 @@ end)
 -- hs.hotkey.bind({'alt'}, "escape", function() toggleAppByName("Alacritty") end)
 -- hs.hotkey.bind(mash, "s", function() toggleAppByName("Safari") end)
 -- hs.hotkey.bind({'cmd', 'alt', 'shift'}, "s", function() toggleAppByName("Firefox") end)
+return M
