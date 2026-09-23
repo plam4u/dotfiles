@@ -12,16 +12,13 @@ function M.setup(config)
 end
 
 function M.bindHotkeys(mapping)
-	for _, binding in ipairs(mapping) do
-		local action = binding[1]
-		local mods = binding[2]
-		local key = binding[3]
-		local fn = M[action]
+	for action, hotkey in pairs(mapping) do
+		local handler = M[action]
 
-		if type(fn) ~= "function" then
-			M.logger.e("Unknown grid action: " .. tostring(action))
+		if type(handler) ~= "function" then
+			M.logger.e("Unknown layout action: " .. tostring(action))
 		else
-			hs.hotkey.bind(mods, key, fn)
+			hs.hotkey.bind(hotkey[1], hotkey[2], handler)
 		end
 	end
 end
@@ -139,22 +136,6 @@ end
 
 function M.tileCenterWindow()
 	M.tileWindow(2 / 7, 3 / 7)
-end
-
-function M.focusWest()
-	hs.window.filter.focusWest()
-end
-
-function M.focusSouth()
-	hs.window.filter.focusSouth()
-end
-
-function M.focusNorth()
-	hs.window.filter.focusNorth()
-end
-
-function M.focusEast()
-	hs.window.filter.focusEast()
 end
 
 function M.pushWindowUp()
