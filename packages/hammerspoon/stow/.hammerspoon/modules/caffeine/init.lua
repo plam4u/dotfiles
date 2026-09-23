@@ -3,11 +3,12 @@ local M = {}
 function M.setup(config)
 	M.config = config or {}
 	M.logger = hs.logger.new("caffeine", "debug")
+	M.logger.i("Setting up caffeine module")
 
-	local resources = hs.configdir .. "/resources"
+	local assets = hs.configdir .. "/modules/caffeine/assets"
 	M.icons = {
-		sleepy = hs.image.imageFromPath(resources .. "/coffee.empty.16.png"),
-		awake = hs.image.imageFromPath(resources .. "/coffee.fill.16.png"),
+		sleepy = hs.image.imageFromPath(assets .. "/coffee.empty.16.png"),
+		awake = hs.image.imageFromPath(assets .. "/coffee.fill.16.png"),
 	}
 	M.shouldDisplayTitle = hs.settings.get("caffeine.shouldDisplayTitle") or false
 
@@ -30,6 +31,7 @@ function M.setup(config)
 end
 
 function M.bindHotkeys(mapping)
+	M.logger.i("Binding hotkeys for caffeine module")
 	for action, hotkey in pairs(mapping) do
 		local handler = M[action]
 
@@ -71,6 +73,7 @@ function M.toggle()
 	M.caffeineClicked({})
 
 	hs.alert.show("Caffeine: " .. (hs.caffeinate.get("displayIdle") and "Awake" or "Sleepy"))
+	M.logger.i("Caffeine toggled: " .. (hs.caffeinate.get("displayIdle") and "Awake" or "Sleepy"))
 end
 
 return M

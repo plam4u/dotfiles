@@ -1,12 +1,23 @@
 local meh = { "shift", "ctrl", "alt" }
 local hyper = { "shift", "ctrl", "alt", "cmd" }
 
-require("apps").setup({
+require("modules.caffeine").setup({
+	mapping = {
+		toggle = { meh, "y" },
+	},
+})
+require("modules.wm").setup({
+	mapping = {
+		saveDesktop = { meh, "=" },
+		restoreDesktop = { hyper, "=" },
+	},
+})
+require("modules.wm.apps").setup({
 	mapping = {
 		hideApp = { meh, "g" },
 	},
 })
-require("grid").setup({
+require("modules.wm.layout").setup({
 	mapping = {
 		-- Focus window
 		{ "focusWest", { "alt" }, "h" },
@@ -59,17 +70,6 @@ require("grid").setup({
 
 		-- 640x480, preserving position
 		{ "minimizeWindow", meh, "." },
-	},
-})
-require("caffeine").setup({
-	mapping = {
-		toggle = { meh, "y" },
-	},
-})
-require("wm").setup({
-	mapping = {
-		saveDesktop = { meh, "=" },
-		restoreDesktop = { hyper, "=" },
 	},
 })
 require("reload").setup({})
