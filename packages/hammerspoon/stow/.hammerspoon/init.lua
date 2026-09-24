@@ -7,6 +7,18 @@ require("modules.caffeine").setup({
 	},
 })
 require("modules.wm").setup({
+	borders = {
+		arguments = {
+			"active_color=0xff61afef",
+			"inactive_color=0x00000000",
+			"width=5.0",
+		},
+	},
+	control = {
+		mapping = {
+			toggle = { hyper, "m" },
+		},
+	},
 	apps = {
 		mapping = {
 			hideApp = { meh, "g" },
@@ -53,6 +65,18 @@ require("modules.wm").setup({
 		config = {
 			ultrawideWidth = 5120,
 			ultrawideHeight = 1440,
+			groupOrder = { "left", "center", "right" },
+			groupLabels = {
+				left = "Left",
+				center = "Center",
+				right = "Right",
+			},
+			groupWeights = {
+				left = 0.25,
+				center = 0.50,
+				right = 0.25,
+			},
+			laptopBarHeight = 40,
 			mouseFollowsFocus = true,
 			resizeStep = 80,
 			defaultMinWidth = 200,
@@ -95,18 +119,31 @@ require("modules.wm").setup({
 			moveWorkspaceEarlier = { meh, "n" },
 			moveWorkspaceLater = { meh, "m" },
 			-- Move the focused window into a new workspace.
-			moveWindowToLeft = { meh, "u" },
-			moveWindowToCenter = { meh, "i" },
-			moveWindowToRight = { meh, "o" },
+			moveWindowToGroup1 = { meh, "u" },
+			moveWindowToGroup2 = { meh, "i" },
+			moveWindowToGroup3 = { meh, "o" },
 			-- Add the focused window to the active workspace.
-			addWindowToLeftWorkspace = { hyper, "u" },
-			addWindowToCenterWorkspace = { hyper, "i" },
-			addWindowToRightWorkspace = { hyper, "o" },
+			addWindowToGroup1 = { hyper, "u" },
+			addWindowToGroup2 = { hyper, "i" },
+			addWindowToGroup3 = { hyper, "o" },
 			extractWindowFromWorkspace = { hyper, "p" },
 			-- Resize the focused member inside a two-window workspace.
 			shrinkFocusedMember = { hyper, "h" },
 			growFocusedMember = { hyper, "l" },
 			resetWorkspaceSplit = { hyper, ";" },
+			-- Reorder and resize virtual-screen groups at runtime.
+			moveGroupEarlier = { hyper, "," },
+			moveGroupLater = { hyper, "." },
+			shrinkGroup = { hyper, "[" },
+			growGroup = { hyper, "]" },
+		},
+	},
+	sketchybar = {
+		-- Options: "background", "border", "underline", "left_bar", "text".
+		workspaceFocusStyle = "underline",
+		initialSelectedItem = "clock",
+		mapping = {
+			toggleNavigation = { "alt", "m" },
 		},
 	},
 	-- modules.wm.persistence is intentionally disabled. Stacking owns

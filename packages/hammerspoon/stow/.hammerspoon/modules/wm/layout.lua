@@ -1,5 +1,6 @@
 local M = {}
 local stacking = require("modules.wm.stacking")
+local hotkeys = require("modules.wm.hotkeys")
 
 function M.setup(config)
 	M.config = config or {}
@@ -19,13 +20,16 @@ function M.bindHotkeys(mapping)
 		if type(handler) ~= "function" then
 			M.logger.e("Unknown layout action: " .. tostring(action))
 		else
-			hs.hotkey.bind(hotkey[1], hotkey[2], handler)
+			hotkeys.bind(hotkey[1], hotkey[2], handler)
 		end
 	end
 end
 
 function M.getWin()
 	local win = hs.window.focusedWindow()
+	if win and win:isFullScreen() then
+		return nil
+	end
 
 	if stacking.isManaged(win) then
 		hs.alert.show("Remove this window from its stack before moving it freely")

@@ -1,12 +1,18 @@
 local store = require("modules.wm.stacking_store")
 local ui = require("modules.wm.stacking_ui")
 local virtualScreens = require("modules.wm.virtual_screens")
+local hotkeys = require("modules.wm.hotkeys")
 
 local M = {
 	screenOrder = {},
 	screens = {},
 	windowIndex = {},
 	enabled = false,
+	suspended = false,
+	subscribers = {},
+	layouts = {},
+	mouseInteractionGeneration = 0,
+	mouseInteractionActive = false,
 }
 
 ---@type table<string, fun()>
@@ -23,6 +29,7 @@ end
 local function centerMouseInWindow(window)
 	if
 		not M.options.mouseFollowsFocus
+		or M.mouseInteractionActive
 		or not window
 		or not hs.mouse
 		or type(hs.mouse.absolutePosition) ~= "function"
@@ -40,13 +47,26 @@ local function centerMouseInWindow(window)
 	end
 end
 
-local function focusWindow(window)
+function M.noteMouseInteraction(duration)
+	M.mouseInteractionGeneration = M.mouseInteractionGeneration + 1
+	local generation = M.mouseInteractionGeneration
+	M.mouseInteractionActive = true
+	hs.timer.doAfter(duration or 2, function()
+		if generation == M.mouseInteractionGeneration then
+			M.mouseInteractionActive = false
+		end
+	end)
+end
+
+local function focusWindow(window, shouldMoveMouse)
 	if not window then
 		return false
 	end
 
 	window:focus()
-	centerMouseInWindow(window)
+	if shouldMoveMouse ~= false then
+		centerMouseInWindow(window)
+	end
 	return true
 end
 
@@ -60,6 +80,10 @@ local function clamp(number, minimum, maximum)
 end
 
 local function setFrameIfChanged(window, target)
+	if not window or window:isFullScreen() then
+		return false
+	end
+
 	local current = window:frame()
 	local tolerance = 1
 	local unchanged = math.abs(current.x - target.x) <= tolerance
@@ -113,23 +137,38 @@ local function emptyProfileState()
 end
 
 local function normalizeDocument(state)
-	if type(state.profiles) == "table" then
-		state.version = 2
+	if type(state.groups) == "table" then
+		state.version = 3
+		state.layouts = type(state.layouts) == "table" and state.layouts or {}
 		return state
+	end
+
+	if type(state.profiles) == "table" then
+		-- Prefer the ultrawide snapshot because it already contains the stable
+		-- left/center/right group identities. Fall back to the old single-screen
+		-- profile when it is the only available state.
+		local source = state.profiles.ultrawide or state.profiles.laptop or state.profiles.single
+		if source and source.screens and source.screens.main and not source.screens.center then
+			source.screens.center = source.screens.main
+		end
+		return {
+			version = 3,
+			groups = source or { screens = {} },
+			layouts = {},
+		}
 	end
 
 	-- Version 1 stored the ultrawide regions directly. Keep that snapshot
 	-- intact and migrate it into the ultrawide virtual-screen profile.
 	if type(state.regions) == "table" then
 		return {
-			version = 2,
-			profiles = {
-				ultrawide = { screens = state.regions },
-			},
+			version = 3,
+			groups = { screens = state.regions },
+			layouts = {},
 		}
 	end
 
-	return { version = 2, profiles = {} }
+	return { version = 3, groups = { screens = {} }, layouts = {} }
 end
 
 -- Setup ----------------------------------------------------------------------
@@ -155,10 +194,13 @@ function M.setup(config)
 	M.profileName = resolved.profileName
 	M.screenOrder = resolved.order
 	M.screens = resolved.screens
+	M.collapsed = resolved.collapsed
+	M.layouts[M.profileName] = { order = resolved.order, weights = resolved.weights }
 
 	M.applyState(emptyProfileState())
 	M.enabled = true
 	M.startWindowWatcher()
+	M.startScreenWatcher()
 	M.bindHotkeys(M.config.mapping or {})
 	M.render()
 
@@ -178,9 +220,84 @@ function M.bindHotkeys(mapping)
 		if type(handler) ~= "function" then
 			M.logger.e("Unknown stacking action: " .. tostring(action))
 		else
-			hs.hotkey.bind(hotkey[1], hotkey[2], handler)
+			hotkeys.bind(hotkey[1], hotkey[2], handler)
 		end
 	end
+end
+
+function M.applyResolvedLayout()
+	local physicalScreen = hs.screen.primaryScreen()
+	local physicalFrame = physicalScreen and physicalScreen:fullFrame()
+
+	if not physicalFrame then
+		return false
+	end
+
+	local initial = virtualScreens.resolve(physicalFrame, M.options)
+	local resolved = virtualScreens.resolve(physicalFrame, M.options, M.layouts[initial.profileName])
+	local previousScreens = M.screens
+
+	for _, groupID in ipairs(resolved.order) do
+		local previous = previousScreens[groupID]
+		if previous then
+			resolved.screens[groupID].workspaces = previous.workspaces or {}
+			resolved.screens[groupID].activeWorkspace = previous.activeWorkspace or 1
+		else
+			resolved.screens[groupID].workspaces = {}
+			resolved.screens[groupID].activeWorkspace = 1
+		end
+	end
+
+	M.physicalFrame = copyFrame(physicalFrame)
+	M.profileName = resolved.profileName
+	M.screenOrder = resolved.order
+	M.screens = resolved.screens
+	M.collapsed = resolved.collapsed
+	M.layouts[M.profileName] = { order = resolved.order, weights = resolved.weights }
+	M.rebuildWindowIndex()
+	return true
+end
+
+function M.reconfigureDisplay()
+	if not M.applyResolvedLayout() then
+		return
+	end
+
+	if not M.suspended then
+		M.layoutAllWorkspaces()
+		M.raiseActiveWorkspaces()
+	end
+
+	M.render()
+end
+
+function M.startScreenWatcher()
+	M.screenWatcher = hs.screen.watcher.new(function()
+		if M.screenChangeTimer then
+			M.screenChangeTimer:stop()
+		end
+
+		M.screenChangeTimer = hs.timer.doAfter(M.options.screenChangeDelay or 0.75, function()
+			M.reconfigureDisplay()
+		end)
+	end)
+	M.screenWatcher:start()
+end
+
+function M.isSuspended()
+	return M.suspended == true
+end
+
+function M.setSuspended(suspended)
+	M.suspended = suspended == true
+
+	if M.suspended then
+		ui.clear()
+	else
+		M.restoreWindows()
+	end
+
+	M.render()
 end
 
 -- Persisted model ------------------------------------------------------------
@@ -264,10 +381,10 @@ function M.serializableState()
 end
 
 function M.saveState()
-	local document = M.savedDocument or { version = 2, profiles = {} }
-	document.version = 2
-	document.profiles = document.profiles or {}
-	document.profiles[M.profileName] = M.serializableState()
+	local document = M.savedDocument or { version = 3, groups = {}, layouts = {} }
+	document.version = 3
+	document.groups = M.serializableState()
+	document.layouts = M.layouts
 
 	if not store.save(M.stateFile, document) then
 		M.logger.e("Unable to save stack state to " .. M.stateFile)
@@ -315,7 +432,9 @@ function M.loadStacks(showAlert)
 
 	local document = normalizeDocument(state)
 	M.savedDocument = document
-	M.applyState(document.profiles[M.profileName] or emptyProfileState())
+	M.layouts = document.layouts or {}
+	M.applyState(document.groups or emptyProfileState())
+	M.applyResolvedLayout()
 	M.loadedFromDisk = true
 	M.restoreWindows()
 	M.render()
@@ -416,9 +535,75 @@ function M.selectedScreenName()
 end
 
 function M.render()
-	if M.enabled then
-		ui.render(M.screens, M.screenOrder, M.options.ui or {}, M.expandedIndicator)
+	if M.enabled and not M.suspended then
+		ui.render(M.screens, M.screenOrder, M.options.ui or {}, M.expandedIndicator, M.collapsed)
+	else
+		ui.clear()
 	end
+
+	if M.notifyTimer then
+		M.notifyTimer:stop()
+	end
+
+	M.notifyTimer = hs.timer.doAfter(M.options.publishDelay or 0.05, function()
+		local snapshot = M.snapshot()
+		for _, callback in ipairs(M.subscribers) do
+			local ok, err = pcall(callback, snapshot)
+			if not ok then
+				M.logger.e("Workspace subscriber failed: " .. tostring(err))
+			end
+		end
+	end)
+end
+
+function M.snapshot()
+	local groups = {}
+	local selectedGroup = M.selectedScreenName()
+
+	for _, groupID in ipairs(M.screenOrder) do
+		local group = M.screens[groupID]
+		local workspaces = {}
+
+		for index, workspace in ipairs(group.workspaces or {}) do
+			local members = {}
+			for _, member in ipairs(workspace.members or {}) do
+				if member.window then
+					local app = member.window:application()
+					table.insert(members, app and app:name() or member.bundleID)
+				end
+			end
+
+			if #members > 0 then
+				table.insert(workspaces, {
+					index = index,
+					active = index == group.activeWorkspace,
+					members = members,
+					name = table.concat(members, " + "),
+				})
+			end
+		end
+
+		table.insert(groups, {
+			id = groupID,
+			label = group.label or groupID,
+			active = groupID == selectedGroup,
+			activeWorkspace = group.activeWorkspace,
+			workspaces = workspaces,
+		})
+	end
+
+	return {
+		version = 1,
+		profile = M.profileName,
+		collapsed = M.collapsed == true,
+		suspended = M.suspended == true,
+		groups = groups,
+	}
+end
+
+function M.subscribe(callback)
+	table.insert(M.subscribers, callback)
+	callback(M.snapshot())
 end
 
 function M.flashWorkspaceIndicator(screenName, workspaceIndex)
@@ -509,6 +694,9 @@ function M.layoutWorkspace(screenName, workspace, shouldVerify)
 
 	for memberIndex, member in ipairs(workspace.members) do
 		if member.window then
+			if member.window:isFullScreen() then
+				return
+			end
 			table.insert(liveMembers, { member = member, index = memberIndex })
 		end
 	end
@@ -569,7 +757,14 @@ function M.verifyWorkspaceLayout(screenName, workspace, requestedLeftWidth, vers
 	local left = workspace.members[1]
 	local right = workspace.members[2]
 
-	if not left or not right or not left.window or not right.window then
+	if
+		not left
+		or not right
+		or not left.window
+		or not right.window
+		or left.window:isFullScreen()
+		or right.window:isFullScreen()
+	then
 		return
 	end
 
@@ -618,11 +813,11 @@ function M.layoutAllWorkspaces()
 	end
 end
 
-function M.raiseWorkspace(workspace, shouldFocus)
+function M.raiseWorkspace(workspace, shouldFocus, shouldMoveMouse)
 	local focusIndex = clamp(workspace.focusedMember or 1, 1, #workspace.members)
 
 	for _, member in ipairs(workspace.members) do
-		if member.window then
+		if member.window and not member.window:isFullScreen() then
 			member.window:raise()
 		end
 	end
@@ -641,7 +836,7 @@ function M.raiseWorkspace(workspace, shouldFocus)
 		end
 
 		if focusedMember and focusedMember.window then
-			focusWindow(focusedMember.window)
+			focusWindow(focusedMember.window, shouldMoveMouse)
 		end
 	end
 end
@@ -652,7 +847,7 @@ function M.parkWorkspace(workspace)
 	for _, member in ipairs(workspace.members) do
 		local window = member.window
 
-		if window and not member.parked then
+		if window and not window:isFullScreen() and not member.parked then
 			local frame = window:frame()
 			frame.x = M.physicalFrame.x + M.physicalFrame.w + offset
 			frame.y = M.physicalFrame.y + M.physicalFrame.h + offset
@@ -670,8 +865,17 @@ function M.parkAllWorkspaces(screenName)
 	end
 end
 
-function M.activateWorkspace(screenName, workspaceIndex, shouldFocus)
+function M.parkAllGroups()
+	for _, groupID in ipairs(M.screenOrder) do
+		M.parkAllWorkspaces(groupID)
+	end
+end
+
+function M.activateWorkspace(screenName, workspaceIndex, shouldFocus, shouldMoveMouse)
 	local virtualScreen = M.screens[screenName]
+	if not virtualScreen then
+		return false
+	end
 	local workspace = virtualScreen.workspaces[workspaceIndex]
 
 	if not workspace then
@@ -681,9 +885,13 @@ function M.activateWorkspace(screenName, workspaceIndex, shouldFocus)
 	M.currentScreenName = screenName
 	virtualScreen.activeWorkspace = workspaceIndex
 
+	if M.collapsed then
+		M.parkAllGroups()
+	end
+
 	if liveMemberCount(workspace) > 0 then
 		M.layoutWorkspace(screenName, workspace)
-		M.raiseWorkspace(workspace, shouldFocus ~= false)
+		M.raiseWorkspace(workspace, shouldFocus ~= false, shouldMoveMouse)
 	else
 		-- Non-empty workspaces cover one another, so ordinary navigation only
 		-- raises the target. Parking is needed solely to expose an empty one.
@@ -696,6 +904,19 @@ function M.activateWorkspace(screenName, workspaceIndex, shouldFocus)
 end
 
 function M.raiseActiveWorkspaces()
+	if M.collapsed then
+		local screenName = M.currentScreenName or M.screenOrder[1]
+		local virtualScreen = M.screens[screenName]
+		local active = virtualScreen and virtualScreen.workspaces[virtualScreen.activeWorkspace]
+
+		M.parkAllGroups()
+		if active and liveMemberCount(active) > 0 then
+			M.layoutWorkspace(screenName, active)
+			M.raiseWorkspace(active, false)
+		end
+		return
+	end
+
 	for _, screenName in ipairs(M.screenOrder) do
 		local virtualScreen = M.screens[screenName]
 		local active = virtualScreen.workspaces[virtualScreen.activeWorkspace]
@@ -807,10 +1028,12 @@ end
 function M.attachCreatedWindow(window)
 	if
 		not M.enabled
+		or M.suspended
 		or not window
 		or not window:id()
 		or not window:isVisible()
 		or not window:isStandard()
+		or window:isFullScreen()
 		or M.windowIndex[window:id()]
 	then
 		return
@@ -874,6 +1097,10 @@ function M.windowDestroyed(window)
 end
 
 function M.windowFocused(window)
+	if M.suspended then
+		return
+	end
+
 	local location = M.getWindowLocation(window)
 
 	if not location then
@@ -938,7 +1165,7 @@ end
 function M.addWindowToWorkspace(screenName, workspace, window)
 	local bundleID = getBundleID(window)
 
-	if not window or not bundleID then
+	if not window or window:isFullScreen() or not bundleID then
 		return false
 	end
 
@@ -1033,7 +1260,7 @@ function M.addWindowToActiveWorkspace(screenName)
 	local virtualScreen = M.screens[screenName]
 	local target = virtualScreen.workspaces[virtualScreen.activeWorkspace]
 
-	if not window or not getBundleID(window) then
+	if not window or window:isFullScreen() or not getBundleID(window) then
 		return
 	end
 
@@ -1198,6 +1425,105 @@ function M.moveWorkspaceLater()
 	return M.moveActiveWorkspace(1)
 end
 
+function M.moveGroup(delta)
+	local groupID = M.selectedScreenName()
+	local layout = M.layouts[M.profileName] or { order = M.screenOrder, weights = M.options.groupWeights or {} }
+	local fromIndex
+
+	for index, candidate in ipairs(layout.order) do
+		if candidate == groupID then
+			fromIndex = index
+			break
+		end
+	end
+
+	local toIndex = fromIndex and fromIndex + delta or nil
+	if not toIndex or not layout.order[toIndex] then
+		return false
+	end
+
+	layout.order[fromIndex], layout.order[toIndex] = layout.order[toIndex], layout.order[fromIndex]
+	M.layouts[M.profileName] = layout
+	for profileName, otherLayout in pairs(M.layouts) do
+		if profileName ~= M.profileName then
+			otherLayout.order = {}
+			for _, id in ipairs(layout.order) do
+				table.insert(otherLayout.order, id)
+			end
+		end
+	end
+	M.applyResolvedLayout()
+	M.layoutAllWorkspaces()
+	M.raiseActiveWorkspaces()
+	M.render()
+	return true
+end
+
+function M.moveGroupEarlier()
+	return M.moveGroup(-1)
+end
+
+function M.moveGroupLater()
+	return M.moveGroup(1)
+end
+
+function M.resizeGroup(delta)
+	if M.collapsed then
+		return false
+	end
+
+	local groupID = M.selectedScreenName()
+	local layout = M.layouts.ultrawide or { order = M.screenOrder, weights = M.options.groupWeights or {} }
+	local groupIndex
+
+	for index, candidate in ipairs(layout.order) do
+		if candidate == groupID then
+			groupIndex = index
+			break
+		end
+	end
+
+	if not groupIndex then
+		return false
+	end
+
+	local neighborIndex = groupIndex < #layout.order and groupIndex + 1 or groupIndex - 1
+	local neighborID = layout.order[neighborIndex]
+	if not neighborID then
+		return false
+	end
+
+	layout.weights = layout.weights or {}
+	local currentWeight = layout.weights[groupID] or 1 / #layout.order
+	local neighborWeight = layout.weights[neighborID] or 1 / #layout.order
+	local step = math.abs(delta) * (M.options.groupResizeStep or 0.025)
+	local direction = delta < 0 and -1 or 1
+	local nextWeight = currentWeight + direction * step
+	local nextNeighborWeight = neighborWeight - direction * step
+	local minimum = M.options.minimumGroupWeight or 0.10
+
+	if nextWeight < minimum or nextNeighborWeight < minimum then
+		return false
+	end
+
+	layout.weights[groupID] = nextWeight
+	layout.weights[neighborID] = nextNeighborWeight
+	M.layouts.ultrawide = layout
+	M.applyResolvedLayout()
+	M.layoutAllWorkspaces()
+	M.raiseActiveWorkspaces()
+	M.render()
+	return true
+end
+
+function M.shrinkGroup()
+	return M.resizeGroup(-1)
+end
+
+function M.growGroup()
+	return M.resizeGroup(1)
+end
+
 function M.focusWorkspace(workspaceIndex)
 	if not M.enabled or workspaceIndex < 1 then
 		return false
@@ -1221,13 +1547,36 @@ function M.cycleWorkspace(delta)
 	local screenName = M.selectedScreenName()
 	local virtualScreen = screenName and M.screens[screenName]
 
-	if not virtualScreen or #virtualScreen.workspaces < 2 then
+	if not virtualScreen then
 		return false
 	end
 
-	local index = ((virtualScreen.activeWorkspace - 1 + delta) % #virtualScreen.workspaces) + 1
-	M.activateWorkspace(screenName, index)
-	M.flashWorkspaceIndicator(screenName, index)
+	local locations = {}
+	local groups = M.collapsed and M.screenOrder or { screenName }
+
+	for _, groupID in ipairs(groups) do
+		for index, workspace in ipairs(M.screens[groupID].workspaces) do
+			if liveMemberCount(workspace) > 0 then
+				table.insert(locations, { screenName = groupID, workspaceIndex = index })
+			end
+		end
+	end
+
+	if #locations < 2 then
+		return false
+	end
+
+	local current = 1
+	for index, location in ipairs(locations) do
+		if location.screenName == screenName and location.workspaceIndex == virtualScreen.activeWorkspace then
+			current = index
+			break
+		end
+	end
+
+	local target = locations[((current - 1 + delta) % #locations) + 1]
+	M.activateWorkspace(target.screenName, target.workspaceIndex)
+	M.flashWorkspaceIndicator(target.screenName, target.workspaceIndex)
 	return true
 end
 
@@ -1415,6 +1764,15 @@ for index = 1, 9 do
 	end
 	workspaceHotkeyHandlers["moveFocusedWindowToWorkspace" .. workspaceIndex] = function()
 		M.moveFocusedWindowToWorkspace(workspaceIndex)
+	end
+	local groupIndex = index
+	workspaceHotkeyHandlers["moveWindowToGroup" .. groupIndex] = function()
+		local groupID = M.screenOrder[groupIndex]
+		if groupID then M.moveWindowToScreen(groupID) end
+	end
+	workspaceHotkeyHandlers["addWindowToGroup" .. groupIndex] = function()
+		local groupID = M.screenOrder[groupIndex]
+		if groupID then M.addWindowToActiveWorkspace(groupID) end
 	end
 end
 

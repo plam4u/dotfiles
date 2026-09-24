@@ -5,8 +5,22 @@ M.modulePrefix = "modules.wm"
 function M.setup(config)
 	config = config or {}
 
+	-- Setup order matters: stacking owns the model, SketchyBar observes it,
+	-- and control binds the persistent pause toggle last.
+	local setupOrder = { "apps", "layout", "navigation", "stacking", "borders", "sketchybar", "control" }
+	local configured = {}
+
+	for _, moduleName in ipairs(setupOrder) do
+		if config[moduleName] then
+			M.setupModule(moduleName, config[moduleName])
+			configured[moduleName] = true
+		end
+	end
+
 	for moduleName, moduleConfig in pairs(config) do
-		M.setupModule(moduleName, moduleConfig)
+		if not configured[moduleName] then
+			M.setupModule(moduleName, moduleConfig)
+		end
 	end
 end
 
