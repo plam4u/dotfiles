@@ -1132,6 +1132,37 @@ function M.deleteActiveWorkspace()
 	return true
 end
 
+function M.moveActiveWorkspace(delta)
+	local screenName = M.selectedScreenName()
+	local virtualScreen = screenName and M.screens[screenName]
+
+	if not virtualScreen then
+		return false
+	end
+
+	local fromIndex = virtualScreen.activeWorkspace
+	local toIndex = fromIndex + delta
+
+	if not virtualScreen.workspaces[toIndex] then
+		return false
+	end
+
+	virtualScreen.workspaces[fromIndex], virtualScreen.workspaces[toIndex] =
+		virtualScreen.workspaces[toIndex], virtualScreen.workspaces[fromIndex]
+	virtualScreen.activeWorkspace = toIndex
+	M.rebuildWindowIndex()
+	M.flashWorkspaceIndicator(screenName, toIndex)
+	return true
+end
+
+function M.moveWorkspaceEarlier()
+	return M.moveActiveWorkspace(-1)
+end
+
+function M.moveWorkspaceLater()
+	return M.moveActiveWorkspace(1)
+end
+
 function M.focusWorkspace(workspaceIndex)
 	if not M.enabled or workspaceIndex < 1 then
 		return false

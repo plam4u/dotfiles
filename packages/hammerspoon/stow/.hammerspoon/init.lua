@@ -91,6 +91,8 @@ require("modules.wm").setup({
 			moveFocusedWindowToWorkspace8 = { { "alt", "shift" }, "8" },
 			moveFocusedWindowToWorkspace9 = { { "alt", "shift" }, "9" },
 			deleteActiveWorkspace = { "alt", "." },
+			moveWorkspaceEarlier = { meh, "n" },
+			moveWorkspaceLater = { meh, "m" },
 			-- Move the focused window into a new workspace.
 			moveWindowToLeft = { meh, "u" },
 			moveWindowToCenter = { meh, "i" },

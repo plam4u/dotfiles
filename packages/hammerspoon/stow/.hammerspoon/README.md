@@ -29,6 +29,7 @@ hyper + U/I/O | Add the focused window to the active left/center/right group
 hyper + P | Extract the focused window into its own group
 option + H/L | Navigate west/east through group members and regions, then fall back to geometric navigation
 option + J/K | Focus the next/previous group, or navigate south/north when there is no other live group
+option + shift + K/J | Move the active workspace earlier/later without moving its windows
 option + I/, | Always navigate north/south geometrically
 hyper + H/L | Shrink/grow the focused member in a two-window group
 hyper + ; | Reset a two-window group to equal widths
