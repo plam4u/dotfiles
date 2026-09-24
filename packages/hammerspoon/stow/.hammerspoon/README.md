@@ -49,3 +49,10 @@ accidental empty snapshot from erasing the saved groups.
 
 The older `modules/wm/persistence.lua` implementation is retained as reference
 but is not loaded.
+
+## Configuration reloads
+
+`reload.lua` uses `hs.pathwatcher` directly rather than
+`ReloadConfiguration.spoon`. By default, changes to `.lua` and `.json` files
+reload Hammerspoon, while everything below `state/` is ignored. Configure the
+behavior in `init.lua` with `includeSuffixes` and relative `excludePaths`.

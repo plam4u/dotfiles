@@ -109,4 +109,7 @@ require("modules.wm").setup({
 	-- modules.wm.persistence is intentionally disabled. Stacking owns
 	-- managed window restoration; persistence.lua remains as reference.
 })
-require("reload").setup({})
+require("reload").setup({
+	includeSuffixes = { ".lua", ".json" },
+	excludePaths = { "state/" },
+})
