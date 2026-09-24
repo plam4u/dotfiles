@@ -37,6 +37,15 @@ local function setFrameIfChanged(window, target)
 	return true
 end
 
+local function framesMatch(first, second)
+	local tolerance = 2
+
+	return math.abs(first.x - second.x) <= tolerance
+		and math.abs(first.y - second.y) <= tolerance
+		and math.abs(first.w - second.w) <= tolerance
+		and math.abs(first.h - second.h) <= tolerance
+end
+
 local function getBundleID(window)
 	local app = window and window:application()
 
@@ -424,6 +433,33 @@ function M.firstPendingMember(bundleID)
 	return nil
 end
 
+function M.findFinderTabReplacement(window)
+	if getBundleID(window) ~= "com.apple.finder" then
+		return nil
+	end
+
+	local newFrame = window:frame()
+
+	for _, screenName in ipairs(M.screenOrder) do
+		for workspaceIndex, workspace in ipairs(M.screens[screenName].workspaces) do
+			for memberIndex, member in ipairs(workspace.members) do
+				local existing = member.window
+
+				if member.bundleID == "com.apple.finder"
+					and existing
+					and existing:id() ~= window:id()
+					and not existing:isVisible()
+					and framesMatch(existing:frame(), newFrame)
+				then
+					return screenName, workspaceIndex, memberIndex
+				end
+			end
+		end
+	end
+
+	return nil
+end
+
 -- Layout ---------------------------------------------------------------------
 
 function M.layoutWorkspace(screenName, workspace, shouldVerify)
@@ -727,7 +763,13 @@ function M.restoreWindows()
 end
 
 function M.attachCreatedWindow(window)
-	if not M.enabled or not window or not window:id() or M.windowIndex[window:id()] then
+	if not M.enabled
+		or not window
+		or not window:id()
+		or not window:isVisible()
+		or not window:isStandard()
+		or M.windowIndex[window:id()]
+	then
 		return
 	end
 
@@ -738,6 +780,10 @@ function M.attachCreatedWindow(window)
 	end
 
 	local screenName, workspaceIndex, memberIndex = M.firstPendingMember(bundleID)
+
+	if not screenName then
+		screenName, workspaceIndex, memberIndex = M.findFinderTabReplacement(window)
+	end
 
 	if screenName then
 		local workspace = M.screens[screenName].workspaces[workspaceIndex]
