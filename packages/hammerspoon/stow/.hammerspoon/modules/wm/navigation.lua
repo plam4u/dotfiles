@@ -1,4 +1,5 @@
 local M = {}
+local stacking = require("modules.wm.stacking")
 
 function M.setup(config)
 	M.config = config or {}
@@ -19,7 +20,7 @@ function M.bindHotkeys(mapping)
 end
 
 function M.focusWest()
-	hs.window.filter.focusWest()
+	stacking.focusWest()
 end
 
 function M.focusSouth()
@@ -31,7 +32,15 @@ function M.focusNorth()
 end
 
 function M.focusEast()
-	hs.window.filter.focusEast()
+	stacking.focusEast()
+end
+
+function M.focusPreviousGroup()
+	stacking.focusPreviousGroup()
+end
+
+function M.focusNextGroup()
+	stacking.focusNextGroup()
 end
 
 return M

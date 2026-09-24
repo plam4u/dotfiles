@@ -1,4 +1,5 @@
 local M = {}
+local stacking = require("modules.wm.stacking")
 
 function M.setup(config)
 	M.config = config or {}
@@ -24,7 +25,14 @@ function M.bindHotkeys(mapping)
 end
 
 function M.getWin()
-	return hs.window.focusedWindow()
+	local win = hs.window.focusedWindow()
+
+	if stacking.isManaged(win) then
+		hs.alert.show("Remove this window from its stack before moving it freely")
+		return nil
+	end
+
+	return win
 end
 
 function M.centeredQHDWindow()

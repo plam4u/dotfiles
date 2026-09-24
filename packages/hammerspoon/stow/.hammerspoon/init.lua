@@ -25,14 +25,9 @@ require("modules.wm").setup({
 			pushWindowLeft = { meh, "h" },
 			pushWindowRight = { meh, "l" },
 			-- Resize window
-			resizeWindowThinner = { hyper, "h" },
-			resizeWindowWider = { hyper, "l" },
 			resizeWindowShorter = { hyper, "k" },
 			resizeWindowTaller = { hyper, "j" },
-			-- Predefined window sizes
-			leftQHDWindow = { meh, "u" },
-			centeredQHDWindow = { meh, "i" },
-			rightQHDWindow = { meh, "o" },
+			-- Predefined floating-window sizes
 			tileCenterWindow = { meh, "p" },
 			maximizeWindow = { meh, "space" },
 			minimizeWindow = { meh, "." },
@@ -46,18 +41,40 @@ require("modules.wm").setup({
 		mapping = {
 			-- Focus window
 			focusWest = { "alt", "h" },
-			focusSouth = { "alt", "j" },
-			focusNorth = { "alt", "k" },
+			-- focusSouth = { "alt", "j" },
+			-- focusNorth = { "alt", "k" },
 			focusEast = { "alt", "l" },
-			focusStackedNorth = { "alt", "u" },
-			focusstackedSouth = { "alt", "o" },
+			focusPreviousGroup = { "alt", "j" },
+			focusNextGroup = { "alt", "k" },
 		},
 	},
-	persistence = {
+	stacking = {
+		config = {
+			screenWidth = 5120,
+			screenHeight = 1440,
+			resizeStep = 80,
+			defaultMinWidth = 200,
+		},
 		mapping = {
-			saveLayout = { meh, "=" },
-			restoreLayout = { hyper, "=" },
+			-- Persist and restore the complete stack model on demand.
+			saveStacks = { meh, "=" },
+			loadStacks = { hyper, "=" },
+			-- Move the focused window into a new group.
+			moveWindowToLeft = { meh, "u" },
+			moveWindowToCenter = { meh, "i" },
+			moveWindowToRight = { meh, "o" },
+			-- Add the focused window to the active group.
+			addWindowToLeftGroup = { hyper, "u" },
+			addWindowToCenterGroup = { hyper, "i" },
+			addWindowToRightGroup = { hyper, "o" },
+			extractWindowFromGroup = { hyper, "p" },
+			-- Resize the focused member inside a two-window group.
+			shrinkFocusedMember = { hyper, "h" },
+			growFocusedMember = { hyper, "l" },
+			resetGroupSplit = { hyper, "0" },
 		},
 	},
+	-- modules.wm.persistence is intentionally disabled. Stacking owns
+	-- managed window restoration; persistence.lua remains as reference.
 })
 require("reload").setup({})

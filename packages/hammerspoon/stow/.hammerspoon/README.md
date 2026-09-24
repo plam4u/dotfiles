@@ -1,42 +1,38 @@
 # Hammerspoon Configuration
 
-The hyper key is defined as ⌘ + ⌥ + ⌃ (ctrl + alt + cmd). Press this plus the defined key:
+The window manager uses two modifier sets:
 
-Key | Action
+- `meh`: shift + control + option
+- `hyper`: shift + control + option + command
+
+## Managed regions and groups
+
+The 5120x1440 display is divided into three fixed regions:
+
+- left: 1280x1440
+- center: 2560x1440
+- right: 1280x1440
+
+Each region contains an ordered stack of groups. A group contains one or two
+windows. Two-window groups share their region using a persisted divider.
+
+Shortcut | Action
 ---|---
-A | Lock Screen
-R | Reload config
-W | Print `¯\_(ツ)_/¯`
+meh + = | Save the current stack model
+hyper + = | Load and restore the saved stack model
+meh + U/I/O | Move the focused window into a new left/center/right group
+hyper + U/I/O | Add the focused window to the active left/center/right group
+hyper + P | Extract the focused window into its own group
+option + U/O | Focus the previous/next group in the current region
+option + H/L | Focus the member or active group to the west/east
+hyper + H/L | Shrink/grow the focused member in a two-window group
+hyper + 0 | Reset a two-window group to equal widths
 
-## Launch Apps
+Managed state is saved to `~/.hammerspoon/state/stacks.json` only when the save
+hotkey is pressed. The file is loaded and restored only when the load hotkey is
+pressed; Hammerspoon startup and reload do not touch it. Groups are restored by
+application bundle ID. Window minimum widths are learned when an application
+refuses a requested width and are included in the next manual save.
 
-Key | App
----|---
-C | Google Chrome
-D | Dash
-F | Finder
-G | SourceTree (Git)
-M | Mail
-P | System Preferences
-S | Spotify
-T | Terminal
-
-## Window Management
-
-Key | Action
----|---
-← | Move window left
-→ | Move window right
-↑ | Move window up
-↓ | Move window down
-i | Decrease height
-k | Increase height
-j | Decrease width
-l | Increase width
-2 | Set 2x2 grid
-3 | Set 3x3 grid
-4 | Set 4x4 grid
-/ | To next screen
-, | Snap to grid
-(space) | Maximize window
-. | Minimize window
+The older `modules/wm/persistence.lua` implementation is retained as reference
+but is not loaded.
