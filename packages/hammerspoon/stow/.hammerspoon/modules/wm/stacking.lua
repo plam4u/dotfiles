@@ -21,6 +21,22 @@ local function clamp(number, minimum, maximum)
 	return math.max(minimum, math.min(maximum, number))
 end
 
+local function setFrameIfChanged(window, target)
+	local current = window:frame()
+	local tolerance = 1
+	local unchanged = math.abs(current.x - target.x) <= tolerance
+		and math.abs(current.y - target.y) <= tolerance
+		and math.abs(current.w - target.w) <= tolerance
+		and math.abs(current.h - target.h) <= tolerance
+
+	if unchanged then
+		return false
+	end
+
+	window:setFrame(target, 0)
+	return true
+end
+
 local function getBundleID(window)
 	local app = window and window:application()
 
@@ -88,6 +104,7 @@ function M.setup(config)
 	end
 
 	local resolved = virtualScreens.resolve(physicalFrame, M.options)
+	M.physicalFrame = copyFrame(physicalFrame)
 	M.profileName = resolved.profileName
 	M.screenOrder = resolved.order
 	M.screens = resolved.screens
@@ -332,7 +349,21 @@ function M.screenNameForWindow(window)
 		end
 	end
 
-	return M.screenOrder[1]
+	return M.currentScreenName or M.screenOrder[1]
+end
+
+function M.selectedScreenName()
+	local current = M.currentScreenName and M.screens[M.currentScreenName]
+	local active = current and current.workspaces[current.activeWorkspace]
+
+	-- Minimizing the last window in a virtual screen can make macOS focus a
+	-- window elsewhere. Keep keyboard workspace actions on the empty screen
+	-- until the user deliberately focuses another managed window.
+	if active and liveMemberCount(active) == 0 then
+		return M.currentScreenName
+	end
+
+	return M.screenNameForWindow(hs.window.focusedWindow())
 end
 
 function M.render()
@@ -410,7 +441,8 @@ function M.layoutWorkspace(screenName, workspace, shouldVerify)
 	end
 
 	if #liveMembers == 1 then
-		liveMembers[1].member.window:setFrame(copyFrame(virtualScreen.frame), 0)
+		setFrameIfChanged(liveMembers[1].member.window, copyFrame(virtualScreen.frame))
+		liveMembers[1].member.parked = false
 		return
 	end
 
@@ -433,10 +465,12 @@ function M.layoutWorkspace(screenName, workspace, shouldVerify)
 	rightFrame.x = virtualScreen.frame.x + requestedLeftWidth
 	rightFrame.w = virtualScreen.frame.w - requestedLeftWidth
 
-	workspace.members[1].window:setFrame(leftFrame, 0)
-	workspace.members[2].window:setFrame(rightFrame, 0)
+	local leftChanged = setFrameIfChanged(workspace.members[1].window, leftFrame)
+	local rightChanged = setFrameIfChanged(workspace.members[2].window, rightFrame)
+	workspace.members[1].parked = false
+	workspace.members[2].parked = false
 
-	if shouldVerify ~= false then
+	if shouldVerify ~= false and (leftChanged or rightChanged) then
 		if shouldVerify ~= "continue" then
 			workspace.verifyPass = 0
 		end
@@ -535,17 +569,50 @@ function M.raiseWorkspace(workspace, shouldFocus)
 	end
 end
 
+function M.parkWorkspace(workspace)
+	local offset = M.options.parkingOffset or 1
+
+	for _, member in ipairs(workspace.members) do
+		local window = member.window
+
+		if window and not member.parked then
+			local frame = window:frame()
+			frame.x = M.physicalFrame.x + M.physicalFrame.w + offset
+			frame.y = M.physicalFrame.y + M.physicalFrame.h + offset
+			setFrameIfChanged(window, frame)
+			member.parked = true
+		end
+	end
+end
+
+function M.parkAllWorkspaces(screenName)
+	for _, workspace in ipairs(M.screens[screenName].workspaces) do
+		if liveMemberCount(workspace) > 0 then
+			M.parkWorkspace(workspace)
+		end
+	end
+end
+
 function M.activateWorkspace(screenName, workspaceIndex, shouldFocus)
 	local virtualScreen = M.screens[screenName]
 	local workspace = virtualScreen.workspaces[workspaceIndex]
 
-	if not workspace or liveMemberCount(workspace) == 0 then
+	if not workspace then
 		return false
 	end
 
+	M.currentScreenName = screenName
 	virtualScreen.activeWorkspace = workspaceIndex
-	M.layoutWorkspace(screenName, workspace)
-	M.raiseWorkspace(workspace, shouldFocus ~= false)
+
+	if liveMemberCount(workspace) > 0 then
+		M.layoutWorkspace(screenName, workspace)
+		M.raiseWorkspace(workspace, shouldFocus ~= false)
+	else
+		-- Non-empty workspaces cover one another, so ordinary navigation only
+		-- raises the target. Parking is needed solely to expose an empty one.
+		M.parkAllWorkspaces(screenName)
+	end
+
 	M.render()
 
 	return true
@@ -568,6 +635,8 @@ function M.raiseActiveWorkspaces()
 
 		if active and liveMemberCount(active) > 0 then
 			M.raiseWorkspace(active, false)
+		elseif active then
+			M.parkAllWorkspaces(screenName)
 		end
 	end
 end
@@ -639,7 +708,12 @@ function M.restoreWindows()
 			if screenName then
 				local virtualScreen = M.screens[screenName]
 				table.insert(virtualScreen.workspaces, {
-					members = { { bundleID = bundleID, window = window } },
+					members = {
+						{
+							bundleID = bundleID,
+							window = window,
+						},
+					},
 					focusedMember = 1,
 				})
 				used[windowID] = true
@@ -679,13 +753,19 @@ function M.attachCreatedWindow(window)
 
 	if screenName then
 		local virtualScreen = M.screens[screenName]
-		local workspace = { members = { { bundleID = bundleID, window = window } }, focusedMember = 1 }
+		local workspace = {
+			members = {
+				{
+					bundleID = bundleID,
+					window = window,
+				},
+			},
+			focusedMember = 1,
+		}
 
 		table.insert(virtualScreen.workspaces, workspace)
-		virtualScreen.activeWorkspace = #virtualScreen.workspaces
 		M.rebuildWindowIndex()
-		M.layoutWorkspace(screenName, workspace)
-		M.render()
+		M.activateWorkspace(screenName, #virtualScreen.workspaces)
 	end
 end
 
@@ -713,10 +793,8 @@ function M.windowFocused(window)
 
 	local virtualScreen = M.screens[location.screenName]
 	local workspace = virtualScreen.workspaces[location.workspaceIndex]
-	virtualScreen.activeWorkspace = location.workspaceIndex
 	workspace.focusedMember = location.memberIndex
-	M.layoutWorkspace(location.screenName, workspace)
-	M.raiseWorkspace(workspace, false)
+	M.activateWorkspace(location.screenName, location.workspaceIndex, false)
 	M.flashWorkspaceIndicator(location.screenName, location.workspaceIndex)
 end
 
@@ -771,6 +849,50 @@ function M.detachWindow(window)
 	return member
 end
 
+function M.addWindowToWorkspace(screenName, workspace, window)
+	local bundleID = getBundleID(window)
+
+	if not window or not bundleID then
+		return false
+	end
+
+	local location = M.getWindowLocation(window)
+	local workspaceIndex = M.findWorkspace(screenName, workspace)
+
+	if not workspaceIndex then
+		return false
+	end
+
+	if location and location.screenName == screenName and location.workspaceIndex == workspaceIndex then
+		return true
+	end
+
+	if #workspace.members >= 2 then
+		hs.alert.show("This workspace already has two windows")
+		return false
+	end
+
+	local virtualScreen = M.screens[screenName]
+	local originalWidth = round(window:frame().w)
+	local member = M.detachWindow(window)
+	table.insert(workspace.members, member)
+
+	if #workspace.members == 2 then
+		local defaultMinWidth = M.options.defaultMinWidth or 200
+		local leftMin = workspace.members[1].minWidth or defaultMinWidth
+		local rightMin = workspace.members[2].minWidth or defaultMinWidth
+		local rightWidth = clamp(originalWidth, rightMin, virtualScreen.frame.w - leftMin)
+		workspace.leftWidth = virtualScreen.frame.w - rightWidth
+		workspace.focusedMember = 2
+	else
+		workspace.focusedMember = 1
+	end
+
+	M.rebuildWindowIndex()
+	M.activateWorkspace(screenName, M.findWorkspace(screenName, workspace))
+	return true
+end
+
 function M.moveWindowToScreen(screenName)
 	screenName = M.resolveScreenName(screenName)
 
@@ -785,8 +907,15 @@ function M.moveWindowToScreen(screenName)
 		return
 	end
 
-	local member = M.detachWindow(window)
 	local virtualScreen = M.screens[screenName]
+	local active = virtualScreen.workspaces[virtualScreen.activeWorkspace]
+
+	if active and #active.members == 0 then
+		M.addWindowToWorkspace(screenName, active, window)
+		return
+	end
+
+	local member = M.detachWindow(window)
 	local workspace = { members = { member }, focusedMember = 1 }
 
 	table.insert(virtualScreen.workspaces, workspace)
@@ -815,11 +944,10 @@ function M.addWindowToActiveWorkspace(screenName)
 	end
 
 	local window = hs.window.focusedWindow()
-	local bundleID = getBundleID(window)
 	local virtualScreen = M.screens[screenName]
 	local target = virtualScreen.workspaces[virtualScreen.activeWorkspace]
 
-	if not window or not bundleID then
+	if not window or not getBundleID(window) then
 		return
 	end
 
@@ -828,36 +956,7 @@ function M.addWindowToActiveWorkspace(screenName)
 		return
 	end
 
-	local location = M.getWindowLocation(window)
-
-	if location and location.screenName == screenName and location.workspaceIndex == virtualScreen.activeWorkspace then
-		return
-	end
-
-	if #target.members >= 2 then
-		hs.alert.show("This workspace already has two windows")
-		return
-	end
-
-	local originalWidth = round(window:frame().w)
-	local member = M.detachWindow(window)
-	table.insert(target.members, member)
-
-	if #target.members == 1 then
-		target.focusedMember = 1
-		M.rebuildWindowIndex()
-		M.activateWorkspace(screenName, M.findWorkspace(screenName, target))
-		return
-	end
-
-	local defaultMinWidth = M.options.defaultMinWidth or 200
-	local leftMin = target.members[1].minWidth or defaultMinWidth
-	local rightMin = target.members[2].minWidth or defaultMinWidth
-	local rightWidth = clamp(originalWidth, rightMin, virtualScreen.frame.w - leftMin)
-	target.leftWidth = virtualScreen.frame.w - rightWidth
-	target.focusedMember = 2
-	M.rebuildWindowIndex()
-	M.activateWorkspace(screenName, M.findWorkspace(screenName, target))
+	M.addWindowToWorkspace(screenName, target, window)
 end
 
 function M.addWindowToLeftWorkspace()
@@ -911,17 +1010,7 @@ function M.forgetFocusedWindow()
 end
 
 function M.forgetActiveWorkspace()
-	local location = M.getWindowLocation(hs.window.focusedWindow())
-
-	if not location then
-		return
-	end
-
-	local virtualScreen = M.screens[location.screenName]
-	table.remove(virtualScreen.workspaces, location.workspaceIndex)
-	virtualScreen.activeWorkspace = clamp(virtualScreen.activeWorkspace, 1, math.max(1, #virtualScreen.workspaces))
-	M.rebuildWindowIndex()
-	M.render()
+	return M.deleteActiveWorkspace()
 end
 
 -- Navigation -----------------------------------------------------------------
@@ -936,56 +1025,93 @@ function M.ensureWorkspace(screenName, workspaceIndex)
 	return virtualScreen.workspaces[workspaceIndex]
 end
 
+function M.moveFocusedWindowToWorkspace(workspaceIndex)
+	if not M.enabled or workspaceIndex < 1 then
+		return false
+	end
+
+	local window = hs.window.focusedWindow()
+	local screenName = M.screenNameForWindow(window)
+
+	if not window or not screenName then
+		return false
+	end
+
+	local workspace = M.ensureWorkspace(screenName, workspaceIndex)
+	workspace.keepEmpty = true
+	return M.addWindowToWorkspace(screenName, workspace, window)
+end
+
+function M.deleteActiveWorkspace()
+	if not M.enabled then
+		return false
+	end
+
+	local screenName = M.selectedScreenName()
+	local virtualScreen = screenName and M.screens[screenName]
+
+	if not virtualScreen then
+		return false
+	end
+
+	local workspaceIndex = virtualScreen.activeWorkspace
+	local workspace = virtualScreen.workspaces[workspaceIndex]
+
+	if not workspace then
+		return false
+	end
+
+	-- Removing a non-empty workspace makes its windows floating again.
+	if liveMemberCount(workspace) > 0 then
+		M.layoutWorkspace(screenName, workspace)
+	end
+	table.remove(virtualScreen.workspaces, workspaceIndex)
+	virtualScreen.activeWorkspace = clamp(workspaceIndex, 1, math.max(1, #virtualScreen.workspaces))
+	M.rebuildWindowIndex()
+
+	local nextWorkspace = virtualScreen.workspaces[virtualScreen.activeWorkspace]
+
+	if nextWorkspace then
+		M.activateWorkspace(screenName, virtualScreen.activeWorkspace)
+	else
+		M.currentScreenName = screenName
+		M.render()
+	end
+
+	return true
+end
+
 function M.focusWorkspace(workspaceIndex)
 	if not M.enabled or workspaceIndex < 1 then
 		return false
 	end
 
-	local screenName = M.screenNameForWindow(hs.window.focusedWindow())
+	local screenName = M.selectedScreenName()
 
 	if not screenName then
 		return false
 	end
 
-	local virtualScreen = M.screens[screenName]
 	local workspace = M.ensureWorkspace(screenName, workspaceIndex)
 	workspace.keepEmpty = true
-	virtualScreen.activeWorkspace = workspaceIndex
 	M.rebuildWindowIndex()
-
-	if liveMemberCount(workspace) > 0 then
-		M.layoutWorkspace(screenName, workspace)
-		M.raiseWorkspace(workspace, true)
-	end
-
+	M.activateWorkspace(screenName, workspaceIndex)
 	M.flashWorkspaceIndicator(screenName, workspaceIndex)
 	return true
 end
 
 function M.cycleWorkspace(delta)
-	local location = M.getWindowLocation(hs.window.focusedWindow())
+	local screenName = M.selectedScreenName()
+	local virtualScreen = screenName and M.screens[screenName]
 
-	if not location then
+	if not virtualScreen or #virtualScreen.workspaces < 2 then
 		return false
 	end
 
-	local virtualScreen = M.screens[location.screenName]
-	local index = location.workspaceIndex
-
-	for _ = 1, #virtualScreen.workspaces do
-		index = ((index - 1 + delta) % #virtualScreen.workspaces) + 1
-
-		if liveMemberCount(virtualScreen.workspaces[index]) > 0 then
-			if index == location.workspaceIndex then
-				return false
-			end
-
-			M.activateWorkspace(location.screenName, index)
-			return true
-		end
-	end
-
-	return false
+	local index = ((virtualScreen.activeWorkspace - 1 + delta) % #virtualScreen.workspaces) + 1
+	M.activateWorkspace(screenName, index)
+	M.flashWorkspaceIndicator(screenName, index)
+	return true
 end
 
 function M.focusPreviousWorkspace()
@@ -1161,6 +1287,9 @@ for index = 1, 9 do
 	local workspaceIndex = index
 	M["focusWorkspace" .. workspaceIndex] = function()
 		M.focusWorkspace(workspaceIndex)
+	end
+	M["moveFocusedWindowToWorkspace" .. workspaceIndex] = function()
+		M.moveFocusedWindowToWorkspace(workspaceIndex)
 	end
 end
 
