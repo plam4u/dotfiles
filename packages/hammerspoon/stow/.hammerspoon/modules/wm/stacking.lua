@@ -1,5 +1,5 @@
-local store = require("modules.wm.stack_store")
-local ui = require("modules.wm.stack_ui")
+local store = require("modules.wm.stacking_store")
+local ui = require("modules.wm.stacking_ui")
 local virtualScreens = require("modules.wm.virtual_screens")
 
 local M = {
