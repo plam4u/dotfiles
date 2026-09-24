@@ -49,6 +49,8 @@ require("modules.wm").setup({
 			focusSouth = { "alt", "j" },
 			focusNorth = { "alt", "k" },
 			focusEast = { "alt", "l" },
+			focusStackedNorth = { "alt", "u" },
+			focusstackedSouth = { "alt", "o" },
 		},
 	},
 	persistence = {
