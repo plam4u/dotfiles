@@ -30,18 +30,18 @@ hyper + H/L | Shrink/grow the focused member in a two-window group
 hyper + ; | Reset a two-window group to equal widths
 
 Managed state is saved to `~/.hammerspoon/state/stacks.json` only when the save
-hotkey is pressed. The file is loaded and restored only when the load hotkey is
-pressed; Hammerspoon startup and reload do not touch it. Groups are restored by
-application bundle ID. Window minimum widths are learned when an application
-refuses a requested width and are included in the next manual save.
+hotkey is pressed. Hammerspoon restores that snapshot once during startup or
+reload; the load hotkey can reapply it later. Groups are restored by application
+bundle ID. Window minimum widths are learned when an application refuses a
+requested width and are included in the next manual save.
 
 When a second window joins a group, its current width is preserved when the
 region and both applications' minimum widths allow it. Use `hyper + ;` to opt
 into an equal split.
 
-When a saved snapshot exists, saving is blocked until that snapshot has been
-loaded. This prevents a reload's initially empty model from overwriting the
-saved groups.
+After a reload, saving an empty model is blocked when a snapshot already
+exists. A non-empty setup can always be saved, while the guard prevents an
+accidental empty snapshot from erasing the saved groups.
 
 The older `modules/wm/persistence.lua` implementation is retained as reference
 but is not loaded.

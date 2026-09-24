@@ -82,6 +82,14 @@ function M.setup(config)
 	M.startWindowWatcher()
 	M.bindHotkeys(M.config.mapping or {})
 	M.render()
+
+	if M.savedStateExists then
+		-- Let Hammerspoon finish loading the configuration before restoring
+		-- and moving the managed windows.
+		hs.timer.doAfter(M.options.restoreDelay or 0.1, function()
+			M.loadStacks(false)
+		end)
+	end
 end
 
 function M.bindHotkeys(mapping)
@@ -174,9 +182,19 @@ function M.saveState()
 	return true
 end
 
+function M.hasGroups()
+	for _, regionName in ipairs(M.regionOrder) do
+		if #M.regions[regionName].groups > 0 then
+			return true
+		end
+	end
+
+	return false
+end
+
 function M.saveStacks()
-	if M.savedStateExists and not M.loadedFromDisk then
-		hs.alert.show("Load saved window stacks before overwriting them")
+	if M.savedStateExists and not M.loadedFromDisk and not M.hasGroups() then
+		hs.alert.show("No window stacks to save; load the saved stacks first")
 		return
 	end
 
@@ -189,11 +207,13 @@ function M.saveStacks()
 	end
 end
 
-function M.loadStacks()
+function M.loadStacks(showAlert)
 	local state = store.load(M.stateFile)
 
 	if type(state) ~= "table" then
-		hs.alert.show("No saved window stacks found")
+		if showAlert ~= false then
+			hs.alert.show("No saved window stacks found")
+		end
 		return
 	end
 
@@ -201,7 +221,10 @@ function M.loadStacks()
 	M.loadedFromDisk = true
 	M.restoreWindows()
 	M.render()
-	hs.alert.show("Window stacks loaded")
+
+	if showAlert ~= false then
+		hs.alert.show("Window stacks loaded")
+	end
 end
 
 function M.rebuildWindowIndex()
