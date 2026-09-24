@@ -9,6 +9,9 @@ local M = {
 	enabled = false,
 }
 
+---@type table<string, fun()>
+local workspaceHotkeyHandlers = {}
+
 local function copyFrame(frame)
 	return { x = frame.x, y = frame.y, w = frame.w, h = frame.h }
 end
@@ -135,7 +138,7 @@ end
 
 function M.bindHotkeys(mapping)
 	for action, hotkey in pairs(mapping) do
-		local handler = M[action]
+		local handler = M[action] or workspaceHotkeyHandlers[action]
 
 		if type(handler) ~= "function" then
 			M.logger.e("Unknown stacking action: " .. tostring(action))
@@ -187,11 +190,8 @@ function M.applyState(state)
 		end
 
 		local workspaceCount = #M.screens[screenName].workspaces
-		M.screens[screenName].activeWorkspace = clamp(
-			M.screens[screenName].activeWorkspace,
-			1,
-			math.max(1, workspaceCount)
-		)
+		M.screens[screenName].activeWorkspace =
+			clamp(M.screens[screenName].activeWorkspace, 1, math.max(1, workspaceCount))
 	end
 end
 
@@ -352,7 +352,12 @@ function M.screenNameForWindow(window)
 		for _, screenName in ipairs(M.screenOrder) do
 			local frame = M.screens[screenName].frame
 
-			if centerX >= frame.x and centerX < frame.x + frame.w and centerY >= frame.y and centerY < frame.y + frame.h then
+			if
+				centerX >= frame.x
+				and centerX < frame.x + frame.w
+				and centerY >= frame.y
+				and centerY < frame.y + frame.h
+			then
 				return screenName
 			end
 		end
@@ -445,7 +450,8 @@ function M.findFinderTabReplacement(window)
 			for memberIndex, member in ipairs(workspace.members) do
 				local existing = member.window
 
-				if member.bundleID == "com.apple.finder"
+				if
+					member.bundleID == "com.apple.finder"
 					and existing
 					and existing:id() ~= window:id()
 					and not existing:isVisible()
@@ -663,10 +669,11 @@ function M.raiseActiveWorkspaces()
 			for workspaceIndex, workspace in ipairs(virtualScreen.workspaces) do
 				if liveMemberCount(workspace) > 0 then
 					virtualScreen.activeWorkspace = workspaceIndex
-					active = workspace
 					break
 				end
 			end
+
+			active = virtualScreen.workspaces[virtualScreen.activeWorkspace]
 		end
 
 		if active and liveMemberCount(active) > 0 then
@@ -763,7 +770,8 @@ function M.restoreWindows()
 end
 
 function M.attachCreatedWindow(window)
-	if not M.enabled
+	if
+		not M.enabled
 		or not window
 		or not window:id()
 		or not window:isVisible()
@@ -879,11 +887,8 @@ function M.detachWindow(window)
 			workspace.focusedMember = 1
 		else
 			table.remove(virtualScreen.workspaces, location.workspaceIndex)
-			virtualScreen.activeWorkspace = clamp(
-				virtualScreen.activeWorkspace,
-				1,
-				math.max(1, #virtualScreen.workspaces)
-			)
+			virtualScreen.activeWorkspace =
+				clamp(virtualScreen.activeWorkspace, 1, math.max(1, #virtualScreen.workspaces))
 		end
 	else
 		workspace.leftWidth = nil
@@ -1331,12 +1336,16 @@ end
 -- Named handlers keep declarative hotkey configuration simple.
 for index = 1, 9 do
 	local workspaceIndex = index
-	M["focusWorkspace" .. workspaceIndex] = function()
+	workspaceHotkeyHandlers["focusWorkspace" .. workspaceIndex] = function()
 		M.focusWorkspace(workspaceIndex)
 	end
-	M["moveFocusedWindowToWorkspace" .. workspaceIndex] = function()
+	workspaceHotkeyHandlers["moveFocusedWindowToWorkspace" .. workspaceIndex] = function()
 		M.moveFocusedWindowToWorkspace(workspaceIndex)
 	end
 end
+
+-- Preserve direct access such as stacking.focusWorkspace3 without widening
+-- the inferred type of the module table itself.
+setmetatable(M, { __index = workspaceHotkeyHandlers })
 
 return M

@@ -47,7 +47,8 @@ local function isExcluded(path, excludedPaths)
 		local nestedPrefix = "/" .. prefix
 		local exactSuffix = "/" .. excluded:gsub("/+$", "")
 
-		if path == exactPath
+		if
+			path == exactPath
 			or path:sub(1, #prefix) == prefix
 			or path:find(nestedPrefix, 1, true)
 			or path:sub(-#exactSuffix) == exactSuffix
