@@ -16,6 +16,10 @@ The 5120x1440 display is divided into three fixed regions:
 Each region contains an ordered stack of groups. A group contains one or two
 windows. Two-window groups share their region using a persisted divider.
 
+Thin vertical segments sit three pixels from the top and left edges of each
+region. Focusing a group briefly expands every segment in that region into an
+opaque label with its application names. A blue border marks the focused group.
+
 Shortcut | Action
 ---|---
 meh + = | Save the current stack model

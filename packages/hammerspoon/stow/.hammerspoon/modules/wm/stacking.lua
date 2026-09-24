@@ -261,8 +261,22 @@ end
 
 function M.render()
 	if M.enabled then
-		ui.render(M.regions, M.regionOrder, M.options.ui or {})
+		ui.render(M.regions, M.regionOrder, M.options.ui or {}, M.expandedIndicator)
 	end
+end
+
+function M.flashGroupIndicator(regionName, groupIndex)
+	M.indicatorVersion = (M.indicatorVersion or 0) + 1
+	M.expandedIndicator = { regionName = regionName, groupIndex = groupIndex }
+	local version = M.indicatorVersion
+	M.render()
+
+	hs.timer.doAfter(M.options.indicatorDuration or 1.5, function()
+		if M.indicatorVersion == version then
+			M.expandedIndicator = nil
+			M.render()
+		end
+	end)
 end
 
 function M.findGroup(regionName, wantedGroup)
@@ -627,7 +641,7 @@ function M.windowFocused(window)
 	group.focusedMember = location.memberIndex
 	M.layoutGroup(location.regionName, group)
 	M.raiseGroup(group, false)
-	M.render()
+	M.flashGroupIndicator(location.regionName, location.groupIndex)
 end
 
 function M.startWindowWatcher()

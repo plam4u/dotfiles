@@ -55,6 +55,16 @@ require("modules.wm").setup({
 			screenHeight = 1440,
 			resizeStep = 80,
 			defaultMinWidth = 200,
+			indicatorDuration = 1,
+			ui = {
+				lineWidth = 3,
+				lineHeight = 24,
+				spacing = 5,
+				leftInset = 3,
+				topInset = 3,
+				expandedWidth = 240,
+				textSize = 16,
+			},
 		},
 		mapping = {
 			-- Persist and restore the complete stack model on demand.
