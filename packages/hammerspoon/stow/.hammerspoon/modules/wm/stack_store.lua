@@ -1,5 +1,11 @@
 local M = {}
 
+function M.exists(path)
+	local attributes = hs.fs.attributes(path)
+
+	return attributes and attributes.mode == "file" or false
+end
+
 function M.load(path)
 	local attributes = hs.fs.attributes(path)
 

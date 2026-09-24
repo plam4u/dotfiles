@@ -56,6 +56,8 @@ function M.setup(config)
 	M.options = M.config.config or {}
 	M.logger = hs.logger.new("stacking", M.options.logLevel or "info")
 	M.stateFile = hs.configdir .. "/state/stacks.json"
+	M.savedStateExists = store.exists(M.stateFile)
+	M.loadedFromDisk = false
 
 	local screen = hs.screen.primaryScreen()
 	local screenFrame = screen and screen:fullFrame()
@@ -173,7 +175,14 @@ function M.saveState()
 end
 
 function M.saveStacks()
+	if M.savedStateExists and not M.loadedFromDisk then
+		hs.alert.show("Load saved window stacks before overwriting them")
+		return
+	end
+
 	if M.saveState() then
+		M.savedStateExists = true
+		M.loadedFromDisk = true
 		hs.alert.show("Window stacks saved")
 	else
 		hs.alert.show("Unable to save window stacks")
@@ -189,6 +198,7 @@ function M.loadStacks()
 	end
 
 	M.applyState(state)
+	M.loadedFromDisk = true
 	M.restoreWindows()
 	M.render()
 	hs.alert.show("Window stacks loaded")
@@ -314,6 +324,10 @@ function M.layoutGroup(regionName, group, shouldVerify)
 	group.members[2].window:setFrame(rightFrame, 0)
 
 	if shouldVerify ~= false then
+		if shouldVerify ~= "continue" then
+			group.verifyPass = 0
+		end
+
 		group.resizeVersion = (group.resizeVersion or 0) + 1
 		local version = group.resizeVersion
 
@@ -365,7 +379,8 @@ function M.verifyGroupLayout(regionName, group, requestedLeftWidth, version)
 
 	if learnedMinimum or correctedWidth ~= group.leftWidth then
 		group.leftWidth = correctedWidth
-		M.layoutGroup(regionName, group, false)
+		group.verifyPass = (group.verifyPass or 0) + 1
+		M.layoutGroup(regionName, group, group.verifyPass < 2 and "continue" or false)
 	end
 
 	M.render()
@@ -698,9 +713,15 @@ function M.addWindowToActiveGroup(regionName)
 		return
 	end
 
+	local originalWidth = round(window:frame().w)
 	local member = M.detachWindow(window)
 	table.insert(target.members, member)
-	target.leftWidth = round(region.frame.w / 2)
+
+	local defaultMinWidth = M.options.defaultMinWidth or 200
+	local leftMin = target.members[1].minWidth or defaultMinWidth
+	local rightMin = target.members[2].minWidth or defaultMinWidth
+	local rightWidth = clamp(originalWidth, rightMin, region.frame.w - leftMin)
+	target.leftWidth = region.frame.w - rightWidth
 	target.focusedMember = 2
 	M.rebuildWindowIndex()
 	M.activateGroup(regionName, M.findGroup(regionName, target))
@@ -776,7 +797,7 @@ function M.cycleGroup(delta)
 	local location = M.getWindowLocation(hs.window.focusedWindow())
 
 	if not location then
-		return
+		return false
 	end
 
 	local region = M.regions[location.regionName]
@@ -786,10 +807,16 @@ function M.cycleGroup(delta)
 		index = ((index - 1 + delta) % #region.groups) + 1
 
 		if liveMemberCount(region.groups[index]) > 0 then
+			if index == location.groupIndex then
+				return false
+			end
+
 			M.activateGroup(location.regionName, index)
-			return
+			return true
 		end
 	end
+
+	return false
 end
 
 function M.focusPreviousGroup()
@@ -798,6 +825,18 @@ end
 
 function M.focusNextGroup()
 	M.cycleGroup(1)
+end
+
+function M.focusNorth()
+	if not M.cycleGroup(-1) then
+		hs.window.filter.focusNorth()
+	end
+end
+
+function M.focusSouth()
+	if not M.cycleGroup(1) then
+		hs.window.filter.focusSouth()
+	end
 end
 
 function M.focusMember(memberIndex)
@@ -878,7 +917,9 @@ function M.focusWest()
 		return
 	end
 
-	M.focusRegionInDirection(location.regionName, -1)
+	if not M.focusRegionInDirection(location.regionName, -1) then
+		hs.window.filter.focusWest()
+	end
 end
 
 function M.focusEast()
@@ -894,7 +935,9 @@ function M.focusEast()
 		return
 	end
 
-	M.focusRegionInDirection(location.regionName, 1)
+	if not M.focusRegionInDirection(location.regionName, 1) then
+		hs.window.filter.focusEast()
+	end
 end
 
 -- Member resizing ------------------------------------------------------------

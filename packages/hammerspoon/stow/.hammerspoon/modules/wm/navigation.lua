@@ -24,11 +24,11 @@ function M.focusWest()
 end
 
 function M.focusSouth()
-	hs.window.filter.focusSouth()
+	stacking.focusSouth()
 end
 
 function M.focusNorth()
-	hs.window.filter.focusNorth()
+	stacking.focusNorth()
 end
 
 function M.focusEast()
@@ -41,6 +41,14 @@ end
 
 function M.focusNextGroup()
 	stacking.focusNextGroup()
+end
+
+function M.focusDirectionalNorth()
+	hs.window.filter.focusNorth()
+end
+
+function M.focusDirectionalSouth()
+	hs.window.filter.focusSouth()
 end
 
 return M

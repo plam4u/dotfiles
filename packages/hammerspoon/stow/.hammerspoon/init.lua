@@ -41,11 +41,12 @@ require("modules.wm").setup({
 		mapping = {
 			-- Focus window
 			focusWest = { "alt", "h" },
-			-- focusSouth = { "alt", "j" },
-			-- focusNorth = { "alt", "k" },
+			focusSouth = { "alt", "j" },
+			focusNorth = { "alt", "k" },
 			focusEast = { "alt", "l" },
-			focusPreviousGroup = { "alt", "j" },
-			focusNextGroup = { "alt", "k" },
+			-- Always use geometric navigation instead of cycling groups.
+			focusDirectionalNorth = { "alt", "i" },
+			focusDirectionalSouth = { "alt", "," },
 		},
 	},
 	stacking = {
@@ -71,7 +72,7 @@ require("modules.wm").setup({
 			-- Resize the focused member inside a two-window group.
 			shrinkFocusedMember = { hyper, "h" },
 			growFocusedMember = { hyper, "l" },
-			resetGroupSplit = { hyper, "0" },
+			resetGroupSplit = { hyper, ";" },
 		},
 	},
 	-- modules.wm.persistence is intentionally disabled. Stacking owns
