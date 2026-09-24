@@ -44,11 +44,11 @@ function M.focusNextWorkspace()
 end
 
 function M.focusDirectionalNorth()
-	hs.window.filter.focusNorth()
+	stacking.focusDirectionalNorth()
 end
 
 function M.focusDirectionalSouth()
-	hs.window.filter.focusSouth()
+	stacking.focusDirectionalSouth()
 end
 
 return M

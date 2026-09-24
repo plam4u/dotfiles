@@ -53,6 +53,7 @@ require("modules.wm").setup({
 		config = {
 			ultrawideWidth = 5120,
 			ultrawideHeight = 1440,
+			mouseFollowsFocus = true,
 			resizeStep = 80,
 			defaultMinWidth = 200,
 			indicatorDuration = 1,

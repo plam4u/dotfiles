@@ -20,6 +20,41 @@ local function round(number)
 	return math.floor(number + 0.5)
 end
 
+local function centerMouseInWindow(window)
+	if
+		not M.options.mouseFollowsFocus
+		or not window
+		or not hs.mouse
+		or type(hs.mouse.absolutePosition) ~= "function"
+	then
+		return
+	end
+
+	local frame = window:frame()
+
+	if frame then
+		hs.mouse.absolutePosition({
+			x = round(frame.x + frame.w / 2),
+			y = round(frame.y + frame.h / 2),
+		})
+	end
+end
+
+local function focusWindow(window)
+	if not window then
+		return false
+	end
+
+	window:focus()
+	centerMouseInWindow(window)
+	return true
+end
+
+local function focusDirectionalWindow(action)
+	action()
+	centerMouseInWindow(hs.window.focusedWindow())
+end
+
 local function clamp(number, minimum, maximum)
 	return math.max(minimum, math.min(maximum, number))
 end
@@ -606,7 +641,7 @@ function M.raiseWorkspace(workspace, shouldFocus)
 		end
 
 		if focusedMember and focusedMember.window then
-			focusedMember.window:focus()
+			focusWindow(focusedMember.window)
 		end
 	end
 end
@@ -1206,13 +1241,13 @@ end
 
 function M.focusNorth()
 	if not M.cycleWorkspace(-1) then
-		hs.window.filter.focusNorth()
+		M.focusDirectionalNorth()
 	end
 end
 
 function M.focusSouth()
 	if not M.cycleWorkspace(1) then
-		hs.window.filter.focusSouth()
+		M.focusDirectionalSouth()
 	end
 end
 
@@ -1231,7 +1266,7 @@ function M.focusMember(memberIndex)
 	end
 
 	workspace.focusedMember = memberIndex
-	member.window:focus()
+	focusWindow(member.window)
 	M.render()
 	return true
 end
@@ -1242,6 +1277,14 @@ end
 
 function M.focusNextMember()
 	M.focusMember(2)
+end
+
+function M.focusDirectionalNorth()
+	focusDirectionalWindow(hs.window.filter.focusNorth)
+end
+
+function M.focusDirectionalSouth()
+	focusDirectionalWindow(hs.window.filter.focusSouth)
 end
 
 function M.focusScreenInDirection(screenName, delta)
@@ -1286,7 +1329,7 @@ function M.focusWest()
 	local location = M.getWindowLocation(window)
 
 	if not location then
-		hs.window.filter.focusWest()
+		focusDirectionalWindow(hs.window.filter.focusWest)
 		return
 	end
 
@@ -1295,7 +1338,7 @@ function M.focusWest()
 	end
 
 	if not M.focusScreenInDirection(location.screenName, -1) then
-		hs.window.filter.focusWest()
+		focusDirectionalWindow(hs.window.filter.focusWest)
 	end
 end
 
@@ -1304,7 +1347,7 @@ function M.focusEast()
 	local location = M.getWindowLocation(window)
 
 	if not location then
-		hs.window.filter.focusEast()
+		focusDirectionalWindow(hs.window.filter.focusEast)
 		return
 	end
 
@@ -1313,7 +1356,7 @@ function M.focusEast()
 	end
 
 	if not M.focusScreenInDirection(location.screenName, 1) then
-		hs.window.filter.focusEast()
+		focusDirectionalWindow(hs.window.filter.focusEast)
 	end
 end
 
