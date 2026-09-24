@@ -35,12 +35,12 @@ function M.focusEast()
 	stacking.focusEast()
 end
 
-function M.focusPreviousGroup()
-	stacking.focusPreviousGroup()
+function M.focusPreviousWorkspace()
+	stacking.focusPreviousWorkspace()
 end
 
-function M.focusNextGroup()
-	stacking.focusNextGroup()
+function M.focusNextWorkspace()
+	stacking.focusNextWorkspace()
 end
 
 function M.focusDirectionalNorth()

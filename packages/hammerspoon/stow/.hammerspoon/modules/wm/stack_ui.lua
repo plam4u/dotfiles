@@ -2,10 +2,10 @@ local M = {
 	canvases = {},
 }
 
-local function liveMemberCount(group)
+local function liveMemberCount(workspace)
 	local count = 0
 
-	for _, member in ipairs(group.members) do
+	for _, member in ipairs(workspace.members) do
 		if member.window then
 			count = count + 1
 		end
@@ -21,11 +21,15 @@ local function memberName(member)
 	return name or member.bundleID
 end
 
-local function groupName(group)
+local function workspaceName(workspace)
 	local names = {}
 
-	for _, member in ipairs(group.members) do
+	for _, member in ipairs(workspace.members) do
 		table.insert(names, memberName(member))
+	end
+
+	if #names == 0 then
+		return "Empty workspace"
 	end
 
 	return table.concat(names, "  +  ")
@@ -39,7 +43,7 @@ function M.clear()
 	M.canvases = {}
 end
 
-function M.render(regions, regionOrder, options, expandedGroup)
+function M.render(screens, screenOrder, options, expandedWorkspace)
 	M.clear()
 
 	local lineWidth = options.lineWidth or 3
@@ -49,22 +53,22 @@ function M.render(regions, regionOrder, options, expandedGroup)
 	local topInset = options.topInset or leftInset
 	local expandedWidth = options.expandedWidth or 240
 
-	for _, regionName in ipairs(regionOrder) do
-		local region = regions[regionName]
-		local groupCount = #region.groups
-		local isExpandedRegion = expandedGroup and expandedGroup.regionName == regionName
-		local focusedGroupIndex = isExpandedRegion and expandedGroup.groupIndex or nil
+	for _, screenName in ipairs(screenOrder) do
+		local virtualScreen = screens[screenName]
+		local workspaceCount = #virtualScreen.workspaces
+		local isExpandedScreen = expandedWorkspace and expandedWorkspace.screenName == screenName
+		local focusedWorkspaceIndex = isExpandedScreen and expandedWorkspace.workspaceIndex or nil
 
-		if groupCount > 0 then
+		if workspaceCount > 0 then
 			local frame = {
-				x = region.frame.x + leftInset,
-				y = region.frame.y + topInset,
-				w = isExpandedRegion and expandedWidth or lineWidth,
-				h = groupCount * lineHeight + math.max(0, groupCount - 1) * spacing,
+				x = virtualScreen.frame.x + leftInset,
+				y = virtualScreen.frame.y + topInset,
+				w = isExpandedScreen and expandedWidth or lineWidth,
+				h = workspaceCount * lineHeight + math.max(0, workspaceCount - 1) * spacing,
 			}
 			local canvas = hs.canvas.new(frame)
 
-			if isExpandedRegion then
+			if isExpandedScreen then
 				canvas:appendElements({
 					type = "rectangle",
 					action = "fill",
@@ -74,12 +78,12 @@ function M.render(regions, regionOrder, options, expandedGroup)
 				})
 			end
 
-			for index, group in ipairs(region.groups) do
+			for index, workspace in ipairs(virtualScreen.workspaces) do
 				local y = (index - 1) * (lineHeight + spacing)
-				local liveCount = liveMemberCount(group)
-				local isActive = index == region.activeGroup
-				local isExpanded = isExpandedRegion
-				local isFocused = index == focusedGroupIndex
+				local liveCount = liveMemberCount(workspace)
+				local isActive = index == virtualScreen.activeWorkspace
+				local isExpanded = isExpandedScreen
+				local isFocused = index == focusedWorkspaceIndex
 				local alpha = liveCount > 0 and 1 or 0.3
 
 				if isFocused then
@@ -105,7 +109,7 @@ function M.render(regions, regionOrder, options, expandedGroup)
 				if isExpanded then
 					canvas:appendElements({
 						type = "text",
-						text = groupName(group),
+						text = workspaceName(workspace),
 						frame = { x = lineWidth + 9, y = y + 2, w = expandedWidth - lineWidth - 15, h = lineHeight - 4 },
 						textAlignment = "left",
 						textColor = { white = 0.96, alpha = 1 },
@@ -116,7 +120,7 @@ function M.render(regions, regionOrder, options, expandedGroup)
 
 			canvas:clickActivating(false)
 			canvas:show()
-			M.canvases[regionName] = canvas
+			M.canvases[screenName] = canvas
 		end
 	end
 end

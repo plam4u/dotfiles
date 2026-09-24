@@ -44,15 +44,15 @@ require("modules.wm").setup({
 			focusSouth = { "alt", "j" },
 			focusNorth = { "alt", "k" },
 			focusEast = { "alt", "l" },
-			-- Always use geometric navigation instead of cycling groups.
+			-- Always use geometric navigation instead of cycling workspaces.
 			focusDirectionalNorth = { "alt", "i" },
 			focusDirectionalSouth = { "alt", "," },
 		},
 	},
 	stacking = {
 		config = {
-			screenWidth = 5120,
-			screenHeight = 1440,
+			ultrawideWidth = 5120,
+			ultrawideHeight = 1440,
 			resizeStep = 80,
 			defaultMinWidth = 200,
 			indicatorDuration = 1,
@@ -67,22 +67,32 @@ require("modules.wm").setup({
 			},
 		},
 		mapping = {
-			-- Persist and restore the complete stack model on demand.
+			-- Persist and restore the complete workspace model on demand.
 			saveStacks = { meh, "=" },
 			loadStacks = { hyper, "=" },
-			-- Move the focused window into a new group.
+			-- Select or create a workspace on the focused virtual screen.
+			focusWorkspace1 = { "alt", "1" },
+			focusWorkspace2 = { "alt", "2" },
+			focusWorkspace3 = { "alt", "3" },
+			focusWorkspace4 = { "alt", "4" },
+			focusWorkspace5 = { "alt", "5" },
+			focusWorkspace6 = { "alt", "6" },
+			focusWorkspace7 = { "alt", "7" },
+			focusWorkspace8 = { "alt", "8" },
+			focusWorkspace9 = { "alt", "9" },
+			-- Move the focused window into a new workspace.
 			moveWindowToLeft = { meh, "u" },
 			moveWindowToCenter = { meh, "i" },
 			moveWindowToRight = { meh, "o" },
-			-- Add the focused window to the active group.
-			addWindowToLeftGroup = { hyper, "u" },
-			addWindowToCenterGroup = { hyper, "i" },
-			addWindowToRightGroup = { hyper, "o" },
-			extractWindowFromGroup = { hyper, "p" },
-			-- Resize the focused member inside a two-window group.
+			-- Add the focused window to the active workspace.
+			addWindowToLeftWorkspace = { hyper, "u" },
+			addWindowToCenterWorkspace = { hyper, "i" },
+			addWindowToRightWorkspace = { hyper, "o" },
+			extractWindowFromWorkspace = { hyper, "p" },
+			-- Resize the focused member inside a two-window workspace.
 			shrinkFocusedMember = { hyper, "h" },
 			growFocusedMember = { hyper, "l" },
-			resetGroupSplit = { hyper, ";" },
+			resetWorkspaceSplit = { hyper, ";" },
 		},
 	},
 	-- modules.wm.persistence is intentionally disabled. Stacking owns

@@ -1,9 +1,10 @@
 local store = require("modules.wm.stack_store")
 local ui = require("modules.wm.stack_ui")
+local virtualScreens = require("modules.wm.virtual_screens")
 
 local M = {
-	regionOrder = { "left", "center", "right" },
-	regions = {},
+	screenOrder = {},
+	screens = {},
 	windowIndex = {},
 	enabled = false,
 }
@@ -26,10 +27,10 @@ local function getBundleID(window)
 	return app and app:bundleID() or nil
 end
 
-local function liveMemberCount(group)
+local function liveMemberCount(workspace)
 	local count = 0
 
-	for _, member in ipairs(group.members) do
+	for _, member in ipairs(workspace.members) do
 		if member.window then
 			count = count + 1
 		end
@@ -38,15 +39,34 @@ local function liveMemberCount(group)
 	return count
 end
 
-local function defaultState()
-	return {
-		version = 1,
-		regions = {
-			left = { activeGroup = 1, groups = {} },
-			center = { activeGroup = 1, groups = {} },
-			right = { activeGroup = 1, groups = {} },
-		},
-	}
+local function emptyProfileState()
+	local state = { screens = {} }
+
+	for _, screenName in ipairs(M.screenOrder) do
+		state.screens[screenName] = { activeWorkspace = 1, workspaces = {} }
+	end
+
+	return state
+end
+
+local function normalizeDocument(state)
+	if type(state.profiles) == "table" then
+		state.version = 2
+		return state
+	end
+
+	-- Version 1 stored the ultrawide regions directly. Keep that snapshot
+	-- intact and migrate it into the ultrawide virtual-screen profile.
+	if type(state.regions) == "table" then
+		return {
+			version = 2,
+			profiles = {
+				ultrawide = { screens = state.regions },
+			},
+		}
+	end
+
+	return { version = 2, profiles = {} }
 end
 
 -- Setup ----------------------------------------------------------------------
@@ -59,25 +79,20 @@ function M.setup(config)
 	M.savedStateExists = store.exists(M.stateFile)
 	M.loadedFromDisk = false
 
-	local screen = hs.screen.primaryScreen()
-	local screenFrame = screen and screen:fullFrame()
-	local expectedWidth = M.options.screenWidth or 5120
-	local expectedHeight = M.options.screenHeight or 1440
+	local physicalScreen = hs.screen.primaryScreen()
+	local physicalFrame = physicalScreen and physicalScreen:fullFrame()
 
-	if not screenFrame or screenFrame.w ~= expectedWidth or screenFrame.h ~= expectedHeight then
-		M.logger.e(
-			string.format("Expected a %dx%d primary screen; stacking was not started", expectedWidth, expectedHeight)
-		)
+	if not physicalFrame then
+		M.logger.e("Unable to resolve the primary screen")
 		return
 	end
 
-	M.regions = {
-		left = { frame = { x = screenFrame.x, y = screenFrame.y, w = 1280, h = 1440 } },
-		center = { frame = { x = screenFrame.x + 1280, y = screenFrame.y, w = 2560, h = 1440 } },
-		right = { frame = { x = screenFrame.x + 3840, y = screenFrame.y, w = 1280, h = 1440 } },
-	}
+	local resolved = virtualScreens.resolve(physicalFrame, M.options)
+	M.profileName = resolved.profileName
+	M.screenOrder = resolved.order
+	M.screens = resolved.screens
 
-	M.applyState(defaultState())
+	M.applyState(emptyProfileState())
 	M.enabled = true
 	M.startWindowWatcher()
 	M.bindHotkeys(M.config.mapping or {})
@@ -107,29 +122,32 @@ end
 -- Persisted model ------------------------------------------------------------
 
 function M.applyState(state)
-	state.regions = type(state.regions) == "table" and state.regions or {}
+	state.screens = type(state.screens) == "table" and state.screens or {}
 
-	for _, regionName in ipairs(M.regionOrder) do
-		local savedRegion = state.regions[regionName]
+	for _, screenName in ipairs(M.screenOrder) do
+		local savedScreen = state.screens[screenName]
 
-		if type(savedRegion) ~= "table" then
-			savedRegion = { activeGroup = 1, groups = {} }
+		if type(savedScreen) ~= "table" then
+			savedScreen = { activeWorkspace = 1, workspaces = {} }
 		end
 
-		savedRegion.groups = type(savedRegion.groups) == "table" and savedRegion.groups or {}
-		M.regions[regionName].groups = {}
-		M.regions[regionName].activeGroup = tonumber(savedRegion.activeGroup) or 1
+		-- Version 1 called these regions and groups. Read both names so an
+		-- existing stacks.json can be migrated without changing its meaning.
+		local savedWorkspaces = savedScreen.workspaces or savedScreen.groups or {}
+		M.screens[screenName].workspaces = {}
+		M.screens[screenName].activeWorkspace = tonumber(savedScreen.activeWorkspace or savedScreen.activeGroup) or 1
 
-		for _, savedGroup in ipairs(savedRegion.groups) do
-			local group = {
+		for _, savedWorkspace in ipairs(savedWorkspaces) do
+			local workspace = {
 				members = {},
-				leftWidth = tonumber(savedGroup.leftWidth),
-				focusedMember = tonumber(savedGroup.focusedMember) or 1,
+				leftWidth = tonumber(savedWorkspace.leftWidth),
+				focusedMember = tonumber(savedWorkspace.focusedMember) or 1,
+				keepEmpty = savedWorkspace.keepEmpty == true or #(savedWorkspace.members or {}) == 0,
 			}
 
-			for _, savedMember in ipairs(savedGroup.members or {}) do
-				if #group.members < 2 and type(savedMember.bundleID) == "string" then
-					table.insert(group.members, {
+			for _, savedMember in ipairs(savedWorkspace.members or {}) do
+				if #workspace.members < 2 and type(savedMember.bundleID) == "string" then
+					table.insert(workspace.members, {
 						bundleID = savedMember.bundleID,
 						minWidth = tonumber(savedMember.minWidth),
 						window = nil,
@@ -137,36 +155,47 @@ function M.applyState(state)
 				end
 			end
 
-			if #group.members > 0 then
-				table.insert(M.regions[regionName].groups, group)
-			end
+			-- Empty workspaces are intentional placeholders created by direct
+			-- workspace selection, so keep them across save/load.
+			table.insert(M.screens[screenName].workspaces, workspace)
 		end
+
+		local workspaceCount = #M.screens[screenName].workspaces
+		M.screens[screenName].activeWorkspace = clamp(
+			M.screens[screenName].activeWorkspace,
+			1,
+			math.max(1, workspaceCount)
+		)
 	end
 end
 
 function M.serializableState()
-	local state = defaultState()
+	local state = emptyProfileState()
 
-	for _, regionName in ipairs(M.regionOrder) do
-		local region = M.regions[regionName]
-		local savedRegion = state.regions[regionName]
-		savedRegion.activeGroup = region.activeGroup
+	for _, screenName in ipairs(M.screenOrder) do
+		local virtualScreen = M.screens[screenName]
+		local savedScreen = state.screens[screenName]
+		savedScreen.activeWorkspace = virtualScreen.activeWorkspace
 
-		for _, group in ipairs(region.groups) do
-			local savedGroup = { members = {}, focusedMember = group.focusedMember }
+		for _, workspace in ipairs(virtualScreen.workspaces) do
+			local savedWorkspace = {
+				members = {},
+				focusedMember = workspace.focusedMember,
+				keepEmpty = workspace.keepEmpty or nil,
+			}
 
-			if #group.members == 2 then
-				savedGroup.leftWidth = group.leftWidth
+			if #workspace.members == 2 then
+				savedWorkspace.leftWidth = workspace.leftWidth
 			end
 
-			for _, member in ipairs(group.members) do
-				table.insert(savedGroup.members, {
+			for _, member in ipairs(workspace.members) do
+				table.insert(savedWorkspace.members, {
 					bundleID = member.bundleID,
 					minWidth = member.minWidth,
 				})
 			end
 
-			table.insert(savedRegion.groups, savedGroup)
+			table.insert(savedScreen.workspaces, savedWorkspace)
 		end
 	end
 
@@ -174,17 +203,23 @@ function M.serializableState()
 end
 
 function M.saveState()
-	if not store.save(M.stateFile, M.serializableState()) then
+	local document = M.savedDocument or { version = 2, profiles = {} }
+	document.version = 2
+	document.profiles = document.profiles or {}
+	document.profiles[M.profileName] = M.serializableState()
+
+	if not store.save(M.stateFile, document) then
 		M.logger.e("Unable to save stack state to " .. M.stateFile)
 		return false
 	end
 
+	M.savedDocument = document
 	return true
 end
 
-function M.hasGroups()
-	for _, regionName in ipairs(M.regionOrder) do
-		if #M.regions[regionName].groups > 0 then
+function M.hasWorkspaces()
+	for _, screenName in ipairs(M.screenOrder) do
+		if #M.screens[screenName].workspaces > 0 then
 			return true
 		end
 	end
@@ -193,7 +228,7 @@ function M.hasGroups()
 end
 
 function M.saveStacks()
-	if M.savedStateExists and not M.loadedFromDisk and not M.hasGroups() then
+	if M.savedStateExists and not M.loadedFromDisk and not M.hasWorkspaces() then
 		hs.alert.show("No window stacks to save; load the saved stacks first")
 		return
 	end
@@ -217,7 +252,9 @@ function M.loadStacks(showAlert)
 		return
 	end
 
-	M.applyState(state)
+	local document = normalizeDocument(state)
+	M.savedDocument = document
+	M.applyState(document.profiles[M.profileName] or emptyProfileState())
 	M.loadedFromDisk = true
 	M.restoreWindows()
 	M.render()
@@ -230,15 +267,15 @@ end
 function M.rebuildWindowIndex()
 	M.windowIndex = {}
 
-	for _, regionName in ipairs(M.regionOrder) do
-		local region = M.regions[regionName]
+	for _, screenName in ipairs(M.screenOrder) do
+		local virtualScreen = M.screens[screenName]
 
-		for groupIndex, group in ipairs(region.groups) do
-			for memberIndex, member in ipairs(group.members) do
+		for workspaceIndex, workspace in ipairs(virtualScreen.workspaces) do
+			for memberIndex, member in ipairs(workspace.members) do
 				if member.window and member.window:id() then
 					M.windowIndex[member.window:id()] = {
-						regionName = regionName,
-						groupIndex = groupIndex,
+						screenName = screenName,
+						workspaceIndex = workspaceIndex,
 						memberIndex = memberIndex,
 					}
 				end
@@ -259,15 +296,54 @@ function M.getWindowLocation(window)
 	return M.windowIndex[window:id()]
 end
 
+function M.resolveScreenName(screenName)
+	if M.screens[screenName] then
+		return screenName
+	end
+
+	-- The existing left/center/right hotkeys remain useful on a laptop:
+	-- all three names simply refer to its only virtual screen.
+	if #M.screenOrder == 1 then
+		return M.screenOrder[1]
+	end
+
+	return nil
+end
+
+function M.screenNameForWindow(window)
+	local location = M.getWindowLocation(window)
+
+	if location then
+		return location.screenName
+	end
+
+	local windowFrame = window and window:frame()
+
+	if windowFrame then
+		local centerX = windowFrame.x + windowFrame.w / 2
+		local centerY = windowFrame.y + windowFrame.h / 2
+
+		for _, screenName in ipairs(M.screenOrder) do
+			local frame = M.screens[screenName].frame
+
+			if centerX >= frame.x and centerX < frame.x + frame.w and centerY >= frame.y and centerY < frame.y + frame.h then
+				return screenName
+			end
+		end
+	end
+
+	return M.screenOrder[1]
+end
+
 function M.render()
 	if M.enabled then
-		ui.render(M.regions, M.regionOrder, M.options.ui or {}, M.expandedIndicator)
+		ui.render(M.screens, M.screenOrder, M.options.ui or {}, M.expandedIndicator)
 	end
 end
 
-function M.flashGroupIndicator(regionName, groupIndex)
+function M.flashWorkspaceIndicator(screenName, workspaceIndex)
 	M.indicatorVersion = (M.indicatorVersion or 0) + 1
-	M.expandedIndicator = { regionName = regionName, groupIndex = groupIndex }
+	M.expandedIndicator = { screenName = screenName, workspaceIndex = workspaceIndex }
 	local version = M.indicatorVersion
 	M.render()
 
@@ -279,9 +355,9 @@ function M.flashGroupIndicator(regionName, groupIndex)
 	end)
 end
 
-function M.findGroup(regionName, wantedGroup)
-	for index, group in ipairs(M.regions[regionName].groups) do
-		if group == wantedGroup then
+function M.findWorkspace(screenName, wantedWorkspace)
+	for index, workspace in ipairs(M.screens[screenName].workspaces) do
+		if workspace == wantedWorkspace then
 			return index
 		end
 	end
@@ -289,12 +365,12 @@ function M.findGroup(regionName, wantedGroup)
 	return nil
 end
 
-function M.knownRegionForBundle(bundleID)
-	for _, regionName in ipairs(M.regionOrder) do
-		for _, group in ipairs(M.regions[regionName].groups) do
-			for _, member in ipairs(group.members) do
+function M.knownScreenForBundle(bundleID)
+	for _, screenName in ipairs(M.screenOrder) do
+		for _, workspace in ipairs(M.screens[screenName].workspaces) do
+			for _, member in ipairs(workspace.members) do
 				if member.bundleID == bundleID then
-					return regionName
+					return screenName
 				end
 			end
 		end
@@ -304,11 +380,11 @@ function M.knownRegionForBundle(bundleID)
 end
 
 function M.firstPendingMember(bundleID)
-	for _, regionName in ipairs(M.regionOrder) do
-		for groupIndex, group in ipairs(M.regions[regionName].groups) do
-			for memberIndex, member in ipairs(group.members) do
+	for _, screenName in ipairs(M.screenOrder) do
+		for workspaceIndex, workspace in ipairs(M.screens[screenName].workspaces) do
+			for memberIndex, member in ipairs(workspace.members) do
 				if member.bundleID == bundleID and not member.window then
-					return regionName, groupIndex, memberIndex
+					return screenName, workspaceIndex, memberIndex
 				end
 			end
 		end
@@ -319,11 +395,11 @@ end
 
 -- Layout ---------------------------------------------------------------------
 
-function M.layoutGroup(regionName, group, shouldVerify)
-	local region = M.regions[regionName]
+function M.layoutWorkspace(screenName, workspace, shouldVerify)
+	local virtualScreen = M.screens[screenName]
 	local liveMembers = {}
 
-	for memberIndex, member in ipairs(group.members) do
+	for memberIndex, member in ipairs(workspace.members) do
 		if member.window then
 			table.insert(liveMembers, { member = member, index = memberIndex })
 		end
@@ -334,63 +410,63 @@ function M.layoutGroup(regionName, group, shouldVerify)
 	end
 
 	if #liveMembers == 1 then
-		liveMembers[1].member.window:setFrame(copyFrame(region.frame), 0)
+		liveMembers[1].member.window:setFrame(copyFrame(virtualScreen.frame), 0)
 		return
 	end
 
 	local defaultMinWidth = M.options.defaultMinWidth or 200
-	local leftMin = group.members[1].minWidth or defaultMinWidth
-	local rightMin = group.members[2].minWidth or defaultMinWidth
+	local leftMin = workspace.members[1].minWidth or defaultMinWidth
+	local rightMin = workspace.members[2].minWidth or defaultMinWidth
 
-	if leftMin + rightMin > region.frame.w then
-		M.splitImpossibleGroup(regionName, group)
+	if leftMin + rightMin > virtualScreen.frame.w then
+		M.splitImpossibleWorkspace(screenName, workspace)
 		return
 	end
 
-	local requestedLeftWidth = round(group.leftWidth or region.frame.w / 2)
-	requestedLeftWidth = clamp(requestedLeftWidth, leftMin, region.frame.w - rightMin)
-	group.leftWidth = requestedLeftWidth
+	local requestedLeftWidth = round(workspace.leftWidth or virtualScreen.frame.w / 2)
+	requestedLeftWidth = clamp(requestedLeftWidth, leftMin, virtualScreen.frame.w - rightMin)
+	workspace.leftWidth = requestedLeftWidth
 
-	local leftFrame = copyFrame(region.frame)
+	local leftFrame = copyFrame(virtualScreen.frame)
 	leftFrame.w = requestedLeftWidth
-	local rightFrame = copyFrame(region.frame)
-	rightFrame.x = region.frame.x + requestedLeftWidth
-	rightFrame.w = region.frame.w - requestedLeftWidth
+	local rightFrame = copyFrame(virtualScreen.frame)
+	rightFrame.x = virtualScreen.frame.x + requestedLeftWidth
+	rightFrame.w = virtualScreen.frame.w - requestedLeftWidth
 
-	group.members[1].window:setFrame(leftFrame, 0)
-	group.members[2].window:setFrame(rightFrame, 0)
+	workspace.members[1].window:setFrame(leftFrame, 0)
+	workspace.members[2].window:setFrame(rightFrame, 0)
 
 	if shouldVerify ~= false then
 		if shouldVerify ~= "continue" then
-			group.verifyPass = 0
+			workspace.verifyPass = 0
 		end
 
-		group.resizeVersion = (group.resizeVersion or 0) + 1
-		local version = group.resizeVersion
+		workspace.resizeVersion = (workspace.resizeVersion or 0) + 1
+		local version = workspace.resizeVersion
 
 		hs.timer.doAfter(M.options.verifyDelay or 0.08, function()
-			M.verifyGroupLayout(regionName, group, requestedLeftWidth, version)
+			M.verifyWorkspaceLayout(screenName, workspace, requestedLeftWidth, version)
 		end)
 	end
 end
 
-function M.verifyGroupLayout(regionName, group, requestedLeftWidth, version)
-	if group.resizeVersion ~= version or not M.findGroup(regionName, group) then
+function M.verifyWorkspaceLayout(screenName, workspace, requestedLeftWidth, version)
+	if workspace.resizeVersion ~= version or not M.findWorkspace(screenName, workspace) then
 		return
 	end
 
-	local left = group.members[1]
-	local right = group.members[2]
+	local left = workspace.members[1]
+	local right = workspace.members[2]
 
 	if not left or not right or not left.window or not right.window then
 		return
 	end
 
-	local region = M.regions[regionName]
+	local virtualScreen = M.screens[screenName]
 	local tolerance = M.options.frameTolerance or 2
 	local leftFrame = left.window:frame()
 	local rightFrame = right.window:frame()
-	local requestedRightWidth = region.frame.w - requestedLeftWidth
+	local requestedRightWidth = virtualScreen.frame.w - requestedLeftWidth
 	local learnedMinimum = false
 
 	if leftFrame.w > requestedLeftWidth + tolerance then
@@ -407,47 +483,47 @@ function M.verifyGroupLayout(regionName, group, requestedLeftWidth, version)
 	local leftMin = left.minWidth or defaultMinWidth
 	local rightMin = right.minWidth or defaultMinWidth
 
-	if leftMin + rightMin > region.frame.w then
-		M.splitImpossibleGroup(regionName, group)
+	if leftMin + rightMin > virtualScreen.frame.w then
+		M.splitImpossibleWorkspace(screenName, workspace)
 		return
 	end
 
-	local correctedWidth = clamp(requestedLeftWidth, leftMin, region.frame.w - rightMin)
+	local correctedWidth = clamp(requestedLeftWidth, leftMin, virtualScreen.frame.w - rightMin)
 
-	if learnedMinimum or correctedWidth ~= group.leftWidth then
-		group.leftWidth = correctedWidth
-		group.verifyPass = (group.verifyPass or 0) + 1
-		M.layoutGroup(regionName, group, group.verifyPass < 2 and "continue" or false)
+	if learnedMinimum or correctedWidth ~= workspace.leftWidth then
+		workspace.leftWidth = correctedWidth
+		workspace.verifyPass = (workspace.verifyPass or 0) + 1
+		M.layoutWorkspace(screenName, workspace, workspace.verifyPass < 2 and "continue" or false)
 	end
 
 	M.render()
 end
 
-function M.layoutAllGroups()
-	for _, regionName in ipairs(M.regionOrder) do
-		for _, group in ipairs(M.regions[regionName].groups) do
-			M.layoutGroup(regionName, group)
+function M.layoutAllWorkspaces()
+	for _, screenName in ipairs(M.screenOrder) do
+		for _, workspace in ipairs(M.screens[screenName].workspaces) do
+			M.layoutWorkspace(screenName, workspace)
 		end
 	end
 end
 
-function M.raiseGroup(group, shouldFocus)
-	local focusIndex = clamp(group.focusedMember or 1, 1, #group.members)
+function M.raiseWorkspace(workspace, shouldFocus)
+	local focusIndex = clamp(workspace.focusedMember or 1, 1, #workspace.members)
 
-	for _, member in ipairs(group.members) do
+	for _, member in ipairs(workspace.members) do
 		if member.window then
 			member.window:raise()
 		end
 	end
 
 	if shouldFocus then
-		local focusedMember = group.members[focusIndex]
+		local focusedMember = workspace.members[focusIndex]
 
 		if not focusedMember or not focusedMember.window then
-			for index, member in ipairs(group.members) do
+			for index, member in ipairs(workspace.members) do
 				if member.window then
 					focusedMember = member
-					group.focusedMember = index
+					workspace.focusedMember = index
 					break
 				end
 			end
@@ -459,70 +535,70 @@ function M.raiseGroup(group, shouldFocus)
 	end
 end
 
-function M.activateGroup(regionName, groupIndex, shouldFocus)
-	local region = M.regions[regionName]
-	local group = region.groups[groupIndex]
+function M.activateWorkspace(screenName, workspaceIndex, shouldFocus)
+	local virtualScreen = M.screens[screenName]
+	local workspace = virtualScreen.workspaces[workspaceIndex]
 
-	if not group or liveMemberCount(group) == 0 then
+	if not workspace or liveMemberCount(workspace) == 0 then
 		return false
 	end
 
-	region.activeGroup = groupIndex
-	M.layoutGroup(regionName, group)
-	M.raiseGroup(group, shouldFocus ~= false)
+	virtualScreen.activeWorkspace = workspaceIndex
+	M.layoutWorkspace(screenName, workspace)
+	M.raiseWorkspace(workspace, shouldFocus ~= false)
 	M.render()
 
 	return true
 end
 
-function M.raiseActiveGroups()
-	for _, regionName in ipairs(M.regionOrder) do
-		local region = M.regions[regionName]
-		local active = region.groups[region.activeGroup]
+function M.raiseActiveWorkspaces()
+	for _, screenName in ipairs(M.screenOrder) do
+		local virtualScreen = M.screens[screenName]
+		local active = virtualScreen.workspaces[virtualScreen.activeWorkspace]
 
-		if not active or liveMemberCount(active) == 0 then
-			for groupIndex, group in ipairs(region.groups) do
-				if liveMemberCount(group) > 0 then
-					region.activeGroup = groupIndex
-					active = group
+		if not active then
+			for workspaceIndex, workspace in ipairs(virtualScreen.workspaces) do
+				if liveMemberCount(workspace) > 0 then
+					virtualScreen.activeWorkspace = workspaceIndex
+					active = workspace
 					break
 				end
 			end
 		end
 
 		if active and liveMemberCount(active) > 0 then
-			M.raiseGroup(active, false)
+			M.raiseWorkspace(active, false)
 		end
 	end
 end
 
-function M.splitImpossibleGroup(regionName, group)
-	local region = M.regions[regionName]
-	local groupIndex = M.findGroup(regionName, group)
+function M.splitImpossibleWorkspace(screenName, workspace)
+	local virtualScreen = M.screens[screenName]
+	local workspaceIndex = M.findWorkspace(screenName, workspace)
 
-	if not groupIndex or #group.members ~= 2 then
+	if not workspaceIndex or #workspace.members ~= 2 then
 		return
 	end
 
-	local first = { members = { group.members[1] }, focusedMember = 1 }
-	local second = { members = { group.members[2] }, focusedMember = 1 }
-	local secondWasFocused = group.focusedMember == 2
+	local first = { members = { workspace.members[1] }, focusedMember = 1, keepEmpty = workspace.keepEmpty }
+	local second = { members = { workspace.members[2] }, focusedMember = 1 }
+	local secondWasFocused = workspace.focusedMember == 2
 
-	region.groups[groupIndex] = first
-	table.insert(region.groups, groupIndex + 1, second)
+	virtualScreen.workspaces[workspaceIndex] = first
+	table.insert(virtualScreen.workspaces, workspaceIndex + 1, second)
 
-	if region.activeGroup == groupIndex and secondWasFocused then
-		region.activeGroup = groupIndex + 1
-	elseif region.activeGroup > groupIndex then
-		region.activeGroup = region.activeGroup + 1
+	if virtualScreen.activeWorkspace == workspaceIndex and secondWasFocused then
+		virtualScreen.activeWorkspace = workspaceIndex + 1
+	elseif virtualScreen.activeWorkspace > workspaceIndex then
+		virtualScreen.activeWorkspace = virtualScreen.activeWorkspace + 1
 	end
 
 	M.rebuildWindowIndex()
-	M.layoutGroup(regionName, first)
-	M.layoutGroup(regionName, second)
-	M.raiseActiveGroups()
+	M.layoutWorkspace(screenName, first)
+	M.layoutWorkspace(screenName, second)
+	M.raiseActiveWorkspaces()
 	M.render()
-	hs.alert.show("Windows do not fit in one group; split into two groups")
+	hs.alert.show("Windows do not fit in one workspace; split into two workspaces")
 end
 
 -- Live window restoration ----------------------------------------------------
@@ -535,9 +611,9 @@ function M.restoreWindows()
 	local windows = filter:getWindows()
 	local used = {}
 
-	for _, regionName in ipairs(M.regionOrder) do
-		for _, group in ipairs(M.regions[regionName].groups) do
-			for _, member in ipairs(group.members) do
+	for _, screenName in ipairs(M.screenOrder) do
+		for _, workspace in ipairs(M.screens[screenName].workspaces) do
+			for _, member in ipairs(workspace.members) do
 				member.window = nil
 
 				for _, window in ipairs(windows) do
@@ -558,11 +634,11 @@ function M.restoreWindows()
 		local bundleID = getBundleID(window)
 
 		if windowID and not used[windowID] and bundleID then
-			local regionName = M.knownRegionForBundle(bundleID)
+			local screenName = M.knownScreenForBundle(bundleID)
 
-			if regionName then
-				local region = M.regions[regionName]
-				table.insert(region.groups, {
+			if screenName then
+				local virtualScreen = M.screens[screenName]
+				table.insert(virtualScreen.workspaces, {
 					members = { { bundleID = bundleID, window = window } },
 					focusedMember = 1,
 				})
@@ -572,8 +648,8 @@ function M.restoreWindows()
 	end
 
 	M.rebuildWindowIndex()
-	M.layoutAllGroups()
-	M.raiseActiveGroups()
+	M.layoutAllWorkspaces()
+	M.raiseActiveWorkspaces()
 end
 
 function M.attachCreatedWindow(window)
@@ -587,28 +663,28 @@ function M.attachCreatedWindow(window)
 		return
 	end
 
-	local regionName, groupIndex, memberIndex = M.firstPendingMember(bundleID)
+	local screenName, workspaceIndex, memberIndex = M.firstPendingMember(bundleID)
 
-	if regionName then
-		local group = M.regions[regionName].groups[groupIndex]
-		group.members[memberIndex].window = window
+	if screenName then
+		local workspace = M.screens[screenName].workspaces[workspaceIndex]
+		workspace.members[memberIndex].window = window
 		M.rebuildWindowIndex()
-		M.layoutGroup(regionName, group)
-		M.raiseActiveGroups()
+		M.layoutWorkspace(screenName, workspace)
+		M.raiseActiveWorkspaces()
 		M.render()
 		return
 	end
 
-	regionName = M.knownRegionForBundle(bundleID)
+	screenName = M.knownScreenForBundle(bundleID)
 
-	if regionName then
-		local region = M.regions[regionName]
-		local group = { members = { { bundleID = bundleID, window = window } }, focusedMember = 1 }
+	if screenName then
+		local virtualScreen = M.screens[screenName]
+		local workspace = { members = { { bundleID = bundleID, window = window } }, focusedMember = 1 }
 
-		table.insert(region.groups, group)
-		region.activeGroup = #region.groups
+		table.insert(virtualScreen.workspaces, workspace)
+		virtualScreen.activeWorkspace = #virtualScreen.workspaces
 		M.rebuildWindowIndex()
-		M.layoutGroup(regionName, group)
+		M.layoutWorkspace(screenName, workspace)
 		M.render()
 	end
 end
@@ -620,11 +696,11 @@ function M.windowDestroyed(window)
 		return
 	end
 
-	local region = M.regions[location.regionName]
-	local group = region.groups[location.groupIndex]
-	group.members[location.memberIndex].window = nil
+	local virtualScreen = M.screens[location.screenName]
+	local workspace = virtualScreen.workspaces[location.workspaceIndex]
+	workspace.members[location.memberIndex].window = nil
 	M.rebuildWindowIndex()
-	M.raiseActiveGroups()
+	M.raiseActiveWorkspaces()
 	M.render()
 end
 
@@ -635,13 +711,13 @@ function M.windowFocused(window)
 		return
 	end
 
-	local region = M.regions[location.regionName]
-	local group = region.groups[location.groupIndex]
-	region.activeGroup = location.groupIndex
-	group.focusedMember = location.memberIndex
-	M.layoutGroup(location.regionName, group)
-	M.raiseGroup(group, false)
-	M.flashGroupIndicator(location.regionName, location.groupIndex)
+	local virtualScreen = M.screens[location.screenName]
+	local workspace = virtualScreen.workspaces[location.workspaceIndex]
+	virtualScreen.activeWorkspace = location.workspaceIndex
+	workspace.focusedMember = location.memberIndex
+	M.layoutWorkspace(location.screenName, workspace)
+	M.raiseWorkspace(workspace, false)
+	M.flashWorkspaceIndicator(location.screenName, location.workspaceIndex)
 end
 
 function M.startWindowWatcher()
@@ -660,7 +736,7 @@ function M.startWindowWatcher()
 	end)
 end
 
--- Group membership -----------------------------------------------------------
+-- Workspace membership -------------------------------------------------------
 
 function M.detachWindow(window)
 	local location = M.getWindowLocation(window)
@@ -669,25 +745,36 @@ function M.detachWindow(window)
 		return { bundleID = getBundleID(window), window = window }
 	end
 
-	local region = M.regions[location.regionName]
-	local group = region.groups[location.groupIndex]
-	local member = table.remove(group.members, location.memberIndex)
+	local virtualScreen = M.screens[location.screenName]
+	local workspace = virtualScreen.workspaces[location.workspaceIndex]
+	local member = table.remove(workspace.members, location.memberIndex)
 
-	if #group.members == 0 then
-		table.remove(region.groups, location.groupIndex)
-		region.activeGroup = clamp(region.activeGroup, 1, math.max(1, #region.groups))
+	if #workspace.members == 0 then
+		if workspace.keepEmpty then
+			workspace.leftWidth = nil
+			workspace.focusedMember = 1
+		else
+			table.remove(virtualScreen.workspaces, location.workspaceIndex)
+			virtualScreen.activeWorkspace = clamp(
+				virtualScreen.activeWorkspace,
+				1,
+				math.max(1, #virtualScreen.workspaces)
+			)
+		end
 	else
-		group.leftWidth = nil
-		group.focusedMember = 1
-		M.layoutGroup(location.regionName, group)
+		workspace.leftWidth = nil
+		workspace.focusedMember = 1
+		M.layoutWorkspace(location.screenName, workspace)
 	end
 
 	M.rebuildWindowIndex()
 	return member
 end
 
-function M.moveWindowToRegion(regionName)
-	if not M.enabled or not M.regions[regionName] then
+function M.moveWindowToScreen(screenName)
+	screenName = M.resolveScreenName(screenName)
+
+	if not M.enabled or not screenName then
 		return
 	end
 
@@ -699,54 +786,56 @@ function M.moveWindowToRegion(regionName)
 	end
 
 	local member = M.detachWindow(window)
-	local region = M.regions[regionName]
-	local group = { members = { member }, focusedMember = 1 }
+	local virtualScreen = M.screens[screenName]
+	local workspace = { members = { member }, focusedMember = 1 }
 
-	table.insert(region.groups, group)
-	region.activeGroup = #region.groups
+	table.insert(virtualScreen.workspaces, workspace)
+	virtualScreen.activeWorkspace = #virtualScreen.workspaces
 	M.rebuildWindowIndex()
-	M.activateGroup(regionName, region.activeGroup)
+	M.activateWorkspace(screenName, virtualScreen.activeWorkspace)
 end
 
 function M.moveWindowToLeft()
-	M.moveWindowToRegion("left")
+	M.moveWindowToScreen("left")
 end
 
 function M.moveWindowToCenter()
-	M.moveWindowToRegion("center")
+	M.moveWindowToScreen("center")
 end
 
 function M.moveWindowToRight()
-	M.moveWindowToRegion("right")
+	M.moveWindowToScreen("right")
 end
 
-function M.addWindowToActiveGroup(regionName)
-	if not M.enabled or not M.regions[regionName] then
+function M.addWindowToActiveWorkspace(screenName)
+	screenName = M.resolveScreenName(screenName)
+
+	if not M.enabled or not screenName then
 		return
 	end
 
 	local window = hs.window.focusedWindow()
 	local bundleID = getBundleID(window)
-	local region = M.regions[regionName]
-	local target = region.groups[region.activeGroup]
+	local virtualScreen = M.screens[screenName]
+	local target = virtualScreen.workspaces[virtualScreen.activeWorkspace]
 
 	if not window or not bundleID then
 		return
 	end
 
 	if not target then
-		M.moveWindowToRegion(regionName)
+		M.moveWindowToScreen(screenName)
 		return
 	end
 
 	local location = M.getWindowLocation(window)
 
-	if location and location.regionName == regionName and location.groupIndex == region.activeGroup then
+	if location and location.screenName == screenName and location.workspaceIndex == virtualScreen.activeWorkspace then
 		return
 	end
 
 	if #target.members >= 2 then
-		hs.alert.show("This group already has two windows")
+		hs.alert.show("This workspace already has two windows")
 		return
 	end
 
@@ -754,29 +843,36 @@ function M.addWindowToActiveGroup(regionName)
 	local member = M.detachWindow(window)
 	table.insert(target.members, member)
 
+	if #target.members == 1 then
+		target.focusedMember = 1
+		M.rebuildWindowIndex()
+		M.activateWorkspace(screenName, M.findWorkspace(screenName, target))
+		return
+	end
+
 	local defaultMinWidth = M.options.defaultMinWidth or 200
 	local leftMin = target.members[1].minWidth or defaultMinWidth
 	local rightMin = target.members[2].minWidth or defaultMinWidth
-	local rightWidth = clamp(originalWidth, rightMin, region.frame.w - leftMin)
-	target.leftWidth = region.frame.w - rightWidth
+	local rightWidth = clamp(originalWidth, rightMin, virtualScreen.frame.w - leftMin)
+	target.leftWidth = virtualScreen.frame.w - rightWidth
 	target.focusedMember = 2
 	M.rebuildWindowIndex()
-	M.activateGroup(regionName, M.findGroup(regionName, target))
+	M.activateWorkspace(screenName, M.findWorkspace(screenName, target))
 end
 
-function M.addWindowToLeftGroup()
-	M.addWindowToActiveGroup("left")
+function M.addWindowToLeftWorkspace()
+	M.addWindowToActiveWorkspace("left")
 end
 
-function M.addWindowToCenterGroup()
-	M.addWindowToActiveGroup("center")
+function M.addWindowToCenterWorkspace()
+	M.addWindowToActiveWorkspace("center")
 end
 
-function M.addWindowToRightGroup()
-	M.addWindowToActiveGroup("right")
+function M.addWindowToRightWorkspace()
+	M.addWindowToActiveWorkspace("right")
 end
 
-function M.extractWindowFromGroup()
+function M.extractWindowFromWorkspace()
 	local window = hs.window.focusedWindow()
 	local location = M.getWindowLocation(window)
 
@@ -784,25 +880,25 @@ function M.extractWindowFromGroup()
 		return
 	end
 
-	local region = M.regions[location.regionName]
-	local group = region.groups[location.groupIndex]
+	local virtualScreen = M.screens[location.screenName]
+	local workspace = virtualScreen.workspaces[location.workspaceIndex]
 
-	if #group.members == 1 then
+	if #workspace.members == 1 then
 		M.detachWindow(window)
 		M.render()
 		return
 	end
 
-	local member = table.remove(group.members, location.memberIndex)
-	group.leftWidth = nil
-	group.focusedMember = 1
-	local newGroup = { members = { member }, focusedMember = 1 }
+	local member = table.remove(workspace.members, location.memberIndex)
+	workspace.leftWidth = nil
+	workspace.focusedMember = 1
+	local newWorkspace = { members = { member }, focusedMember = 1 }
 
-	table.insert(region.groups, location.groupIndex + 1, newGroup)
-	region.activeGroup = location.groupIndex + 1
+	table.insert(virtualScreen.workspaces, location.workspaceIndex + 1, newWorkspace)
+	virtualScreen.activeWorkspace = location.workspaceIndex + 1
 	M.rebuildWindowIndex()
-	M.layoutGroup(location.regionName, group)
-	M.activateGroup(location.regionName, region.activeGroup)
+	M.layoutWorkspace(location.screenName, workspace)
+	M.activateWorkspace(location.screenName, virtualScreen.activeWorkspace)
 end
 
 function M.forgetFocusedWindow()
@@ -814,41 +910,77 @@ function M.forgetFocusedWindow()
 	end
 end
 
-function M.forgetActiveGroup()
+function M.forgetActiveWorkspace()
 	local location = M.getWindowLocation(hs.window.focusedWindow())
 
 	if not location then
 		return
 	end
 
-	local region = M.regions[location.regionName]
-	table.remove(region.groups, location.groupIndex)
-	region.activeGroup = clamp(region.activeGroup, 1, math.max(1, #region.groups))
+	local virtualScreen = M.screens[location.screenName]
+	table.remove(virtualScreen.workspaces, location.workspaceIndex)
+	virtualScreen.activeWorkspace = clamp(virtualScreen.activeWorkspace, 1, math.max(1, #virtualScreen.workspaces))
 	M.rebuildWindowIndex()
 	M.render()
 end
 
 -- Navigation -----------------------------------------------------------------
 
-function M.cycleGroup(delta)
+function M.ensureWorkspace(screenName, workspaceIndex)
+	local virtualScreen = M.screens[screenName]
+
+	while #virtualScreen.workspaces < workspaceIndex do
+		table.insert(virtualScreen.workspaces, { members = {}, focusedMember = 1, keepEmpty = true })
+	end
+
+	return virtualScreen.workspaces[workspaceIndex]
+end
+
+function M.focusWorkspace(workspaceIndex)
+	if not M.enabled or workspaceIndex < 1 then
+		return false
+	end
+
+	local screenName = M.screenNameForWindow(hs.window.focusedWindow())
+
+	if not screenName then
+		return false
+	end
+
+	local virtualScreen = M.screens[screenName]
+	local workspace = M.ensureWorkspace(screenName, workspaceIndex)
+	workspace.keepEmpty = true
+	virtualScreen.activeWorkspace = workspaceIndex
+	M.rebuildWindowIndex()
+
+	if liveMemberCount(workspace) > 0 then
+		M.layoutWorkspace(screenName, workspace)
+		M.raiseWorkspace(workspace, true)
+	end
+
+	M.flashWorkspaceIndicator(screenName, workspaceIndex)
+	return true
+end
+
+function M.cycleWorkspace(delta)
 	local location = M.getWindowLocation(hs.window.focusedWindow())
 
 	if not location then
 		return false
 	end
 
-	local region = M.regions[location.regionName]
-	local index = location.groupIndex
+	local virtualScreen = M.screens[location.screenName]
+	local index = location.workspaceIndex
 
-	for _ = 1, #region.groups do
-		index = ((index - 1 + delta) % #region.groups) + 1
+	for _ = 1, #virtualScreen.workspaces do
+		index = ((index - 1 + delta) % #virtualScreen.workspaces) + 1
 
-		if liveMemberCount(region.groups[index]) > 0 then
-			if index == location.groupIndex then
+		if liveMemberCount(virtualScreen.workspaces[index]) > 0 then
+			if index == location.workspaceIndex then
 				return false
 			end
 
-			M.activateGroup(location.regionName, index)
+			M.activateWorkspace(location.screenName, index)
 			return true
 		end
 	end
@@ -856,22 +988,22 @@ function M.cycleGroup(delta)
 	return false
 end
 
-function M.focusPreviousGroup()
-	M.cycleGroup(-1)
+function M.focusPreviousWorkspace()
+	M.cycleWorkspace(-1)
 end
 
-function M.focusNextGroup()
-	M.cycleGroup(1)
+function M.focusNextWorkspace()
+	M.cycleWorkspace(1)
 end
 
 function M.focusNorth()
-	if not M.cycleGroup(-1) then
+	if not M.cycleWorkspace(-1) then
 		hs.window.filter.focusNorth()
 	end
 end
 
 function M.focusSouth()
-	if not M.cycleGroup(1) then
+	if not M.cycleWorkspace(1) then
 		hs.window.filter.focusSouth()
 	end
 end
@@ -883,14 +1015,14 @@ function M.focusMember(memberIndex)
 		return false
 	end
 
-	local group = M.regions[location.regionName].groups[location.groupIndex]
-	local member = group.members[memberIndex]
+	local workspace = M.screens[location.screenName].workspaces[location.workspaceIndex]
+	local member = workspace.members[memberIndex]
 
 	if not member or not member.window then
 		return false
 	end
 
-	group.focusedMember = memberIndex
+	workspace.focusedMember = memberIndex
 	member.window:focus()
 	M.render()
 	return true
@@ -904,11 +1036,11 @@ function M.focusNextMember()
 	M.focusMember(2)
 end
 
-function M.focusRegionInDirection(regionName, delta)
+function M.focusScreenInDirection(screenName, delta)
 	local current = nil
 
-	for index, name in ipairs(M.regionOrder) do
-		if name == regionName then
+	for index, name in ipairs(M.screenOrder) do
+		if name == screenName then
 			current = index
 			break
 		end
@@ -920,18 +1052,18 @@ function M.focusRegionInDirection(regionName, delta)
 
 	local index = current + delta
 
-	while M.regionOrder[index] do
-		local targetName = M.regionOrder[index]
-		local target = M.regions[targetName]
-		local active = target.groups[target.activeGroup]
+	while M.screenOrder[index] do
+		local targetName = M.screenOrder[index]
+		local target = M.screens[targetName]
+		local active = target.workspaces[target.activeWorkspace]
 
 		if active and liveMemberCount(active) > 0 then
-			return M.activateGroup(targetName, target.activeGroup)
+			return M.activateWorkspace(targetName, target.activeWorkspace)
 		end
 
-		for groupIndex, group in ipairs(target.groups) do
-			if liveMemberCount(group) > 0 then
-				return M.activateGroup(targetName, groupIndex)
+		for workspaceIndex, workspace in ipairs(target.workspaces) do
+			if liveMemberCount(workspace) > 0 then
+				return M.activateWorkspace(targetName, workspaceIndex)
 			end
 		end
 
@@ -954,7 +1086,7 @@ function M.focusWest()
 		return
 	end
 
-	if not M.focusRegionInDirection(location.regionName, -1) then
+	if not M.focusScreenInDirection(location.screenName, -1) then
 		hs.window.filter.focusWest()
 	end
 end
@@ -972,7 +1104,7 @@ function M.focusEast()
 		return
 	end
 
-	if not M.focusRegionInDirection(location.regionName, 1) then
+	if not M.focusScreenInDirection(location.screenName, 1) then
 		hs.window.filter.focusEast()
 	end
 end
@@ -986,17 +1118,17 @@ function M.resizeFocusedMember(direction)
 		return
 	end
 
-	local region = M.regions[location.regionName]
-	local group = region.groups[location.groupIndex]
+	local virtualScreen = M.screens[location.screenName]
+	local workspace = virtualScreen.workspaces[location.workspaceIndex]
 
-	if #group.members ~= 2 or not group.members[1].window or not group.members[2].window then
+	if #workspace.members ~= 2 or not workspace.members[1].window or not workspace.members[2].window then
 		return
 	end
 
 	local amount = M.options.resizeStep or 80
 	local change = location.memberIndex == 1 and direction * amount or -direction * amount
-	group.leftWidth = round(group.leftWidth or region.frame.w / 2) + change
-	M.layoutGroup(location.regionName, group)
+	workspace.leftWidth = round(workspace.leftWidth or virtualScreen.frame.w / 2) + change
+	M.layoutWorkspace(location.screenName, workspace)
 	M.render()
 end
 
@@ -1008,19 +1140,27 @@ function M.shrinkFocusedMember()
 	M.resizeFocusedMember(-1)
 end
 
-function M.resetGroupSplit()
+function M.resetWorkspaceSplit()
 	local location = M.getWindowLocation(hs.window.focusedWindow())
 
 	if not location then
 		return
 	end
 
-	local region = M.regions[location.regionName]
-	local group = region.groups[location.groupIndex]
+	local virtualScreen = M.screens[location.screenName]
+	local workspace = virtualScreen.workspaces[location.workspaceIndex]
 
-	if #group.members == 2 then
-		group.leftWidth = round(region.frame.w / 2)
-		M.layoutGroup(location.regionName, group)
+	if #workspace.members == 2 then
+		workspace.leftWidth = round(virtualScreen.frame.w / 2)
+		M.layoutWorkspace(location.screenName, workspace)
+	end
+end
+
+-- Named handlers keep declarative hotkey configuration simple.
+for index = 1, 9 do
+	local workspaceIndex = index
+	M["focusWorkspace" .. workspaceIndex] = function()
+		M.focusWorkspace(workspaceIndex)
 	end
 end
 
