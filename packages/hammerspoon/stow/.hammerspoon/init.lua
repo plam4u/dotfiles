@@ -13,6 +13,11 @@ require("modules.wm").setup({
 		},
 	},
 	layout = {
+		config = {
+			gridSize = "8x8",
+			margins = "0,0",
+			animationDuration = 0,
+		},
 		mapping = {
 			-- Move window
 			pushWindowUp = { meh, "k" },
@@ -24,31 +29,17 @@ require("modules.wm").setup({
 			resizeWindowWider = { hyper, "l" },
 			resizeWindowShorter = { hyper, "k" },
 			resizeWindowTaller = { hyper, "j" },
-			-- Left / center / right
+			-- Predefined window sizes
 			leftQHDWindow = { meh, "u" },
 			centeredQHDWindow = { meh, "i" },
 			rightQHDWindow = { meh, "o" },
-			-- Grid size
-			setGrid2 = { meh, "2" },
-			setGrid3 = { meh, "3" },
-			setGrid4 = { meh, "4" },
-			setGrid6 = { meh, "6" },
-			setGrid7 = { meh, "7" },
-			setGrid8 = { meh, "8" },
-			setGrid9 = { meh, "9" },
-			setGrid10 = { meh, "0" },
-			-- Wide layouts
-			wideCenteredWindowPadded = { meh, "5" },
-			wideCenteredWindowFullHeight = { hyper, "5" },
-			-- Positioning
-			tileCenterWindow = { meh, "6" },
+			tileCenterWindow = { meh, "p" },
+			maximizeWindow = { meh, "space" },
+			minimizeWindow = { meh, "." },
+			-- Position
 			moveWindowToNextScreen = { meh, "/" },
 			snapWindow = { meh, "," },
 			centerWindow = { meh, "t" },
-			-- Maximize
-			maximizeWindow = { meh, "space" },
-			-- Small window
-			minimizeWindow = { meh, "." },
 		},
 	},
 	navigation = {

@@ -4,9 +4,9 @@ function M.setup(config)
 	M.config = config or {}
 	M.logger = hs.logger.new("grid", "debug")
 
-	hs.grid.setGrid("8x8")
-	hs.grid.setMargins("0,0")
-	hs.window.animationDuration = 0
+	hs.grid.setGrid(M.config.config.gridSize or "8x8")
+	hs.grid.setMargins(M.config.config.margins or "0,0")
+	hs.window.animationDuration = M.config.config.animationDuration or 0
 
 	M.bindHotkeys(M.config.mapping or {})
 end
@@ -173,38 +173,6 @@ end
 function M.setGrid(size)
 	hs.grid.setGrid(size)
 	hs.alert.show("Grid set to " .. size)
-end
-
-function M.setGrid2()
-	M.setGrid("2x2")
-end
-
-function M.setGrid3()
-	M.setGrid("3x3")
-end
-
-function M.setGrid4()
-	M.setGrid("4x4")
-end
-
-function M.setGrid6()
-	M.setGrid("6x6")
-end
-
-function M.setGrid7()
-	M.setGrid("7x7")
-end
-
-function M.setGrid8()
-	M.setGrid("8x8")
-end
-
-function M.setGrid9()
-	M.setGrid("9x9")
-end
-
-function M.setGrid10()
-	M.setGrid("10x10")
 end
 
 function M.moveWindowToNextScreen()
