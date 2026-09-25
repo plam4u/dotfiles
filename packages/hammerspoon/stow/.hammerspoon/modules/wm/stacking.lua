@@ -1325,11 +1325,14 @@ function M.windowFocused(window)
 		return
 	end
 
+	local previousScreenName = M.currentScreenName
 	local virtualScreen = M.screens[location.screenName]
 	local workspace = virtualScreen.workspaces[location.workspaceIndex]
 	workspace.focusedMember = location.memberIndex
 	M.activateWorkspace(location.screenName, location.workspaceIndex, false)
-	M.flashWorkspaceIndicator(location.screenName, location.workspaceIndex)
+	if previousScreenName and previousScreenName ~= location.screenName then
+		M.flashWorkspaceIndicator(location.screenName, location.workspaceIndex)
+	end
 end
 
 function M.startWindowWatcher()
