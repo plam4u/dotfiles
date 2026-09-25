@@ -1,6 +1,7 @@
 local M = {
 	canvases = {},
 	iconCache = {},
+	hitRegions = {},
 }
 
 local validDisplayModes = {
@@ -159,6 +160,54 @@ function M.clear()
 	end
 
 	M.canvases = {}
+	M.hitRegions = {}
+end
+
+local function pointInFrame(point, frame)
+	return point
+		and point.x >= frame.x
+		and point.x < frame.x + frame.w
+		and point.y >= frame.y
+		and point.y < frame.y + frame.h
+end
+
+function M.hitTest(point)
+	for _, region in pairs(M.hitRegions) do
+		if pointInFrame(point, region.frame) then
+			local localY = point.y - region.frame.y
+			for _, row in ipairs(region.rows) do
+				if localY >= row.y and localY < row.y + row.h then
+					return row.screenName, row.workspaceIndex, true
+				end
+			end
+			return region.screenName, nil, true
+		end
+	end
+
+	return nil, nil, false
+end
+
+function M.containsPoint(point)
+	local _, _, inside = M.hitTest(point)
+	return inside
+end
+
+local function configureInteraction(key, canvas, frame, rows, callbacks, screenName)
+	M.hitRegions[key] = {
+		frame = frame,
+		rows = rows,
+		screenName = screenName,
+	}
+
+	canvas:canvasMouseEvents(true, true, false, false)
+	canvas:mouseCallback(function(_, message)
+		if message ~= "mouseUp" or not callbacks or not callbacks.onWorkspaceClick then return end
+
+		local targetScreen, workspaceIndex = M.hitTest(hs.mouse.absolutePosition())
+		if targetScreen and workspaceIndex then
+			callbacks.onWorkspaceClick(targetScreen, workspaceIndex)
+		end
+	end)
 end
 
 local function visibleWorkspaces(group, showUnavailableWorkspaces)
@@ -236,7 +285,7 @@ local function appendWorkspace(canvas, group, entry, y, options, expandedWorkspa
 	end
 end
 
-function M.render(screens, screenOrder, options, expandedWorkspace, collapsed, showUnavailableWorkspaces)
+function M.render(screens, screenOrder, options, expandedWorkspace, collapsed, showUnavailableWorkspaces, callbacks)
 	M.clear()
 
 	local lineWidth = options.lineWidth or 3
@@ -273,12 +322,13 @@ function M.render(screens, screenOrder, options, expandedWorkspace, collapsed, s
 				previousGroup = item.group.id
 			end
 
-			local canvas = hs.canvas.new({
+			local frame = {
 				x = first.frame.x + leftInset,
 				y = first.frame.y + topInset,
 				w = isExpanded and expandedWidth or lineWidth,
 				h = height,
-			})
+			}
+			local canvas = hs.canvas.new(frame)
 
 			if isExpanded then
 				canvas:appendElements({
@@ -291,17 +341,25 @@ function M.render(screens, screenOrder, options, expandedWorkspace, collapsed, s
 			end
 
 			local y = 0
+			local rows = {}
 			previousGroup = nil
 			for _, item in ipairs(entries) do
 				if previousGroup and previousGroup ~= item.group.id then
 					y = y + groupGap
 				end
 				appendWorkspace(canvas, item.group, item.entry, y, options, expandedWorkspace, expandedWidth)
+				table.insert(rows, {
+					y = y,
+					h = lineHeight,
+					screenName = item.group.id,
+					workspaceIndex = item.entry.index,
+				})
 				y = y + lineHeight + spacing
 				previousGroup = item.group.id
 			end
 
 			canvas:clickActivating(false)
+			configureInteraction("collapsed", canvas, frame, rows, callbacks)
 			canvas:show()
 			M.canvases.collapsed = canvas
 		end
@@ -335,6 +393,7 @@ function M.render(screens, screenOrder, options, expandedWorkspace, collapsed, s
 				})
 			end
 
+			local rows = {}
 			for visibleIndex, entry in ipairs(visible) do
 				local y = (visibleIndex - 1) * (lineHeight + spacing)
 				appendWorkspace(
@@ -346,9 +405,16 @@ function M.render(screens, screenOrder, options, expandedWorkspace, collapsed, s
 					isExpandedScreen and expandedWorkspace or nil,
 					expandedWidth
 				)
+				table.insert(rows, {
+					y = y,
+					h = lineHeight,
+					screenName = screenName,
+					workspaceIndex = entry.index,
+				})
 			end
 
 			canvas:clickActivating(false)
+			configureInteraction(screenName, canvas, frame, rows, callbacks, screenName)
 			canvas:show()
 			M.canvases[screenName] = canvas
 		end

@@ -47,6 +47,8 @@ hyper + [/] | Shrink/grow the current ultrawide group
 hyper + M | Pause/resume all WM hotkeys and layout changes
 option + M | Show SketchyBar and enter keyboard navigation
 option + mouse wheel | Cycle live workspaces in the virtual-screen group under the pointer
+mouse wheel over Stackline | Cycle workspaces without holding a modifier
+click a Stackline row | Activate that workspace
 
 `meh + T` centers a floating window inside the virtual-screen group containing
 that window rather than across the full physical display.
@@ -88,10 +90,15 @@ left member in the slot's top-left and the right member in its bottom-right.
 Mouse movement expands Stackline only when the pointer crosses into a different
 virtual-screen group. Its independent `mouseWorkspaceDisplayMode` defaults to
 `icon`; keyboard-triggered expansion continues to use `workspaceDisplayMode`.
+Moving onto Stackline also expands it and keeps it open until the pointer leaves.
+Rows can be clicked to activate their workspace, and scrolling over Stackline
+cycles workspaces without requiring the option modifier.
 Missing application artwork uses macOS's generic application icon.
 Mouse and keyboard expansions share `indicatorDuration`; the most recent trigger
 restarts that timeout. Keyboard presentation takes precedence while both are
 active, and the UI collapses completely when the shared timeout expires.
+An unavailable workspace explicitly activated by number, Stackline, or SketchyBar
+remains part of keyboard workspace navigation for the rest of the session.
 
 The WM starts JankyBorders' `borders` process during setup if it is not already
 running, and checks it again whenever the WM is resumed with `hyper + M`.
@@ -101,6 +108,8 @@ hotkey is pressed. Hammerspoon restores that snapshot once during startup or
 reload; the load hotkey can reapply it later. Workspaces are restored by application
 bundle ID. Window minimum widths are learned when an application refuses a
 requested width and are included in the next manual save.
+The version 4 document stores `screens` and `layouts` directly at the top level;
+older `groups.screens`, profile, and region formats are migrated automatically.
 
 When a second window joins a group, its current width is preserved when the
 region and both applications' minimum widths allow it. Use `hyper + ;` to opt

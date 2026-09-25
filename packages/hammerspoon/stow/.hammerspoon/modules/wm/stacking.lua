@@ -127,6 +127,10 @@ local function liveMemberCount(workspace)
 	return count
 end
 
+local function isWorkspaceNavigable(workspace)
+	return workspace and (liveMemberCount(workspace) > 0 or workspace.explicitlyActivated == true)
+end
+
 local function hasLiveAuthoritativeMember(workspace)
 	local authoritative = workspace and workspace.members and workspace.members[1]
 	return authoritative and authoritative.window ~= nil
@@ -178,21 +182,31 @@ local function physicalScreen()
 	return widest or primary
 end
 
-local function emptyProfileState()
-	local state = { screens = {} }
-
+local function emptyScreens()
+	local screens = {}
 	for _, screenName in ipairs(M.screenOrder) do
-		state.screens[screenName] = { activeWorkspace = 1, workspaces = {} }
+		screens[screenName] = { activeWorkspace = 1, workspaces = {} }
 	end
-
-	return state
+	return screens
 end
 
 local function normalizeDocument(state)
+	if type(state.screens) == "table" then
+		return {
+			version = 4,
+			screens = state.screens,
+			layouts = type(state.layouts) == "table" and state.layouts or {},
+		}, state.version ~= 4
+	end
+
 	if type(state.groups) == "table" then
-		state.version = 3
-		state.layouts = type(state.layouts) == "table" and state.layouts or {}
-		return state
+		-- Version 3 wrapped the actual screen map in groups.screens even though
+		-- groups never contained any other data. Flatten it during migration.
+		return {
+			version = 4,
+			screens = type(state.groups.screens) == "table" and state.groups.screens or state.groups,
+			layouts = type(state.layouts) == "table" and state.layouts or {},
+		}, true
 	end
 
 	if type(state.profiles) == "table" then
@@ -204,23 +218,23 @@ local function normalizeDocument(state)
 			source.screens.center = source.screens.main
 		end
 		return {
-			version = 3,
-			groups = source or { screens = {} },
+			version = 4,
+			screens = source and source.screens or {},
 			layouts = {},
-		}
+		}, true
 	end
 
 	-- Version 1 stored the ultrawide regions directly. Keep that snapshot
 	-- intact and migrate it into the ultrawide virtual-screen profile.
 	if type(state.regions) == "table" then
 		return {
-			version = 3,
-			groups = { screens = state.regions },
+			version = 4,
+			screens = state.regions,
 			layouts = {},
-		}
+		}, true
 	end
 
-	return { version = 3, groups = { screens = {} }, layouts = {} }
+	return { version = 4, screens = {}, layouts = {} }, true
 end
 
 -- Setup ----------------------------------------------------------------------
@@ -249,7 +263,7 @@ function M.setup(config)
 	M.collapsed = resolved.collapsed
 	M.layouts[M.profileName] = { order = resolved.order, weights = resolved.weights }
 
-	M.applyState(emptyProfileState())
+	M.applyScreens(emptyScreens())
 	M.enabled = true
 	M.startWindowWatcher()
 	M.startScreenWatcher()
@@ -372,11 +386,10 @@ end
 
 -- Persisted model ------------------------------------------------------------
 
-function M.applyState(state)
-	state.screens = type(state.screens) == "table" and state.screens or {}
-
+function M.applyScreens(savedScreens)
+	savedScreens = type(savedScreens) == "table" and savedScreens or {}
 	for _, screenName in ipairs(M.screenOrder) do
-		local savedScreen = state.screens[screenName]
+		local savedScreen = savedScreens[screenName]
 
 		if type(savedScreen) ~= "table" then
 			savedScreen = { activeWorkspace = 1, workspaces = {} }
@@ -417,12 +430,11 @@ function M.applyState(state)
 	end
 end
 
-function M.serializableState()
-	local state = emptyProfileState()
-
+function M.serializableScreens()
+	local screens = emptyScreens()
 	for _, screenName in ipairs(M.screenOrder) do
 		local virtualScreen = M.screens[screenName]
-		local savedScreen = state.screens[screenName]
+		local savedScreen = screens[screenName]
 		savedScreen.activeWorkspace = virtualScreen.activeWorkspace
 
 		for _, workspace in ipairs(virtualScreen.workspaces) do
@@ -447,21 +459,21 @@ function M.serializableState()
 		end
 	end
 
-	return state
+	return screens
 end
 
 function M.saveState()
-	local document = M.savedDocument or { version = 3, groups = {}, layouts = {} }
-	document.version = 3
-	document.groups = M.serializableState()
-	document.layouts = M.layouts
+	local document = {
+		version = 4,
+		screens = M.serializableScreens(),
+		layouts = M.layouts,
+	}
 
 	if not store.save(M.stateFile, document) then
 		M.logger.e("Unable to save stack state to " .. M.stateFile)
 		return false
 	end
 
-	M.savedDocument = document
 	return true
 end
 
@@ -500,14 +512,17 @@ function M.loadStacks(showAlert)
 		return
 	end
 
-	local document = normalizeDocument(state)
-	M.savedDocument = document
+	local document, migrated = normalizeDocument(state)
 	M.layouts = document.layouts or {}
-	M.applyState(document.groups or emptyProfileState())
+	M.applyScreens(document.screens or emptyScreens())
 	M.applyResolvedLayout()
 	M.loadedFromDisk = true
 	M.restoreWindows()
 	M.render()
+
+	if migrated and not store.save(M.stateFile, document) then
+		M.logger.w("Loaded legacy stack state but could not migrate " .. M.stateFile)
+	end
 
 	if showAlert ~= false then
 		hs.alert.show("Window stacks loaded")
@@ -623,7 +638,16 @@ function M.render()
 			M.options.ui or {},
 			expanded,
 			M.collapsed,
-			M.showUnavailableWorkspaces
+			M.showUnavailableWorkspaces,
+			{
+				onWorkspaceClick = function(screenName, workspaceIndex)
+					hotkeys.runBeforeHandlers()
+					M.noteMouseInteraction()
+					if M.activateWorkspaceExplicitly(screenName, workspaceIndex, true, false) then
+						M.flashWorkspaceIndicator(screenName, workspaceIndex)
+					end
+				end,
+			}
 		)
 	else
 		ui.clear()
@@ -709,12 +733,29 @@ function M.scheduleIndicatorCollapse()
 
 	M.indicatorTimer = hs.timer.doAfter(M.options.indicatorDuration or 1.5, function()
 		if M.indicatorVersion == version then
+			M.stacklineHovered = ui.containsPoint(hs.mouse.absolutePosition())
+			if M.stacklineHovered then
+				M.scheduleIndicatorCollapse()
+				return
+			end
 			M.expandedIndicator = nil
 			M.mouseExpandedIndicator = nil
 			M.indicatorTimer = nil
 			M.render()
 		end
 	end)
+end
+
+function M.activateWorkspaceExplicitly(screenName, workspaceIndex, shouldFocus, shouldMoveMouse)
+	local virtualScreen = M.screens[screenName]
+	local workspace = virtualScreen and virtualScreen.workspaces[workspaceIndex]
+	if not workspace then return false end
+
+	if liveMemberCount(workspace) == 0 then
+		workspace.explicitlyActivated = true
+	end
+
+	return M.activateWorkspace(screenName, workspaceIndex, shouldFocus, shouldMoveMouse)
 end
 
 function M.flashWorkspaceIndicator(screenName, workspaceIndex)
@@ -1010,7 +1051,11 @@ function M.raiseActiveWorkspaces()
 	if M.collapsed then
 		local screenName = M.currentScreenName or M.screenOrder[1]
 		local virtualScreen = M.screens[screenName]
-		local active, activeIndex = virtualScreen and availableWorkspace(virtualScreen, virtualScreen.activeWorkspace)
+		local active = virtualScreen and virtualScreen.workspaces[virtualScreen.activeWorkspace]
+		local activeIndex = virtualScreen and virtualScreen.activeWorkspace
+		if not isWorkspaceNavigable(active) then
+			active, activeIndex = virtualScreen and availableWorkspace(virtualScreen, virtualScreen.activeWorkspace)
+		end
 
 		if not active then
 			for _, candidateName in ipairs(M.screenOrder) do
@@ -1043,7 +1088,7 @@ function M.raiseActiveWorkspaces()
 		local virtualScreen = M.screens[screenName]
 		local active = virtualScreen.workspaces[virtualScreen.activeWorkspace]
 
-		if not hasLiveAuthoritativeMember(active) then
+		if not isWorkspaceNavigable(active) then
 			local available, availableIndex = availableWorkspace(virtualScreen, virtualScreen.activeWorkspace)
 			if available then
 				active = available
@@ -1277,9 +1322,13 @@ function M.startWorkspaceScrollWatcher()
 		if not M.enabled or M.suspended then return false end
 
 		local flags = event:getFlags()
-		if not flags.alt or flags.cmd or flags.ctrl or flags.shift then return false end
+		local point = hs.mouse.absolutePosition()
+		local stacklineScreen, _, overStackline = ui.hitTest(point)
+		local altOnly = flags.alt and not flags.cmd and not flags.ctrl and not flags.shift
+		local unmodified = not flags.alt and not flags.cmd and not flags.ctrl and not flags.shift
+		if not altOnly and not (unmodified and overStackline) then return false end
 
-		local screenName = M.screenNameAtPoint(hs.mouse.absolutePosition())
+		local screenName = stacklineScreen or M.screenNameAtPoint(point)
 		if not screenName then return false end
 
 		local delta = event:getProperty(properties.scrollWheelEventDeltaAxis1) or 0
@@ -1314,18 +1363,51 @@ function M.startWorkspaceHoverWatcher()
 	M.workspaceHoverWatcher = hs.eventtap.new({ hs.eventtap.event.types.mouseMoved }, function()
 		if not M.enabled or M.suspended then return false end
 
-		local screenName = M.screenNameAtPoint(hs.mouse.absolutePosition())
-		if screenName == M.hoveredScreenName then return false end
+		local point = hs.mouse.absolutePosition()
+		local stacklineScreen, stacklineWorkspace, overStackline = ui.hitTest(point)
+		local screenName = stacklineScreen or M.screenNameAtPoint(point)
+		local wasOverStackline = M.stacklineHovered
+		M.stacklineHovered = overStackline
 
-		M.hoveredScreenName = screenName
-		local group = screenName and M.screens[screenName]
-		M.mouseExpandedIndicator = group and {
-			screenName = screenName,
-			workspaceIndex = group.activeWorkspace,
-			source = "mouse",
-		} or nil
-		if M.mouseExpandedIndicator then M.scheduleIndicatorCollapse() end
-		M.render()
+		if screenName ~= M.hoveredScreenName then
+			M.hoveredScreenName = screenName
+			M.expandedIndicator = nil
+			local group = screenName and M.screens[screenName]
+			M.mouseExpandedIndicator = group and {
+				screenName = screenName,
+				workspaceIndex = (stacklineScreen == screenName and stacklineWorkspace) or group.activeWorkspace,
+				source = "mouse",
+			} or nil
+
+			if M.mouseExpandedIndicator then
+				M.scheduleIndicatorCollapse()
+			else
+				M.indicatorVersion = (M.indicatorVersion or 0) + 1
+				if M.indicatorTimer then M.indicatorTimer:stop() end
+				M.indicatorTimer = nil
+			end
+
+			M.render()
+			return false
+		end
+
+		if overStackline and not wasOverStackline then
+			local group = stacklineScreen and M.screens[stacklineScreen]
+			M.mouseExpandedIndicator = group and {
+				screenName = stacklineScreen,
+				workspaceIndex = stacklineWorkspace or group.activeWorkspace,
+				source = "mouse",
+			} or nil
+			if M.mouseExpandedIndicator then M.scheduleIndicatorCollapse() end
+			M.render()
+			return false
+		end
+
+		if wasOverStackline and not overStackline and M.mouseExpandedIndicator then
+			M.mouseExpandedIndicator = nil
+			M.render()
+		end
+
 		return false
 	end)
 	M.workspaceHoverWatcher:start()
@@ -1768,7 +1850,7 @@ function M.focusWorkspace(workspaceIndex)
 	local workspace = M.ensureWorkspace(screenName, workspaceIndex)
 	workspace.keepEmpty = true
 	M.rebuildWindowIndex()
-	M.activateWorkspace(screenName, workspaceIndex)
+	M.activateWorkspaceExplicitly(screenName, workspaceIndex)
 	M.flashWorkspaceIndicator(screenName, workspaceIndex)
 	return true
 end
@@ -1786,7 +1868,7 @@ function M.cycleWorkspace(delta, shouldMoveMouse)
 
 	for _, groupID in ipairs(groups) do
 		for index, workspace in ipairs(M.screens[groupID].workspaces) do
-			if liveMemberCount(workspace) > 0 then
+			if isWorkspaceNavigable(workspace) then
 				table.insert(locations, { screenName = groupID, workspaceIndex = index })
 			end
 		end
@@ -1816,7 +1898,7 @@ function M.cycleWorkspaceInGroup(screenName, delta, shouldMoveMouse)
 
 	local workspaceIndices = {}
 	for index, workspace in ipairs(virtualScreen.workspaces) do
-		if liveMemberCount(workspace) > 0 then table.insert(workspaceIndices, index) end
+		if isWorkspaceNavigable(workspace) then table.insert(workspaceIndices, index) end
 	end
 	if #workspaceIndices < 2 then return false end
 
@@ -1911,12 +1993,12 @@ function M.focusScreenInDirection(screenName, delta)
 		local target = M.screens[targetName]
 		local active = target.workspaces[target.activeWorkspace]
 
-		if active and liveMemberCount(active) > 0 then
+		if isWorkspaceNavigable(active) then
 			return M.activateWorkspace(targetName, target.activeWorkspace)
 		end
 
 		for workspaceIndex, workspace in ipairs(target.workspaces) do
-			if liveMemberCount(workspace) > 0 then
+			if isWorkspaceNavigable(workspace) then
 				return M.activateWorkspace(targetName, workspaceIndex)
 			end
 		end
