@@ -214,7 +214,16 @@ function M.centerWindow()
 		return
 	end
 
-	win:centerOnScreen()
+	local target = stacking.virtualScreenFrameForWindow(win)
+	if not target then
+		win:centerOnScreen()
+		return
+	end
+
+	local frame = win:frame()
+	frame.x = target.x + (target.w - frame.w) / 2
+	frame.y = target.y + (target.h - frame.h) / 2
+	win:setFrame(frame)
 end
 
 function M.maximizeWindow()

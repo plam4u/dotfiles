@@ -535,6 +535,12 @@ function M.selectedScreenName()
 	return M.screenNameForWindow(hs.window.focusedWindow())
 end
 
+function M.virtualScreenFrameForWindow(window)
+	local screenName = M.screenNameForWindow(window)
+	local virtualScreen = screenName and M.screens[screenName]
+	return virtualScreen and copyFrame(virtualScreen.frame) or nil
+end
+
 function M.render()
 	if M.enabled and not M.suspended then
 		ui.render(M.screens, M.screenOrder, M.options.ui or {}, M.expandedIndicator, M.collapsed)
