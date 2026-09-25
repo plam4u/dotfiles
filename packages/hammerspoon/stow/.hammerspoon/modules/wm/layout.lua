@@ -39,6 +39,44 @@ function M.getWin()
 	return win
 end
 
+local function targetFrame(win)
+	return stacking.virtualScreenFrameForWindow(win) or win:screen():frame()
+end
+
+local function gridDimensions()
+	local layoutConfig = M.config.config or {}
+	local width, height = tostring(layoutConfig.gridSize or "8x8"):match("^(%d+)x(%d+)$")
+	return tonumber(width) or 8, tonumber(height) or 8
+end
+
+local function moveByGrid(dx, dy)
+	local win = M.getWin()
+	if not win then return end
+
+	local bounds = targetFrame(win)
+	local columns, rows = gridDimensions()
+	local current = win:frame()
+	current.w = math.min(current.w, bounds.w)
+	current.h = math.min(current.h, bounds.h)
+	current.x = math.max(bounds.x, math.min(bounds.x + bounds.w - current.w, current.x + dx * bounds.w / columns))
+	current.y = math.max(bounds.y, math.min(bounds.y + bounds.h - current.h, current.y + dy * bounds.h / rows))
+	win:setFrame(current)
+end
+
+local function resizeByGrid(dx, dy)
+	local win = M.getWin()
+	if not win then return end
+
+	local bounds = targetFrame(win)
+	local columns, rows = gridDimensions()
+	local current = win:frame()
+	current.x = math.max(bounds.x, math.min(bounds.x + bounds.w, current.x))
+	current.y = math.max(bounds.y, math.min(bounds.y + bounds.h, current.y))
+	current.w = math.max(bounds.w / columns, math.min(bounds.x + bounds.w - current.x, current.w + dx * bounds.w / columns))
+	current.h = math.max(bounds.h / rows, math.min(bounds.y + bounds.h - current.y, current.h + dy * bounds.h / rows))
+	win:setFrame(current)
+end
+
 function M.centeredQHDWindow()
 	local win = M.getWin()
 
@@ -47,15 +85,14 @@ function M.centeredQHDWindow()
 	end
 
 	local f = win:frame()
-	local screen = win:screen()
-	local max = screen:frame()
+	local max = targetFrame(win)
 	local targetW = 2560
 	local targetH = 1440
 
-	f.x = (max.w - targetW) / 2
-	f.y = (max.h - targetH) / 2
-	f.w = targetW
-	f.h = targetH
+	f.w = math.min(targetW, max.w)
+	f.h = math.min(targetH, max.h)
+	f.x = max.x + (max.w - f.w) / 2
+	f.y = max.y + (max.h - f.h) / 2
 
 	win:setFrame(f)
 end
@@ -68,20 +105,19 @@ function M.sideQHDWindow(side)
 	end
 
 	local f = win:frame()
-	local screen = win:screen()
-	local max = screen:frame()
+	local max = targetFrame(win)
 	local targetW = 1280
 	local targetH = 1440
 
 	if side == "left" then
-		f.x = 0
+		f.x = max.x
 	elseif side == "right" then
-		f.x = max.w - targetW
+		f.x = max.x + max.w - math.min(targetW, max.w)
 	end
 
-	f.y = (max.h - targetH) / 2
-	f.w = targetW
-	f.h = targetH
+	f.w = math.min(targetW, max.w)
+	f.h = math.min(targetH, max.h)
+	f.y = max.y + (max.h - f.h) / 2
 
 	win:setFrame(f)
 end
@@ -102,17 +138,16 @@ function M.wideCenteredWindow(isFullHeight)
 	end
 
 	local f = win:frame()
-	local screen = win:screen()
-	local max = screen:frame()
+	local max = targetFrame(win)
 
-	f.x = max.w / 6
+	f.x = max.x + max.w / 6
 	f.w = max.w - max.w / 3
 
 	if isFullHeight then
-		f.y = 0
+		f.y = max.y
 		f.h = max.h
 	else
-		f.y = max.h / 30
+		f.y = max.y + max.h / 30
 		f.h = max.h - max.h / 15
 	end
 
@@ -135,12 +170,11 @@ function M.tileWindow(posRatio, sizeRatio)
 	end
 
 	local f = win:frame()
-	local screen = win:screen()
-	local max = screen:frame()
+	local max = targetFrame(win)
 
-	f.x = posRatio * max.w
+	f.x = max.x + posRatio * max.w
 	f.w = sizeRatio * max.w
-	f.y = 0
+	f.y = max.y
 	f.h = max.h
 
 	win:setFrame(f)
@@ -151,35 +185,35 @@ function M.tileCenterWindow()
 end
 
 function M.pushWindowUp()
-	hs.grid.pushWindowUp()
+	moveByGrid(0, -1)
 end
 
 function M.pushWindowDown()
-	hs.grid.pushWindowDown()
+	moveByGrid(0, 1)
 end
 
 function M.pushWindowLeft()
-	hs.grid.pushWindowLeft()
+	moveByGrid(-1, 0)
 end
 
 function M.pushWindowRight()
-	hs.grid.pushWindowRight()
+	moveByGrid(1, 0)
 end
 
 function M.resizeWindowThinner()
-	hs.grid.resizeWindowThinner()
+	resizeByGrid(-1, 0)
 end
 
 function M.resizeWindowWider()
-	hs.grid.resizeWindowWider()
+	resizeByGrid(1, 0)
 end
 
 function M.resizeWindowShorter()
-	hs.grid.resizeWindowShorter()
+	resizeByGrid(0, -1)
 end
 
 function M.resizeWindowTaller()
-	hs.grid.resizeWindowTaller()
+	resizeByGrid(0, 1)
 end
 
 function M.setGrid(size)
@@ -204,7 +238,25 @@ function M.snapWindow()
 		return
 	end
 
-	hs.grid.snap(win)
+	local bounds = targetFrame(win)
+	local columns, rows = gridDimensions()
+	local columnWidth = bounds.w / columns
+	local rowHeight = bounds.h / rows
+	local frame = win:frame()
+	local left = math.floor((frame.x - bounds.x) / columnWidth + 0.5)
+	local top = math.floor((frame.y - bounds.y) / rowHeight + 0.5)
+	local right = math.floor((frame.x + frame.w - bounds.x) / columnWidth + 0.5)
+	local bottom = math.floor((frame.y + frame.h - bounds.y) / rowHeight + 0.5)
+	left = math.max(0, math.min(columns - 1, left))
+	top = math.max(0, math.min(rows - 1, top))
+	right = math.max(left + 1, math.min(columns, right))
+	bottom = math.max(top + 1, math.min(rows, bottom))
+	win:setFrame({
+		x = bounds.x + left * columnWidth,
+		y = bounds.y + top * rowHeight,
+		w = (right - left) * columnWidth,
+		h = (bottom - top) * rowHeight,
+	})
 end
 
 function M.centerWindow()
@@ -227,7 +279,9 @@ function M.centerWindow()
 end
 
 function M.maximizeWindow()
-	hs.grid.maximizeWindow()
+	local win = M.getWin()
+	if not win then return end
+	win:setFrame(targetFrame(win))
 end
 
 function M.minimizeWindow()

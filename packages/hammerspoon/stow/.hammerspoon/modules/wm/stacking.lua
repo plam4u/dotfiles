@@ -126,6 +126,57 @@ local function liveMemberCount(workspace)
 	return count
 end
 
+local function hasLiveAuthoritativeMember(workspace)
+	local authoritative = workspace and workspace.members and workspace.members[1]
+	return authoritative and authoritative.window ~= nil
+end
+
+local function availableWorkspace(virtualScreen, preferredIndex)
+	local preferred = virtualScreen and virtualScreen.workspaces[preferredIndex]
+	if hasLiveAuthoritativeMember(preferred) then
+		return preferred, preferredIndex
+	end
+
+	for index, workspace in ipairs(virtualScreen and virtualScreen.workspaces or {}) do
+		if hasLiveAuthoritativeMember(workspace) then
+			return workspace, index
+		end
+	end
+
+	return nil, nil
+end
+
+local function physicalScreen()
+	local screens = hs.screen.allScreens()
+	local primary = hs.screen.primaryScreen()
+	local configuredName = M.options and M.options.physicalScreenName
+	local configuredUUID = M.options and M.options.physicalScreenUUID
+	local configuredWidth = M.options and (M.options.ultrawideWidth or 5120) or 5120
+	local configuredHeight = M.options and (M.options.ultrawideHeight or 1440) or 1440
+	local minimumAspectRatio = M.options and (M.options.ultrawideMinAspectRatio or 2.3) or 2.3
+	local widest
+	local widestRatio = 0
+
+	for _, screen in ipairs(screens) do
+		local fullFrame = screen:fullFrame()
+		local ratio = fullFrame.w / math.max(1, fullFrame.h)
+
+		if (configuredUUID and screen:getUUID() == configuredUUID)
+			or (configuredName and screen:name() == configuredName)
+			or (fullFrame.w == configuredWidth and fullFrame.h == configuredHeight)
+		then
+			return screen
+		end
+
+		if ratio >= minimumAspectRatio and ratio > widestRatio then
+			widest = screen
+			widestRatio = ratio
+		end
+	end
+
+	return widest or primary
+end
+
 local function emptyProfileState()
 	local state = { screens = {} }
 
@@ -181,8 +232,8 @@ function M.setup(config)
 	M.savedStateExists = store.exists(M.stateFile)
 	M.loadedFromDisk = false
 
-	local physicalScreen = hs.screen.primaryScreen()
-	local physicalFrame = physicalScreen and physicalScreen:fullFrame()
+	local targetScreen = physicalScreen()
+	local physicalFrame = targetScreen and targetScreen:frame()
 
 	if not physicalFrame then
 		M.logger.e("Unable to resolve the primary screen")
@@ -228,8 +279,8 @@ function M.bindHotkeys(mapping)
 end
 
 function M.applyResolvedLayout()
-	local physicalScreen = hs.screen.primaryScreen()
-	local physicalFrame = physicalScreen and physicalScreen:fullFrame()
+	local targetScreen = physicalScreen()
+	local physicalFrame = targetScreen and targetScreen:frame()
 
 	if not physicalFrame then
 		return false
@@ -943,10 +994,29 @@ function M.raiseActiveWorkspaces()
 	if M.collapsed then
 		local screenName = M.currentScreenName or M.screenOrder[1]
 		local virtualScreen = M.screens[screenName]
-		local active = virtualScreen and virtualScreen.workspaces[virtualScreen.activeWorkspace]
+		local active, activeIndex = virtualScreen and availableWorkspace(virtualScreen, virtualScreen.activeWorkspace)
+
+		if not active then
+			for _, candidateName in ipairs(M.screenOrder) do
+				local candidateScreen = M.screens[candidateName]
+				local candidate, candidateIndex = availableWorkspace(candidateScreen, candidateScreen.activeWorkspace)
+				if candidate then
+					screenName = candidateName
+					virtualScreen = candidateScreen
+					active = candidate
+					activeIndex = candidateIndex
+					break
+				end
+			end
+		end
+
+		if active then
+			M.currentScreenName = screenName
+			virtualScreen.activeWorkspace = activeIndex
+		end
 
 		M.parkAllGroups()
-		if active and liveMemberCount(active) > 0 then
+		if active then
 			M.layoutWorkspace(screenName, active)
 			M.raiseWorkspace(active, false)
 		end
@@ -957,15 +1027,12 @@ function M.raiseActiveWorkspaces()
 		local virtualScreen = M.screens[screenName]
 		local active = virtualScreen.workspaces[virtualScreen.activeWorkspace]
 
-		if not active then
-			for workspaceIndex, workspace in ipairs(virtualScreen.workspaces) do
-				if liveMemberCount(workspace) > 0 then
-					virtualScreen.activeWorkspace = workspaceIndex
-					break
-				end
+		if not hasLiveAuthoritativeMember(active) then
+			local available, availableIndex = availableWorkspace(virtualScreen, virtualScreen.activeWorkspace)
+			if available then
+				active = available
+				virtualScreen.activeWorkspace = availableIndex
 			end
-
-			active = virtualScreen.workspaces[virtualScreen.activeWorkspace]
 		end
 
 		if active and liveMemberCount(active) > 0 then
@@ -1280,7 +1347,7 @@ function M.detachWindow(window)
 	return member
 end
 
-function M.addWindowToWorkspace(screenName, workspace, window)
+function M.addWindowToWorkspace(screenName, workspace, window, allowEmptyWorkspace)
 	local bundleID = getBundleID(window)
 
 	if not window or window:isFullScreen() or not bundleID then
@@ -1298,7 +1365,28 @@ function M.addWindowToWorkspace(screenName, workspace, window)
 		return true
 	end
 
-	if #workspace.members >= 2 then
+	if not hasLiveAuthoritativeMember(workspace) then
+		if not allowEmptyWorkspace or liveMemberCount(workspace) > 0 then
+			return false
+		end
+
+		-- An explicit move to a numbered workspace is allowed to reclaim a
+		-- fully unavailable placeholder. The new window becomes authoritative.
+		workspace.members = {}
+		workspace.leftWidth = nil
+		workspace.focusedMember = 1
+	end
+
+	-- A restored secondary member whose application is not running must not
+	-- reserve the second live slot forever. Adding a new window replaces that
+	-- unavailable membership; the authoritative first member remains stable.
+	for memberIndex = #workspace.members, 2, -1 do
+		if not workspace.members[memberIndex].window then
+			table.remove(workspace.members, memberIndex)
+		end
+	end
+
+	if liveMemberCount(workspace) >= 2 then
 		hs.alert.show("This workspace already has two windows")
 		return false
 	end
@@ -1324,7 +1412,7 @@ function M.addWindowToWorkspace(screenName, workspace, window)
 	return true
 end
 
-function M.moveWindowToScreen(screenName)
+function M.moveWindowToScreen(screenName, forceNewWorkspace)
 	screenName = M.resolveScreenName(screenName)
 
 	if not M.enabled or not screenName then
@@ -1341,8 +1429,8 @@ function M.moveWindowToScreen(screenName)
 	local virtualScreen = M.screens[screenName]
 	local active = virtualScreen.workspaces[virtualScreen.activeWorkspace]
 
-	if active and #active.members == 0 then
-		M.addWindowToWorkspace(screenName, active, window)
+	if not forceNewWorkspace and active and #active.members == 0 then
+		M.addWindowToWorkspace(screenName, active, window, true)
 		return
 	end
 
@@ -1376,17 +1464,20 @@ function M.addWindowToActiveWorkspace(screenName)
 
 	local window = hs.window.focusedWindow()
 	local virtualScreen = M.screens[screenName]
-	local target = virtualScreen.workspaces[virtualScreen.activeWorkspace]
+	local target, targetIndex = availableWorkspace(virtualScreen, virtualScreen.activeWorkspace)
 
 	if not window or window:isFullScreen() or not getBundleID(window) then
 		return
 	end
 
 	if not target then
-		M.moveWindowToScreen(screenName)
+		-- An unavailable restored workspace is not a valid add target. Make the
+		-- incoming window authoritative in a new, visible workspace instead.
+		M.moveWindowToScreen(screenName, true)
 		return
 	end
 
+	virtualScreen.activeWorkspace = targetIndex
 	M.addWindowToWorkspace(screenName, target, window)
 end
 
@@ -1470,7 +1561,7 @@ function M.moveFocusedWindowToWorkspace(workspaceIndex)
 
 	local workspace = M.ensureWorkspace(screenName, workspaceIndex)
 	workspace.keepEmpty = true
-	return M.addWindowToWorkspace(screenName, workspace, window)
+	return M.addWindowToWorkspace(screenName, workspace, window, true)
 end
 
 function M.deleteActiveWorkspace()
@@ -1500,7 +1591,12 @@ function M.deleteActiveWorkspace()
 	virtualScreen.activeWorkspace = clamp(workspaceIndex, 1, math.max(1, #virtualScreen.workspaces))
 	M.rebuildWindowIndex()
 
-	local nextWorkspace = virtualScreen.workspaces[virtualScreen.activeWorkspace]
+	local nextWorkspace, nextIndex = availableWorkspace(virtualScreen, virtualScreen.activeWorkspace)
+	if nextWorkspace then
+		virtualScreen.activeWorkspace = nextIndex
+	else
+		nextWorkspace = virtualScreen.workspaces[virtualScreen.activeWorkspace]
+	end
 
 	if nextWorkspace then
 		M.activateWorkspace(screenName, virtualScreen.activeWorkspace)

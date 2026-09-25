@@ -35,8 +35,11 @@ function M.resolve(physicalFrame, config, runtimeLayout)
 	runtimeLayout = runtimeLayout or {}
 	local ultrawideWidth = config.ultrawideWidth or 5120
 	local ultrawideHeight = config.ultrawideHeight or 1440
+	local ultrawideMinAspectRatio = config.ultrawideMinAspectRatio or 2.3
 	local order = copyArray(runtimeLayout.order or config.groupOrder or { "left", "center", "right" })
-	local isUltrawide = physicalFrame.w == ultrawideWidth and physicalFrame.h == ultrawideHeight
+	local aspectRatio = physicalFrame.w / math.max(1, physicalFrame.h)
+	local isUltrawide = (physicalFrame.w == ultrawideWidth and physicalFrame.h == ultrawideHeight)
+		or aspectRatio >= ultrawideMinAspectRatio
 	local screens = {}
 
 	if isUltrawide then

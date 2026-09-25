@@ -65,6 +65,9 @@ require("modules.wm").setup({
 		config = {
 			ultrawideWidth = 5120,
 			ultrawideHeight = 1440,
+			-- Accept scaled ultrawide modes and find the ultrawide even when it
+			-- is not configured as macOS's primary display.
+			ultrawideMinAspectRatio = 2.3,
 			groupOrder = { "left", "center", "right" },
 			groupLabels = {
 				left = "Left",
