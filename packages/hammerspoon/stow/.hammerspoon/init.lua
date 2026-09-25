@@ -86,12 +86,23 @@ require("modules.wm").setup({
 			indicatorDuration = 1,
 			ui = {
 				lineWidth = 3,
-				lineHeight = 24,
-				spacing = 5,
+				lineHeight = 48,
+				spacing = 6,
 				leftInset = 3,
 				topInset = 3,
-				expandedWidth = 240,
-				textSize = 16,
+				-- Keyboard-triggered expansion: "label", "icon_label", or "icon".
+				workspaceDisplayMode = "icon_label",
+				-- Mouse group-hover expansion has its own presentation mode.
+				mouseWorkspaceDisplayMode = "icon",
+				iconSize = 44,
+				iconMargin = 9,
+				iconLabelGap = 7,
+				iconOnlyWidth = 65,
+				-- Two-window icon slot: "both", "left", or "right".
+				stackIconMode = "both",
+				stackedIconSize = 33,
+				expandedWidth = 280,
+				textSize = 18,
 			},
 		},
 		mapping = {

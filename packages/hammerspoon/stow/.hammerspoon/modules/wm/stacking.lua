@@ -202,6 +202,7 @@ function M.setup(config)
 	M.startWindowWatcher()
 	M.startScreenWatcher()
 	M.startWorkspaceScrollWatcher()
+	M.startWorkspaceHoverWatcher()
 	M.bindHotkeys(M.config.mapping or {})
 	M.render()
 
@@ -263,6 +264,14 @@ function M.reconfigureDisplay()
 	if not M.applyResolvedLayout() then
 		return
 	end
+	M.indicatorVersion = (M.indicatorVersion or 0) + 1
+	if M.indicatorTimer then
+		M.indicatorTimer:stop()
+		M.indicatorTimer = nil
+	end
+	M.expandedIndicator = nil
+	M.hoveredScreenName = nil
+	M.mouseExpandedIndicator = nil
 
 	if not M.suspended then
 		M.layoutAllWorkspaces()
@@ -293,6 +302,14 @@ function M.setSuspended(suspended)
 	M.suspended = suspended == true
 
 	if M.suspended then
+		M.indicatorVersion = (M.indicatorVersion or 0) + 1
+		if M.indicatorTimer then
+			M.indicatorTimer:stop()
+			M.indicatorTimer = nil
+		end
+		M.expandedIndicator = nil
+		M.hoveredScreenName = nil
+		M.mouseExpandedIndicator = nil
 		ui.clear()
 	else
 		M.restoreWindows()
@@ -543,7 +560,12 @@ end
 
 function M.render()
 	if M.enabled and not M.suspended then
-		ui.render(M.screens, M.screenOrder, M.options.ui or {}, M.expandedIndicator, M.collapsed)
+		local expanded = M.expandedIndicator or M.mouseExpandedIndicator
+		if expanded and expanded.source == "mouse" then
+			local group = M.screens[expanded.screenName]
+			expanded.workspaceIndex = group and group.activeWorkspace or expanded.workspaceIndex
+		end
+		ui.render(M.screens, M.screenOrder, M.options.ui or {}, expanded, M.collapsed)
 	else
 		ui.clear()
 	end
@@ -613,18 +635,25 @@ function M.subscribe(callback)
 	callback(M.snapshot())
 end
 
-function M.flashWorkspaceIndicator(screenName, workspaceIndex)
+function M.scheduleIndicatorCollapse()
 	M.indicatorVersion = (M.indicatorVersion or 0) + 1
-	M.expandedIndicator = { screenName = screenName, workspaceIndex = workspaceIndex }
 	local version = M.indicatorVersion
-	M.render()
+	if M.indicatorTimer then M.indicatorTimer:stop() end
 
-	hs.timer.doAfter(M.options.indicatorDuration or 1.5, function()
+	M.indicatorTimer = hs.timer.doAfter(M.options.indicatorDuration or 1.5, function()
 		if M.indicatorVersion == version then
 			M.expandedIndicator = nil
+			M.mouseExpandedIndicator = nil
+			M.indicatorTimer = nil
 			M.render()
 		end
 	end)
+end
+
+function M.flashWorkspaceIndicator(screenName, workspaceIndex)
+	M.expandedIndicator = { screenName = screenName, workspaceIndex = workspaceIndex, source = "keyboard" }
+	M.scheduleIndicatorCollapse()
+	M.render()
 end
 
 function M.findWorkspace(screenName, wantedWorkspace)
@@ -1193,6 +1222,30 @@ function M.startWorkspaceScrollWatcher()
 		return true
 	end)
 	M.workspaceScrollWatcher:start()
+end
+
+function M.startWorkspaceHoverWatcher()
+	if M.workspaceHoverWatcher then M.workspaceHoverWatcher:stop() end
+
+	M.hoveredScreenName = nil
+	M.workspaceHoverWatcher = hs.eventtap.new({ hs.eventtap.event.types.mouseMoved }, function()
+		if not M.enabled or M.suspended then return false end
+
+		local screenName = M.screenNameAtPoint(hs.mouse.absolutePosition())
+		if screenName == M.hoveredScreenName then return false end
+
+		M.hoveredScreenName = screenName
+		local group = screenName and M.screens[screenName]
+		M.mouseExpandedIndicator = group and {
+			screenName = screenName,
+			workspaceIndex = group.activeWorkspace,
+			source = "mouse",
+		} or nil
+		if M.mouseExpandedIndicator then M.scheduleIndicatorCollapse() end
+		M.render()
+		return false
+	end)
+	M.workspaceHoverWatcher:start()
 end
 
 -- Workspace membership -------------------------------------------------------

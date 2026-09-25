@@ -75,6 +75,23 @@ Native-fullscreen windows are never moved, resized, parked, or raised by the
 WM. The rest of the manager remains active unless it is explicitly paused with
 `hyper + M`.
 
+Expanded Stackline rows support `label`, `icon_label`, and `icon` display modes
+through `stacking.config.ui.workspaceDisplayMode`. App icons are loaded from
+their bundle IDs and cached. `iconSize`, `iconMargin`, `iconLabelGap`, and
+`iconOnlyWidth` control their layout. Every row has one fixed-size icon slot;
+this keeps one- and two-app rows geometrically identical. `stackIconMode` can
+be `left` or `right` to show that member at full size, or `both` to show the
+left member in the slot's top-left and the right member in its bottom-right.
+`stackedIconSize` controls both smaller icon sizes and defaults to half of
+`iconSize` when omitted; values are clamped to the available icon slot.
+Mouse movement expands Stackline only when the pointer crosses into a different
+virtual-screen group. Its independent `mouseWorkspaceDisplayMode` defaults to
+`icon`; keyboard-triggered expansion continues to use `workspaceDisplayMode`.
+Missing application artwork uses macOS's generic application icon.
+Mouse and keyboard expansions share `indicatorDuration`; the most recent trigger
+restarts that timeout. Keyboard presentation takes precedence while both are
+active, and the UI collapses completely when the shared timeout expires.
+
 The WM starts JankyBorders' `borders` process during setup if it is not already
 running, and checks it again whenever the WM is resumed with `hyper + M`.
 

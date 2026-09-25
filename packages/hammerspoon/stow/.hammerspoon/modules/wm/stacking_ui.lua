@@ -1,5 +1,18 @@
 local M = {
 	canvases = {},
+	iconCache = {},
+}
+
+local validDisplayModes = {
+	icon = true,
+	icon_label = true,
+	label = true,
+}
+
+local validStackIconModes = {
+	both = true,
+	left = true,
+	right = true,
 }
 
 local function liveMemberCount(workspace)
@@ -33,6 +46,99 @@ local function workspaceName(workspace)
 	end
 
 	return table.concat(names, "  +  ")
+end
+
+local function displayMode(options, expandedWorkspace)
+	local mode = expandedWorkspace and expandedWorkspace.source == "mouse"
+		and (options.mouseWorkspaceDisplayMode or "icon")
+		or (options.workspaceDisplayMode or "label")
+	return validDisplayModes[mode] and mode or "label"
+end
+
+local function genericIcon()
+	if M.genericIcon == nil then
+		M.genericIcon = hs.image.imageFromPath(
+			"/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/GenericApplicationIcon.icns"
+		) or false
+	end
+	return M.genericIcon or nil
+end
+
+local function memberIcon(member)
+	local app = member.window and member.window:application()
+	local bundleID = (app and app:bundleID()) or member.bundleID
+	if not bundleID then return genericIcon() end
+
+	if M.iconCache[bundleID] == nil then
+		M.iconCache[bundleID] = hs.image.imageFromAppBundle(bundleID) or false
+	end
+
+	return M.iconCache[bundleID] or genericIcon()
+end
+
+local function expandedWidthFor(options, expandedWorkspace)
+	if displayMode(options, expandedWorkspace) ~= "icon" then return options.expandedWidth or 240 end
+
+	local lineWidth = options.lineWidth or 3
+	local iconSize = options.iconSize or 44
+	local iconMargin = options.iconMargin or 9
+	return options.iconOnlyWidth or lineWidth + iconMargin * 2 + iconSize
+end
+
+local function appendMemberIcon(canvas, member, x, y, size)
+	local icon = memberIcon(member)
+	if icon then
+		canvas:appendElements({
+			type = "image",
+			image = icon,
+			imageScaling = "scaleProportionally",
+			frame = { x = x, y = y, w = size, h = size },
+		})
+		return
+	end
+
+	canvas:appendElements({
+		type = "rectangle",
+		action = "fill",
+		frame = { x = x, y = y, w = size, h = size },
+		fillColor = { white = 0.28, alpha = 1 },
+		roundedRectRadii = { xRadius = 4, yRadius = 4 },
+	})
+	canvas:appendElements({
+		type = "text",
+		text = "?",
+		frame = { x = x, y = y + 1, w = size, h = size - 1 },
+		textAlignment = "center",
+		textColor = { white = 0.95, alpha = 1 },
+		textSize = math.max(9, size - 6),
+	})
+end
+
+local function appendWorkspaceIcons(canvas, members, x, y, size, options)
+	if #members == 0 then return end
+	if #members == 1 then
+		appendMemberIcon(canvas, members[1], x, y, size)
+		return
+	end
+
+	local mode = options.stackIconMode or "both"
+	if not validStackIconModes[mode] then mode = "both" end
+	if mode == "left" then
+		appendMemberIcon(canvas, members[1], x, y, size)
+	elseif mode == "right" then
+		appendMemberIcon(canvas, members[#members], x, y, size)
+	else
+		local stackedSize = tonumber(options.stackedIconSize) or size / 2
+		stackedSize = math.max(1, math.min(size, stackedSize))
+		appendMemberIcon(canvas, members[1], x, y, stackedSize)
+		appendMemberIcon(
+			canvas,
+			members[#members],
+			x + size - stackedSize,
+			y + size - stackedSize,
+			stackedSize
+		)
+	end
 end
 
 function M.clear()
@@ -82,14 +188,38 @@ local function appendWorkspace(canvas, group, entry, y, options, expandedWorkspa
 	})
 
 	if expandedWorkspace then
-		canvas:appendElements({
-			type = "text",
-			text = workspaceName(entry.workspace),
-			frame = { x = lineWidth + 9, y = y + 2, w = expandedWidth - lineWidth - 15, h = lineHeight - 4 },
-			textAlignment = "left",
-			textColor = { white = 0.96, alpha = 1 },
-			textSize = options.textSize or 13,
-		})
+		local mode = displayMode(options, expandedWorkspace)
+		local iconMargin = options.iconMargin or 9
+		local contentX = lineWidth + iconMargin
+		if mode == "icon" or mode == "icon_label" then
+			local iconSize = math.min(options.iconSize or 44, lineHeight - 4)
+			local iconY = y + (lineHeight - iconSize) / 2
+
+			appendWorkspaceIcons(canvas, entry.workspace.members, contentX, iconY, iconSize, options)
+			contentX = contentX + iconSize
+
+			if mode == "icon_label" and #entry.workspace.members > 0 then
+				contentX = contentX + (options.iconLabelGap or 7)
+			end
+		end
+
+		if mode ~= "icon" then
+			local textSize = options.textSize or 13
+			local textHeight = math.min(lineHeight, textSize + 6)
+			canvas:appendElements({
+				type = "text",
+				text = workspaceName(entry.workspace),
+				frame = {
+					x = contentX,
+					y = y + (lineHeight - textHeight) / 2,
+					w = expandedWidth - contentX - 6,
+					h = textHeight,
+				},
+				textAlignment = "left",
+				textColor = { white = 0.96, alpha = 1 },
+				textSize = textSize,
+			})
+		end
 	end
 end
 
@@ -101,7 +231,7 @@ function M.render(screens, screenOrder, options, expandedWorkspace, collapsed)
 	local spacing = options.spacing or 5
 	local leftInset = options.leftInset or 3
 	local topInset = options.topInset or leftInset
-	local expandedWidth = options.expandedWidth or 240
+	local expandedWidth = expandedWidthFor(options, expandedWorkspace)
 
 	if collapsed then
 		local first = screens[screenOrder[1]]
