@@ -75,13 +75,7 @@ local staticItems = {
 	},
 	{
 		id = "codex",
-		actions = {
-			{
-				id = "open",
-				label = "Open Codex",
-				handler = function() hs.application.launchOrFocus("Codex") end,
-			},
-		},
+		actions = {},
 	},
 }
 
@@ -300,7 +294,7 @@ function M.applyBarMode()
 	M.run({
 		"--bar",
 		"topmost=window",
-		"hidden=" .. ((laptop or M.active) and "off" or "on"),
+		"hidden=" .. ((laptop or M.active or M.codexUsageDetailsVisible) and "off" or "on"),
 		"notch_display_height=" .. (laptop and tostring(M.config.notchDisplayHeight or 40) or "0"),
 	})
 end
@@ -314,6 +308,89 @@ function M.closeMenu()
 	M.menuParent = nil
 end
 
+local function clearCodexUsagePopup()
+	M.run({ "--set", "codex", "popup.drawing=off", "--remove", "/^wm.codex.usage\\./" })
+end
+
+function M.closeCodexUsageDetails()
+	if not M.codexUsageDetailsVisible then return end
+	clearCodexUsagePopup()
+	M.codexUsageDetailsVisible = false
+	if not M.active then M.applyBarMode() end
+end
+
+local function usageColumns(window, includeDate)
+	if type(window) ~= "table" or type(window.usedPercent) ~= "number" then
+		return "—", "—"
+	end
+
+	local remaining = math.max(0, 100 - window.usedPercent)
+	local percentage = string.format("%.0f%%", remaining)
+	if type(window.resetsAt) ~= "number" then return percentage, "—" end
+
+	local reset = os.date(includeDate and "%b %d" or "%H:%M", window.resetsAt)
+	reset = reset:gsub(" 0(%d)$", " %1")
+	return percentage, reset
+end
+
+function M.openCodexUsageDetails()
+	M.closeMenu()
+	clearCodexUsagePopup()
+	local details = hs.json.read(M.codexUsageStateFile)
+	local rows
+	if type(details) == "table" then
+		local resets = tonumber(details.manualResets)
+		local fivePercent, fiveReset = usageColumns(details.fiveHour, false)
+		local weeklyPercent, weeklyReset = usageColumns(details.weekly, true)
+		rows = {
+			{ heading = "5h", value = string.format("%3s   %s", fivePercent, fiveReset) },
+			{ heading = "Weekly", value = string.format("%3s   %s", weeklyPercent, weeklyReset) },
+			{ heading = "Resets", value = resets and string.format("%d available", resets) or "Unavailable" },
+		}
+	else
+		rows = { { heading = "Codex", value = "Usage unavailable" } }
+	end
+
+	local args = {}
+	for index, row in ipairs(rows) do
+		local name = "wm.codex.usage." .. tostring(index)
+		table.insert(args, "--add")
+		table.insert(args, "item")
+		table.insert(args, name)
+		table.insert(args, "popup.codex")
+		table.insert(args, "--set")
+		table.insert(args, name)
+		table.insert(args, "icon=" .. row.heading)
+		table.insert(args, "icon.font=Hack Nerd Font:Bold:13.0")
+		table.insert(args, "icon.width=58")
+		table.insert(args, "icon.align=left")
+		table.insert(args, "icon.padding_left=10")
+		table.insert(args, "icon.padding_right=4")
+		table.insert(args, "label=" .. row.value)
+		table.insert(args, "label.font=Hack Nerd Font:Regular:13.0")
+		table.insert(args, "label.width=150")
+		table.insert(args, "label.align=right")
+		table.insert(args, "label.padding_left=4")
+		table.insert(args, "label.padding_right=10")
+		table.insert(args, "background.drawing=off")
+	end
+	M.run(args)
+	-- SketchyBar must finish registering popup children before the parent is
+	-- shown, otherwise it can render an empty popup background intermittently.
+	M.run({ "--set", "codex", "popup.drawing=on" })
+	M.codexUsageDetailsVisible = true
+end
+
+function M.syncCodexUsageDetails()
+	local selected = M.active and M.navigableItems[M.selectedIndex]
+	local shouldShow = selected and selected.id == "codex" and not M.menuIndex
+	if shouldShow and not M.codexUsageDetailsVisible then
+		M.openCodexUsageDetails()
+	elseif not shouldShow and M.codexUsageDetailsVisible then
+		M.closeCodexUsageDetails()
+	end
+end
+
 function M.openMenu(itemID)
 	local definition = M.itemDefinition(itemID)
 	if not definition or #(definition.actions or {}) == 0 then return false end
@@ -321,6 +398,7 @@ function M.openMenu(itemID)
 		M.closeMenu()
 		return true
 	end
+	M.closeCodexUsageDetails()
 	M.closeMenu()
 	M.menuParent = itemID
 	M.menuItems = definition.actions
@@ -370,6 +448,7 @@ function M.moveSelection(delta)
 	M.selectedIndex = ((M.selectedIndex - 1 + delta) % #M.navigableItems) + 1
 	M.publish(false)
 	M.applySelection()
+	M.syncCodexUsageDetails()
 end
 
 function M.runAction(itemID, actionID)
@@ -386,9 +465,10 @@ function M.runAction(itemID, actionID)
 end
 
 function M.invokeAction(itemID, actionID)
-	local invoked = M.runAction(itemID, actionID)
-	if invoked then M.closeMenu() end
-	return invoked
+	local definition = M.itemDefinition(itemID)
+	if not definition then return false end
+	M.closeMenu()
+	return M.runAction(itemID, actionID)
 end
 
 function M.handleVerticalNavigation(delta)
@@ -425,7 +505,6 @@ function M.handleSpace()
 		M.runAction("volume", "mute")
 		return
 	end
-
 	if item and item.type == "static" then M.openMenu(item.id) end
 end
 
@@ -492,13 +571,14 @@ function M.handleURL(_, params)
 	if command == "click" and tostring(params.item or ""):match("^[%w_.-]+$") then
 		local definition = M.itemDefinition(params.item)
 		if not definition then return end
+		if params.item ~= "codex" then M.closeCodexUsageDetails() end
 		if params.button == "right" then
 			M.openMenu(params.item)
 		else
 			local actionIndex = (params.button == "middle" or params.button == "other") and 2 or 1
 			local action = definition.actions and definition.actions[actionIndex]
 			if action then action.handler() end
-			if M.active then M.modal:exit() end
+			if M.active and params.item ~= "codex" then M.modal:exit() end
 		end
 	end
 end
@@ -513,6 +593,8 @@ function M.setup(config)
 	M.executable = findExecutable(M.config.executable)
 	M.stateFile = hs.configdir .. "/state/sketchybar.json"
 	M.pluginDir = hs.configdir:gsub("%.hammerspoon$", ".config/sketchybar/plugins")
+	M.codexUsageStateFile = os.getenv("HOME") .. "/Library/Caches/SketchyBar/codex_usage.json"
+	clearCodexUsagePopup()
 
 	M.modal = hs.hotkey.modal.new()
 	M.modal.entered = function()
@@ -522,11 +604,13 @@ function M.setup(config)
 		M.applyBarMode()
 		M.publish(false)
 		M.applySelection()
+		M.syncCodexUsageDetails()
 	end
 	M.modal.exited = function()
 		M.lastSelectedID = M.navigableItems[M.selectedIndex] and M.navigableItems[M.selectedIndex].id
 		M.active = false
 		M.closeMenu()
+		M.closeCodexUsageDetails()
 		M.publish(false)
 		M.applySelection()
 		M.applyBarMode()
@@ -558,8 +642,9 @@ function M.setup(config)
 	hotkeys.addBeforeHandler(function()
 		if M.active then
 			M.modal:exit()
-		elseif M.menuIndex then
-			M.closeMenu()
+		else
+			if M.menuIndex then M.closeMenu() end
+			M.closeCodexUsageDetails()
 		end
 	end)
 	for action, hotkey in pairs(M.config.mapping or {}) do

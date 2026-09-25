@@ -12,6 +12,9 @@ order preserve the grouping without spending bar space on labels.
   rightmost control item (`clock`); later sessions restore the last selection.
 - Return invokes the selected item.
 - Space opens the selected item's action menu.
+- Selecting the Codex item automatically shows a passive usage popup with
+  5-hour and weekly remaining limits, their reset times, and available manual
+  resets. Moving to another item or leaving navigation closes it.
 - With Volume selected, Space toggles mute and J/K lower/raise volume without
   leaving navigation mode. Hold J/K for continuous adjustment at the macOS
   keyboard-repeat rate.

@@ -43,46 +43,44 @@ if [[ -z "$response" ]]; then
   exit 0
 fi
 
-usage=$(
-  jq -r '
-    if .result.rateLimits == null then
+details=$(
+  jq -c '
+    (.result.rateLimitsByLimitId.codex // .result.rateLimits) as $limits
+    | if $limits == null then
       empty
     else
-      .result.rateLimits
-      | [.primary, .secondary]
-      | map(select(. != null))
-      | [
-          (
-            map(
-              select(
-                .windowDurationMins >= 290
-                and .windowDurationMins <= 310
-              )
-            )
+      ([$limits.primary, $limits.secondary] | map(select(. != null))) as $windows
+      | {
+          fiveHour: (
+            $windows
+            | map(select(.windowDurationMins >= 290 and .windowDurationMins <= 310))
             | first
-            | .usedPercent // ""
           ),
-          (
-            map(
-              select(
-                .windowDurationMins >= 10000
-                and .windowDurationMins <= 10100
-              )
-            )
+          weekly: (
+            $windows
+            | map(select(.windowDurationMins >= 10000 and .windowDurationMins <= 10100))
             | first
-            | .usedPercent // ""
-          )
-        ]
-      | @tsv
+          ),
+          manualResets: (.result.rateLimitResetCredits.availableCount // null),
+          planType: ($limits.planType // null),
+          updatedAt: now
+        }
     end
   ' <<<"$response"
 )
 
-if [[ -z "$usage" ]]; then
+if [[ -z "$details" ]]; then
   sketchybar --set "$NAME" label="Codex ?"
   exit 0
 fi
 
+state_dir="$HOME/Library/Caches/SketchyBar"
+mkdir -p "$state_dir"
+state_file=$(mktemp "$state_dir/.codex_usage.XXXXXX")
+printf '%s\n' "$details" >"$state_file"
+mv "$state_file" "$state_dir/codex_usage.json"
+
+usage=$(jq -r '[.fiveHour.usedPercent // "", .weekly.usedPercent // ""] | @tsv' <<<"$details")
 IFS=$'\t' read -r five_used weekly_used <<<"$usage"
 
 five_left=""
