@@ -161,10 +161,10 @@ function M.clear()
 	M.canvases = {}
 end
 
-local function visibleWorkspaces(group)
+local function visibleWorkspaces(group, showUnavailableWorkspaces)
 	local result = {}
 	for index, workspace in ipairs(group.workspaces or {}) do
-		if liveMemberCount(workspace) > 0 then
+		if showUnavailableWorkspaces or liveMemberCount(workspace) > 0 then
 			table.insert(result, { index = index, workspace = workspace })
 		end
 	end
@@ -236,7 +236,7 @@ local function appendWorkspace(canvas, group, entry, y, options, expandedWorkspa
 	end
 end
 
-function M.render(screens, screenOrder, options, expandedWorkspace, collapsed)
+function M.render(screens, screenOrder, options, expandedWorkspace, collapsed, showUnavailableWorkspaces)
 	M.clear()
 
 	local lineWidth = options.lineWidth or 3
@@ -254,7 +254,7 @@ function M.render(screens, screenOrder, options, expandedWorkspace, collapsed)
 		for _, screenName in ipairs(screenOrder) do
 			local group = screens[screenName]
 			group.id = screenName
-			for _, entry in ipairs(visibleWorkspaces(group)) do
+			for _, entry in ipairs(visibleWorkspaces(group, showUnavailableWorkspaces)) do
 				table.insert(entries, {
 					group = group,
 					entry = entry,
@@ -312,7 +312,7 @@ function M.render(screens, screenOrder, options, expandedWorkspace, collapsed)
 	for _, screenName in ipairs(screenOrder) do
 		local virtualScreen = screens[screenName]
 		virtualScreen.id = screenName
-		local visible = visibleWorkspaces(virtualScreen)
+		local visible = visibleWorkspaces(virtualScreen, showUnavailableWorkspaces)
 		local workspaceCount = #visible
 		local isExpandedScreen = expandedWorkspace and expandedWorkspace.screenName == screenName
 

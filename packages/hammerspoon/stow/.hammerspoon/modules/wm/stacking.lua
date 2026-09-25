@@ -13,6 +13,7 @@ local M = {
 	layouts = {},
 	mouseInteractionGeneration = 0,
 	mouseInteractionActive = false,
+	showUnavailableWorkspaces = false,
 }
 
 ---@type table<string, fun()>
@@ -616,7 +617,14 @@ function M.render()
 			local group = M.screens[expanded.screenName]
 			expanded.workspaceIndex = group and group.activeWorkspace or expanded.workspaceIndex
 		end
-		ui.render(M.screens, M.screenOrder, M.options.ui or {}, expanded, M.collapsed)
+		ui.render(
+			M.screens,
+			M.screenOrder,
+			M.options.ui or {},
+			expanded,
+			M.collapsed,
+			M.showUnavailableWorkspaces
+		)
 	else
 		ui.clear()
 	end
@@ -653,12 +661,13 @@ function M.snapshot()
 				end
 			end
 
-			if #members > 0 then
+			if #members > 0 or M.showUnavailableWorkspaces then
 				table.insert(workspaces, {
 					index = index,
 					active = index == group.activeWorkspace,
 					members = members,
-					name = table.concat(members, " + "),
+					name = #members > 0 and table.concat(members, " + ") or "Empty workspace",
+					unavailable = #members == 0,
 				})
 			end
 		end
@@ -679,6 +688,13 @@ function M.snapshot()
 		suspended = M.suspended == true,
 		groups = groups,
 	}
+end
+
+function M.toggleUnavailableWorkspaces()
+	M.showUnavailableWorkspaces = not M.showUnavailableWorkspaces
+	M.render()
+	hs.alert.show(M.showUnavailableWorkspaces and "Showing unavailable workspaces" or "Hiding unavailable workspaces")
+	return M.showUnavailableWorkspaces
 end
 
 function M.subscribe(callback)

@@ -112,6 +112,8 @@ require("modules.wm").setup({
 			-- Persist and restore the complete workspace model on demand.
 			saveStacks = { meh, "=" },
 			loadStacks = { hyper, "=" },
+			-- Reveal/hide empty workspaces and workspaces whose windows are closed.
+			toggleUnavailableWorkspaces = { meh, "d" },
 			-- Select or create a workspace on the focused virtual screen.
 			focusWorkspace1 = { "alt", "1" },
 			focusWorkspace2 = { "alt", "2" },
