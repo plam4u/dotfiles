@@ -45,6 +45,11 @@ hyper + ,/. | Move the current workspace group earlier/later
 hyper + [/] | Shrink/grow the current ultrawide group
 hyper + M | Pause/resume all WM hotkeys and layout changes
 option + M | Show SketchyBar and enter keyboard navigation
+option + mouse wheel | Cycle live workspaces in the virtual-screen group under the pointer
+
+Set `stacking.config.workspaceScrollDirection` to `standard` for wheel-up =
+previous and wheel-down = next, or `natural` to reverse those directions.
+`stacking.config.workspaceScrollThrottle` controls gesture rate limiting.
 
 While SketchyBar navigation is active, use H/L or the arrow keys to move,
 Return to invoke the primary action, Space to open an action menu, and Escape

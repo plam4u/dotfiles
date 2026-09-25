@@ -78,6 +78,9 @@ require("modules.wm").setup({
 			},
 			laptopBarHeight = 40,
 			mouseFollowsFocus = true,
+			-- "standard": wheel up = previous; "natural": wheel up = next.
+			workspaceScrollDirection = "natural",
+			workspaceScrollThrottle = 0.18,
 			resizeStep = 80,
 			defaultMinWidth = 200,
 			indicatorDuration = 1,

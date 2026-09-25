@@ -8,13 +8,17 @@ function M.addBeforeHandler(handler)
 	table.insert(M.beforeHandlers, handler)
 end
 
+function M.runBeforeHandlers()
+	for _, beforeHandler in ipairs(M.beforeHandlers) do
+		beforeHandler()
+	end
+end
+
 function M.bind(modifiers, key, handler, options)
 	options = options or {}
 	local binding = hs.hotkey.bind(modifiers, key, function()
 		if options.dismissOverlays ~= false then
-			for _, beforeHandler in ipairs(M.beforeHandlers) do
-				beforeHandler()
-			end
+			M.runBeforeHandlers()
 		end
 		handler()
 	end)

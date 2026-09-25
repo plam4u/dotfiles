@@ -201,6 +201,7 @@ function M.setup(config)
 	M.enabled = true
 	M.startWindowWatcher()
 	M.startScreenWatcher()
+	M.startWorkspaceScrollWatcher()
 	M.bindHotkeys(M.config.mapping or {})
 	M.render()
 
@@ -1130,6 +1131,64 @@ function M.startWindowWatcher()
 	end)
 end
 
+function M.screenNameAtPoint(point)
+	if not point then return nil end
+	if M.collapsed then return M.selectedScreenName() or M.screenOrder[1] end
+
+	for _, screenName in ipairs(M.screenOrder) do
+		local frame = M.screens[screenName].frame
+		if
+			point.x >= frame.x
+			and point.x < frame.x + frame.w
+			and point.y >= frame.y
+			and point.y < frame.y + frame.h
+		then
+			return screenName
+		end
+	end
+
+	return nil
+end
+
+function M.startWorkspaceScrollWatcher()
+	if M.workspaceScrollWatcher then M.workspaceScrollWatcher:stop() end
+
+	local eventTypes = hs.eventtap.event.types
+	local properties = hs.eventtap.event.properties
+	M.workspaceScrollWatcher = hs.eventtap.new({ eventTypes.scrollWheel }, function(event)
+		if not M.enabled or M.suspended then return false end
+
+		local flags = event:getFlags()
+		if not flags.alt or flags.cmd or flags.ctrl or flags.shift then return false end
+
+		local screenName = M.screenNameAtPoint(hs.mouse.absolutePosition())
+		if not screenName then return false end
+
+		local delta = event:getProperty(properties.scrollWheelEventDeltaAxis1) or 0
+		if delta == 0 then return true end
+
+		local now = hs.timer.secondsSinceEpoch()
+		local throttle = tonumber(M.options.workspaceScrollThrottle) or 0.18
+		if M.lastWorkspaceScrollAt and now - M.lastWorkspaceScrollAt < throttle then
+			return true
+		end
+		M.lastWorkspaceScrollAt = now
+
+		local direction = delta > 0 and -1 or 1
+		if M.options.workspaceScrollDirection == "natural" then direction = -direction end
+
+		hotkeys.runBeforeHandlers()
+		M.noteMouseInteraction()
+		if M.collapsed then
+			M.cycleWorkspace(direction, false)
+		else
+			M.cycleWorkspaceInGroup(screenName, direction, false)
+		end
+		return true
+	end)
+	M.workspaceScrollWatcher:start()
+end
+
 -- Workspace membership -------------------------------------------------------
 
 function M.detachWindow(window)
@@ -1543,7 +1602,7 @@ function M.focusWorkspace(workspaceIndex)
 	return true
 end
 
-function M.cycleWorkspace(delta)
+function M.cycleWorkspace(delta, shouldMoveMouse)
 	local screenName = M.selectedScreenName()
 	local virtualScreen = screenName and M.screens[screenName]
 
@@ -1575,8 +1634,32 @@ function M.cycleWorkspace(delta)
 	end
 
 	local target = locations[((current - 1 + delta) % #locations) + 1]
-	M.activateWorkspace(target.screenName, target.workspaceIndex)
+	M.activateWorkspace(target.screenName, target.workspaceIndex, true, shouldMoveMouse)
 	M.flashWorkspaceIndicator(target.screenName, target.workspaceIndex)
+	return true
+end
+
+function M.cycleWorkspaceInGroup(screenName, delta, shouldMoveMouse)
+	local virtualScreen = M.screens[screenName]
+	if not M.enabled or M.suspended or not virtualScreen then return false end
+
+	local workspaceIndices = {}
+	for index, workspace in ipairs(virtualScreen.workspaces) do
+		if liveMemberCount(workspace) > 0 then table.insert(workspaceIndices, index) end
+	end
+	if #workspaceIndices < 2 then return false end
+
+	local current = 1
+	for index, workspaceIndex in ipairs(workspaceIndices) do
+		if workspaceIndex == virtualScreen.activeWorkspace then
+			current = index
+			break
+		end
+	end
+
+	local targetIndex = workspaceIndices[((current - 1 + delta) % #workspaceIndices) + 1]
+	M.activateWorkspace(screenName, targetIndex, true, shouldMoveMouse)
+	M.flashWorkspaceIndicator(screenName, targetIndex)
 	return true
 end
 
