@@ -115,6 +115,43 @@ local function getBundleID(window)
 	return app and app:bundleID() or nil
 end
 
+local function getApplicationName(window)
+	local app = window and window:application()
+	local name = app and app:name()
+
+	return type(name) == "string" and name ~= "" and name or nil
+end
+
+local function nameFromBundleID(bundleID)
+	if type(bundleID) ~= "string" or bundleID == "" then return nil end
+
+	if hs.application and type(hs.application.nameForBundleID) == "function" then
+		local ok, name = pcall(hs.application.nameForBundleID, bundleID)
+		if ok and type(name) == "string" and name ~= "" then return name end
+	end
+
+	local parts = {}
+	for part in bundleID:gmatch("[^.]+") do table.insert(parts, part) end
+	local part = parts[#parts] or bundleID
+	if #part > 18 and #parts > 1 then
+		for index = #parts - 1, 1, -1 do
+			if parts[index] ~= "app" then
+				part = parts[index]
+				break
+			end
+		end
+	end
+
+	part = part:gsub("[_%-]+", " "):gsub("(%l)(%u)", "%1 %2")
+	return part:gsub("^%l", string.upper)
+end
+
+local function memberDisplayName(member)
+	return getApplicationName(member and member.window)
+		or (member and member.name)
+		or nameFromBundleID(member and member.bundleID)
+end
+
 local function liveMemberCount(workspace)
 	local count = 0
 
@@ -128,7 +165,7 @@ local function liveMemberCount(workspace)
 end
 
 local function isWorkspaceNavigable(workspace)
-	return workspace and (liveMemberCount(workspace) > 0 or workspace.explicitlyActivated == true)
+	return workspace and (liveMemberCount(workspace) > 0 or M.showUnavailableWorkspaces == true)
 end
 
 local function hasLiveAuthoritativeMember(workspace)
@@ -413,6 +450,8 @@ function M.applyScreens(savedScreens)
 				if #workspace.members < 2 and type(savedMember.bundleID) == "string" then
 					table.insert(workspace.members, {
 						bundleID = savedMember.bundleID,
+						name = type(savedMember.name) == "string" and savedMember.name
+							or nameFromBundleID(savedMember.bundleID),
 						minWidth = tonumber(savedMember.minWidth),
 						window = nil,
 					})
@@ -449,8 +488,10 @@ function M.serializableScreens()
 			end
 
 			for _, member in ipairs(workspace.members) do
+				member.name = memberDisplayName(member)
 				table.insert(savedWorkspace.members, {
 					bundleID = member.bundleID,
+					name = member.name,
 					minWidth = member.minWidth,
 				})
 			end
@@ -680,17 +721,24 @@ function M.snapshot()
 			local members = {}
 			for _, member in ipairs(workspace.members or {}) do
 				if member.window then
-					local app = member.window:application()
-					table.insert(members, app and app:name() or member.bundleID)
+					table.insert(members, memberDisplayName(member))
 				end
 			end
 
 			if #members > 0 or M.showUnavailableWorkspaces then
+				local displayMembers = members
+				if #displayMembers == 0 then
+					displayMembers = {}
+					for _, member in ipairs(workspace.members or {}) do
+						local name = memberDisplayName(member)
+						if name then table.insert(displayMembers, name) end
+					end
+				end
 				table.insert(workspaces, {
 					index = index,
 					active = index == group.activeWorkspace,
 					members = members,
-					name = #members > 0 and table.concat(members, " + ") or "Empty workspace",
+					name = #displayMembers > 0 and table.concat(displayMembers, " + ") or "Empty workspace",
 					unavailable = #members == 0,
 				})
 			end
@@ -716,6 +764,9 @@ end
 
 function M.toggleUnavailableWorkspaces()
 	M.showUnavailableWorkspaces = not M.showUnavailableWorkspaces
+	if not M.showUnavailableWorkspaces then
+		M.raiseActiveWorkspaces()
+	end
 	M.render()
 	hs.alert.show(M.showUnavailableWorkspaces and "Showing unavailable workspaces" or "Hiding unavailable workspaces")
 	return M.showUnavailableWorkspaces
@@ -750,10 +801,6 @@ function M.activateWorkspaceExplicitly(screenName, workspaceIndex, shouldFocus, 
 	local virtualScreen = M.screens[screenName]
 	local workspace = virtualScreen and virtualScreen.workspaces[workspaceIndex]
 	if not workspace then return false end
-
-	if liveMemberCount(workspace) == 0 then
-		workspace.explicitlyActivated = true
-	end
 
 	return M.activateWorkspace(screenName, workspaceIndex, shouldFocus, shouldMoveMouse)
 end
@@ -1153,6 +1200,7 @@ function M.restoreWindows()
 
 					if windowID and not used[windowID] and getBundleID(window) == member.bundleID then
 						member.window = window
+						member.name = getApplicationName(window) or member.name or nameFromBundleID(member.bundleID)
 						used[windowID] = true
 						break
 					end
@@ -1174,6 +1222,7 @@ function M.restoreWindows()
 					members = {
 						{
 							bundleID = bundleID,
+							name = getApplicationName(window) or nameFromBundleID(bundleID),
 							window = window,
 						},
 					},
@@ -1217,7 +1266,9 @@ function M.attachCreatedWindow(window)
 
 	if screenName then
 		local workspace = M.screens[screenName].workspaces[workspaceIndex]
-		workspace.members[memberIndex].window = window
+		local member = workspace.members[memberIndex]
+		member.window = window
+		member.name = getApplicationName(window) or member.name or nameFromBundleID(bundleID)
 		M.rebuildWindowIndex()
 		M.layoutWorkspace(screenName, workspace)
 		M.raiseActiveWorkspaces()
@@ -1233,6 +1284,7 @@ function M.attachCreatedWindow(window)
 			members = {
 				{
 					bundleID = bundleID,
+					name = getApplicationName(window) or nameFromBundleID(bundleID),
 					window = window,
 				},
 			},
@@ -1254,7 +1306,9 @@ function M.windowDestroyed(window)
 
 	local virtualScreen = M.screens[location.screenName]
 	local workspace = virtualScreen.workspaces[location.workspaceIndex]
-	workspace.members[location.memberIndex].window = nil
+	local member = workspace.members[location.memberIndex]
+	member.name = getApplicationName(window) or member.name or nameFromBundleID(member.bundleID)
+	member.window = nil
 	M.rebuildWindowIndex()
 	M.raiseActiveWorkspaces()
 	M.render()
@@ -1419,12 +1473,18 @@ function M.detachWindow(window)
 	local location = M.getWindowLocation(window)
 
 	if not location then
-		return { bundleID = getBundleID(window), window = window }
+		local bundleID = getBundleID(window)
+		return {
+			bundleID = bundleID,
+			name = getApplicationName(window) or nameFromBundleID(bundleID),
+			window = window,
+		}
 	end
 
 	local virtualScreen = M.screens[location.screenName]
 	local workspace = virtualScreen.workspaces[location.workspaceIndex]
 	local member = table.remove(workspace.members, location.memberIndex)
+	member.name = getApplicationName(window) or member.name or nameFromBundleID(member.bundleID)
 
 	if #workspace.members == 0 then
 		if workspace.keepEmpty then
@@ -1994,12 +2054,18 @@ function M.focusScreenInDirection(screenName, delta)
 		local active = target.workspaces[target.activeWorkspace]
 
 		if isWorkspaceNavigable(active) then
-			return M.activateWorkspace(targetName, target.activeWorkspace)
+			if M.activateWorkspace(targetName, target.activeWorkspace) then
+				M.flashWorkspaceIndicator(targetName, target.activeWorkspace)
+				return true
+			end
 		end
 
 		for workspaceIndex, workspace in ipairs(target.workspaces) do
 			if isWorkspaceNavigable(workspace) then
-				return M.activateWorkspace(targetName, workspaceIndex)
+				if M.activateWorkspace(targetName, workspaceIndex) then
+					M.flashWorkspaceIndicator(targetName, workspaceIndex)
+					return true
+				end
 			end
 		end
 
@@ -2012,17 +2078,18 @@ end
 function M.focusWest()
 	local window = hs.window.focusedWindow()
 	local location = M.getWindowLocation(window)
+	local screenName = M.selectedScreenName()
 
-	if not location then
+	if not screenName then
 		focusDirectionalWindow(hs.window.filter.focusWest)
 		return
 	end
 
-	if location.memberIndex == 2 and M.focusMember(1) then
+	if location and location.screenName == screenName and location.memberIndex == 2 and M.focusMember(1) then
 		return
 	end
 
-	if not M.focusScreenInDirection(location.screenName, -1) then
+	if not M.focusScreenInDirection(screenName, -1) then
 		focusDirectionalWindow(hs.window.filter.focusWest)
 	end
 end
@@ -2030,17 +2097,18 @@ end
 function M.focusEast()
 	local window = hs.window.focusedWindow()
 	local location = M.getWindowLocation(window)
+	local screenName = M.selectedScreenName()
 
-	if not location then
+	if not screenName then
 		focusDirectionalWindow(hs.window.filter.focusEast)
 		return
 	end
 
-	if location.memberIndex == 1 and M.focusMember(2) then
+	if location and location.screenName == screenName and location.memberIndex == 1 and M.focusMember(2) then
 		return
 	end
 
-	if not M.focusScreenInDirection(location.screenName, 1) then
+	if not M.focusScreenInDirection(screenName, 1) then
 		focusDirectionalWindow(hs.window.filter.focusEast)
 	end
 end

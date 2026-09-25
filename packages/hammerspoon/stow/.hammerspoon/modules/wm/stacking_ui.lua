@@ -1,6 +1,7 @@
 local M = {
 	canvases = {},
 	iconCache = {},
+	unavailableIconCache = {},
 	hitRegions = {},
 }
 
@@ -44,13 +45,14 @@ local function memberName(member)
 	local app = member.window and member.window:application()
 	local name = app and app:name()
 
-	return name or member.bundleID
+	return name or member.name or "Unknown application"
 end
 
-local function workspaceName(members)
+local function workspaceName(workspace, members)
+	local displayMembers = #members > 0 and members or workspace.members or {}
 	local names = {}
 
-	for _, member in ipairs(members) do
+	for _, member in ipairs(displayMembers) do
 		table.insert(names, memberName(member))
 	end
 
@@ -77,16 +79,39 @@ local function genericIcon()
 	return M.genericIcon or nil
 end
 
-local function memberIcon(member)
+local function memberIcon(member, allowGeneric)
 	local app = member.window and member.window:application()
 	local bundleID = (app and app:bundleID()) or member.bundleID
-	if not bundleID then return genericIcon() end
+	if not bundleID then
+		if allowGeneric == false then return nil end
+		return genericIcon()
+	end
 
 	if M.iconCache[bundleID] == nil then
 		M.iconCache[bundleID] = hs.image.imageFromAppBundle(bundleID) or false
 	end
 
-	return M.iconCache[bundleID] or genericIcon()
+	if M.iconCache[bundleID] then return M.iconCache[bundleID] end
+	if allowGeneric == false then return nil end
+	return genericIcon()
+end
+
+local function unavailableMemberIcon(member, size)
+	local bundleID = member.bundleID
+	if not bundleID then return nil end
+
+	local cacheKey = bundleID .. ":" .. tostring(size)
+	if M.unavailableIconCache[cacheKey] == nil then
+		local icon = memberIcon(member, false)
+		local grayIcon = nil
+		if icon and type(icon.bitmapRepresentation) == "function" then
+			local ok, result = pcall(icon.bitmapRepresentation, icon, { w = size, h = size }, true)
+			if ok then grayIcon = result end
+		end
+		M.unavailableIconCache[cacheKey] = grayIcon or false
+	end
+
+	return M.unavailableIconCache[cacheKey] or nil
 end
 
 local function expandedWidthFor(options, expandedWorkspace)
@@ -98,12 +123,18 @@ local function expandedWidthFor(options, expandedWorkspace)
 	return options.iconOnlyWidth or lineWidth + iconMargin * 2 + iconSize
 end
 
-local function appendMemberIcon(canvas, member, x, y, size)
-	local icon = memberIcon(member)
+local function appendMemberIcon(canvas, member, x, y, size, unavailable)
+	local icon
+	if unavailable then
+		icon = unavailableMemberIcon(member, size)
+	else
+		icon = memberIcon(member)
+	end
 	if icon then
 		canvas:appendElements({
 			type = "image",
 			image = icon,
+			imageAlpha = unavailable and 0.55 or 1,
 			imageScaling = "scaleProportionally",
 			frame = { x = x, y = y, w = size, h = size },
 		})
@@ -114,9 +145,11 @@ local function appendMemberIcon(canvas, member, x, y, size)
 		type = "rectangle",
 		action = "fill",
 		frame = { x = x, y = y, w = size, h = size },
-		fillColor = { white = 0.28, alpha = 1 },
+		fillColor = unavailable and { white = 0.72, alpha = 0.8 } or { white = 0.28, alpha = 1 },
 		roundedRectRadii = { xRadius = 4, yRadius = 4 },
 	})
+	if unavailable then return end
+
 	canvas:appendElements({
 		type = "text",
 		text = "?",
@@ -127,29 +160,30 @@ local function appendMemberIcon(canvas, member, x, y, size)
 	})
 end
 
-local function appendWorkspaceIcons(canvas, members, x, y, size, options)
+local function appendWorkspaceIcons(canvas, members, x, y, size, options, unavailable)
 	if #members == 0 then return end
 	if #members == 1 then
-		appendMemberIcon(canvas, members[1], x, y, size)
+		appendMemberIcon(canvas, members[1], x, y, size, unavailable)
 		return
 	end
 
 	local mode = options.stackIconMode or "both"
 	if not validStackIconModes[mode] then mode = "both" end
 	if mode == "left" then
-		appendMemberIcon(canvas, members[1], x, y, size)
+		appendMemberIcon(canvas, members[1], x, y, size, unavailable)
 	elseif mode == "right" then
-		appendMemberIcon(canvas, members[#members], x, y, size)
+		appendMemberIcon(canvas, members[#members], x, y, size, unavailable)
 	else
 		local stackedSize = tonumber(options.stackedIconSize) or size / 2
 		stackedSize = math.max(1, math.min(size, stackedSize))
-		appendMemberIcon(canvas, members[1], x, y, stackedSize)
+		appendMemberIcon(canvas, members[1], x, y, stackedSize, unavailable)
 		appendMemberIcon(
 			canvas,
 			members[#members],
 			x + size - stackedSize,
 			y + size - stackedSize,
-			stackedSize
+			stackedSize,
+			unavailable
 		)
 	end
 end
@@ -228,6 +262,8 @@ local function appendWorkspace(canvas, group, entry, y, options, expandedWorkspa
 		and expandedWorkspace.screenName == group.id
 		and expandedWorkspace.workspaceIndex == entry.index
 	local members = liveMembers(entry.workspace)
+	local iconMembers = #members > 0 and members or entry.workspace.members or {}
+	local unavailable = #members == 0
 
 	if isFocused then
 		canvas:appendElements({
@@ -257,10 +293,10 @@ local function appendWorkspace(canvas, group, entry, y, options, expandedWorkspa
 			local iconSize = math.min(options.iconSize or 44, lineHeight - 4)
 			local iconY = y + (lineHeight - iconSize) / 2
 
-			appendWorkspaceIcons(canvas, members, contentX, iconY, iconSize, options)
+			appendWorkspaceIcons(canvas, iconMembers, contentX, iconY, iconSize, options, unavailable)
 			contentX = contentX + iconSize
 
-			if mode == "icon_label" and #members > 0 then
+			if mode == "icon_label" and #iconMembers > 0 then
 				contentX = contentX + (options.iconLabelGap or 7)
 			end
 		end
@@ -270,7 +306,7 @@ local function appendWorkspace(canvas, group, entry, y, options, expandedWorkspa
 			local textHeight = math.min(lineHeight, textSize + 6)
 			canvas:appendElements({
 				type = "text",
-				text = workspaceName(members),
+				text = workspaceName(entry.workspace, members),
 				frame = {
 					x = contentX,
 					y = y + (lineHeight - textHeight) / 2,
