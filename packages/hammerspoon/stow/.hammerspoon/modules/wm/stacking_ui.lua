@@ -27,6 +27,18 @@ local function liveMemberCount(workspace)
 	return count
 end
 
+local function liveMembers(workspace)
+	local result = {}
+
+	for _, member in ipairs(workspace.members or {}) do
+		if member.window then
+			table.insert(result, member)
+		end
+	end
+
+	return result
+end
+
 local function memberName(member)
 	local app = member.window and member.window:application()
 	local name = app and app:name()
@@ -34,10 +46,10 @@ local function memberName(member)
 	return name or member.bundleID
 end
 
-local function workspaceName(workspace)
+local function workspaceName(members)
 	local names = {}
 
-	for _, member in ipairs(workspace.members) do
+	for _, member in ipairs(members) do
 		table.insert(names, memberName(member))
 	end
 
@@ -166,6 +178,7 @@ local function appendWorkspace(canvas, group, entry, y, options, expandedWorkspa
 	local isFocused = expandedWorkspace
 		and expandedWorkspace.screenName == group.id
 		and expandedWorkspace.workspaceIndex == entry.index
+	local members = liveMembers(entry.workspace)
 
 	if isFocused then
 		canvas:appendElements({
@@ -195,10 +208,10 @@ local function appendWorkspace(canvas, group, entry, y, options, expandedWorkspa
 			local iconSize = math.min(options.iconSize or 44, lineHeight - 4)
 			local iconY = y + (lineHeight - iconSize) / 2
 
-			appendWorkspaceIcons(canvas, entry.workspace.members, contentX, iconY, iconSize, options)
+			appendWorkspaceIcons(canvas, members, contentX, iconY, iconSize, options)
 			contentX = contentX + iconSize
 
-			if mode == "icon_label" and #entry.workspace.members > 0 then
+			if mode == "icon_label" and #members > 0 then
 				contentX = contentX + (options.iconLabelGap or 7)
 			end
 		end
@@ -208,7 +221,7 @@ local function appendWorkspace(canvas, group, entry, y, options, expandedWorkspa
 			local textHeight = math.min(lineHeight, textSize + 6)
 			canvas:appendElements({
 				type = "text",
-				text = workspaceName(entry.workspace),
+				text = workspaceName(members),
 				frame = {
 					x = contentX,
 					y = y + (lineHeight - textHeight) / 2,
