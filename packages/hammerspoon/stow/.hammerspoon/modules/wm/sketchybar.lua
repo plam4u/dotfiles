@@ -618,7 +618,11 @@ function M.handleSpace()
 	local item = M.navigableItems[M.selectedIndex]
 	if M.invokeCodexUsageSelected(item) then return end
 	if keyLights.invokeSelected(item) then return end
-	if plex.invokeSelected(item) then return end
+	local plexHandled, closeAfterPlexAction = plex.invokeSelected(item)
+	if plexHandled then
+		if closeAfterPlexAction then M.modal:exit() end
+		return
+	end
 	if item and item.id == "volume" then
 		if M.menuIndex then M.closeMenu() end
 		M.runAction("volume", "mute")
@@ -638,7 +642,11 @@ function M.invokeSelected()
 	local item = M.navigableItems[M.selectedIndex]
 	if not item then return end
 	if keyLights.invokeSelected(item) then return end
-	if plex.invokeSelected(item) then return end
+	local plexHandled, closeAfterPlexAction = plex.invokeSelected(item)
+	if plexHandled then
+		if closeAfterPlexAction then M.modal:exit() end
+		return
+	end
 
 	if item.type == "workspace" then
 		stacking.activateWorkspaceExplicitly(item.group, item.workspaceIndex)

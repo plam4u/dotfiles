@@ -243,17 +243,20 @@ end
 
 function M.invokeSelected(selected)
 	if not selected or selected.id ~= "plex" or not M.detailsVisible then return false end
+	local shouldClose = false
 	if M.rowIndex == 0 then
 		M.toggleServer()
 	else
 		local row = rows[M.rowIndex]
 		if row.id == "open" then
 			M.openPlex()
+			shouldClose = true
 		elseif row.id == "refresh" then
 			M.updateLibraries()
+			shouldClose = true
 		end
 	end
-	return true
+	return true, shouldClose
 end
 
 function M.setup(config, ui)

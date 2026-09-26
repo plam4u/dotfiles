@@ -28,7 +28,8 @@ order preserve the grouping without spending bar space on labels.
 - Selecting the Plex item opens its status popup. Space on the bar item starts
   or stops Plex Media Server. J/K moves between the item, the read-only stream
   count, Open Plex, and Update Libraries; Space invokes the selected action.
-  H/L returns to normal bar navigation and closes the popup. The integration
+  Open Plex and Update Libraries close SketchyBar after invocation. H/L returns
+  to normal bar navigation and closes the popup. The integration
   reads the local Plex token at runtime from the standard macOS preferences
   file and never stores it in the dotfiles.
 - With Volume selected, Space toggles mute and J/K lower/raise volume without

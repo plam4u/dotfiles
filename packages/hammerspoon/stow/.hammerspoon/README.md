@@ -81,7 +81,8 @@ Settings → Privacy & Security → Local Network.
 With the Plex item selected, its popup shows the active stream count and offers
 Open Plex and Update Libraries actions. Space on the main item starts or stops
 Plex Media Server; J/K selects the popup rows, and H/L returns to bar-item
-navigation. The Plex token is read at runtime from
+navigation. Open Plex and Update Libraries close SketchyBar after invocation.
+The Plex token is read at runtime from
 `~/Library/Preferences/com.plexapp.plexmediaserver.plist` and is not stored in
 this repository.
 With the Codex item selected, J/K moves between the item and its usage rows.
