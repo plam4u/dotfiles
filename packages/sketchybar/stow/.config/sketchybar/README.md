@@ -17,9 +17,10 @@ order preserve the grouping without spending bar space on labels.
   resets. Moving to another item or leaving navigation closes it.
 - Selecting the Key Lights item opens its control popup. J/K
   selects all-power, then power, temperature, and brightness for the left and
-  right lights. H/L adjusts temperature and brightness in 5-unit steps, repeats
-  while held, and otherwise keeps navigating the bar; Space or Return toggles
-  power rows.
+  right lights. H/L adjusts temperature in 50 K steps and brightness in 5%
+  steps, repeats while held, and otherwise keeps navigating the bar. Space or
+  Return toggles power rows; on temperature and brightness it cycles through
+  maximum, minimum, and the value captured when cycling began.
   Left/Right leaves the item, and any WM action closes the popup with the bar.
 - With Volume selected, Space toggles mute and J/K lower/raise volume without
   leaving navigation mode. Hold J/K for continuous adjustment at the macOS

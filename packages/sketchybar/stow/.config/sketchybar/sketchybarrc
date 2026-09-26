@@ -62,7 +62,7 @@ sketchybar --add item clock right \
   --add item key_lights right \
   --set key_lights \
     icon="󰛨" \
-    label="Lights …" \
+    label="…" \
     click_script="$PLUGIN_DIR/action_click.sh key_lights" \
   --add item codex right \
   --set codex \
