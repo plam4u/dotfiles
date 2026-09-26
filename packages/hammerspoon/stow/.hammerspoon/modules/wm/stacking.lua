@@ -122,16 +122,44 @@ local function getApplicationName(window)
 	return type(name) == "string" and name ~= "" and name or nil
 end
 
+local function getApplicationPID(window)
+	local app = window and window:application()
+	return app and app:pid() or nil
+end
+
+local function getWindowID(window)
+	if not window then
+		return nil
+	end
+	local ok, windowID = pcall(function()
+		return window:id()
+	end)
+	return ok and windowID or nil
+end
+
+local function setMemberWindow(member, window)
+	member.window = window
+	member.windowID = getWindowID(window)
+	member.pid = getApplicationPID(window)
+	member.parked = nil
+end
+
 local function nameFromBundleID(bundleID)
-	if type(bundleID) ~= "string" or bundleID == "" then return nil end
+	if type(bundleID) ~= "string" or bundleID == "" then
+		return nil
+	end
 
 	if hs.application and type(hs.application.nameForBundleID) == "function" then
 		local ok, name = pcall(hs.application.nameForBundleID, bundleID)
-		if ok and type(name) == "string" and name ~= "" then return name end
+		if ok and type(name) == "string" and name ~= "" then
+			return name
+		end
 	end
 
 	local parts = {}
-	for part in bundleID:gmatch("[^.]+") do table.insert(parts, part) end
+	for part in bundleID:gmatch("[^.]+") do
+		table.insert(parts, part)
+	end
 	local part = parts[#parts] or bundleID
 	if #part > 18 and #parts > 1 then
 		for index = #parts - 1, 1, -1 do
@@ -203,7 +231,8 @@ local function physicalScreen()
 		local fullFrame = screen:fullFrame()
 		local ratio = fullFrame.w / math.max(1, fullFrame.h)
 
-		if (configuredUUID and screen:getUUID() == configuredUUID)
+		if
+			(configuredUUID and screen:getUUID() == configuredUUID)
 			or (configuredName and screen:name() == configuredName)
 			or (fullFrame.w == configuredWidth and fullFrame.h == configuredHeight)
 		then
@@ -233,7 +262,8 @@ local function normalizeDocument(state)
 			version = 4,
 			screens = state.screens,
 			layouts = type(state.layouts) == "table" and state.layouts or {},
-		}, state.version ~= 4
+		},
+			state.version ~= 4
 	end
 
 	if type(state.groups) == "table" then
@@ -243,7 +273,8 @@ local function normalizeDocument(state)
 			version = 4,
 			screens = type(state.groups.screens) == "table" and state.groups.screens or state.groups,
 			layouts = type(state.layouts) == "table" and state.layouts or {},
-		}, true
+		},
+			true
 	end
 
 	if type(state.profiles) == "table" then
@@ -303,6 +334,7 @@ function M.setup(config)
 	M.applyScreens(emptyScreens())
 	M.enabled = true
 	M.startWindowWatcher()
+	M.startApplicationWatcher()
 	M.startScreenWatcher()
 	M.startWorkspaceScrollWatcher()
 	M.startWorkspaceHoverWatcher()
@@ -578,8 +610,10 @@ function M.rebuildWindowIndex()
 
 		for workspaceIndex, workspace in ipairs(virtualScreen.workspaces) do
 			for memberIndex, member in ipairs(workspace.members) do
-				if member.window and member.window:id() then
-					M.windowIndex[member.window:id()] = {
+				local windowID = member.windowID or getWindowID(member.window)
+				member.windowID = windowID
+				if member.window and windowID then
+					M.windowIndex[windowID] = {
 						screenName = screenName,
 						workspaceIndex = workspaceIndex,
 						memberIndex = memberIndex,
@@ -591,7 +625,8 @@ function M.rebuildWindowIndex()
 end
 
 function M.isManaged(window)
-	return M.enabled and window and window:id() and M.windowIndex[window:id()] ~= nil
+	local windowID = getWindowID(window)
+	return M.enabled and windowID and M.windowIndex[windowID] ~= nil
 end
 
 function M.getWindowLocation(window)
@@ -599,7 +634,7 @@ function M.getWindowLocation(window)
 		return nil
 	end
 
-	return M.windowIndex[window:id()]
+	return M.windowIndex[getWindowID(window)]
 end
 
 function M.resolveScreenName(screenName)
@@ -673,23 +708,15 @@ function M.render()
 			local group = M.screens[expanded.screenName]
 			expanded.workspaceIndex = group and group.activeWorkspace or expanded.workspaceIndex
 		end
-		ui.render(
-			M.screens,
-			M.screenOrder,
-			M.options.ui or {},
-			expanded,
-			M.collapsed,
-			M.showUnavailableWorkspaces,
-			{
-				onWorkspaceClick = function(screenName, workspaceIndex)
-					hotkeys.runBeforeHandlers()
-					M.noteMouseInteraction()
-					if M.activateWorkspaceExplicitly(screenName, workspaceIndex, true, false) then
-						M.flashWorkspaceIndicator(screenName, workspaceIndex)
-					end
-				end,
-			}
-		)
+		ui.render(M.screens, M.screenOrder, M.options.ui or {}, expanded, M.collapsed, M.showUnavailableWorkspaces, {
+			onWorkspaceClick = function(screenName, workspaceIndex)
+				hotkeys.runBeforeHandlers()
+				M.noteMouseInteraction()
+				if M.activateWorkspaceExplicitly(screenName, workspaceIndex, true, false) then
+					M.flashWorkspaceIndicator(screenName, workspaceIndex)
+				end
+			end,
+		})
 	else
 		ui.clear()
 	end
@@ -731,7 +758,9 @@ function M.snapshot()
 					displayMembers = {}
 					for _, member in ipairs(workspace.members or {}) do
 						local name = memberDisplayName(member)
-						if name then table.insert(displayMembers, name) end
+						if name then
+							table.insert(displayMembers, name)
+						end
 					end
 				end
 				table.insert(workspaces, {
@@ -780,7 +809,9 @@ end
 function M.scheduleIndicatorCollapse()
 	M.indicatorVersion = (M.indicatorVersion or 0) + 1
 	local version = M.indicatorVersion
-	if M.indicatorTimer then M.indicatorTimer:stop() end
+	if M.indicatorTimer then
+		M.indicatorTimer:stop()
+	end
 
 	M.indicatorTimer = hs.timer.doAfter(M.options.indicatorDuration or 1.5, function()
 		if M.indicatorVersion == version then
@@ -800,7 +831,9 @@ end
 function M.activateWorkspaceExplicitly(screenName, workspaceIndex, shouldFocus, shouldMoveMouse)
 	local virtualScreen = M.screens[screenName]
 	local workspace = virtualScreen and virtualScreen.workspaces[workspaceIndex]
-	if not workspace then return false end
+	if not workspace then
+		return false
+	end
 
 	return M.activateWorkspace(screenName, workspaceIndex, shouldFocus, shouldMoveMouse)
 end
@@ -1193,13 +1226,13 @@ function M.restoreWindows()
 	for _, screenName in ipairs(M.screenOrder) do
 		for _, workspace in ipairs(M.screens[screenName].workspaces) do
 			for _, member in ipairs(workspace.members) do
-				member.window = nil
+				setMemberWindow(member, nil)
 
 				for _, window in ipairs(windows) do
 					local windowID = window:id()
 
 					if windowID and not used[windowID] and getBundleID(window) == member.bundleID then
-						member.window = window
+						setMemberWindow(member, window)
 						member.name = getApplicationName(window) or member.name or nameFromBundleID(member.bundleID)
 						used[windowID] = true
 						break
@@ -1223,6 +1256,8 @@ function M.restoreWindows()
 						{
 							bundleID = bundleID,
 							name = getApplicationName(window) or nameFromBundleID(bundleID),
+							pid = getApplicationPID(window),
+							windowID = windowID,
 							window = window,
 						},
 					},
@@ -1243,12 +1278,18 @@ function M.attachCreatedWindow(window)
 		not M.enabled
 		or M.suspended
 		or not window
-		or not window:id()
 		or not window:isVisible()
 		or not window:isStandard()
 		or window:isFullScreen()
-		or M.windowIndex[window:id()]
 	then
+		return
+	end
+
+	-- Some applications replace their window without delivering a usable
+	-- destruction event. Reconcile stale IDs before assigning the replacement.
+	M.reconcileWindows()
+	local windowID = getWindowID(window)
+	if not windowID or M.windowIndex[windowID] then
 		return
 	end
 
@@ -1267,7 +1308,7 @@ function M.attachCreatedWindow(window)
 	if screenName then
 		local workspace = M.screens[screenName].workspaces[workspaceIndex]
 		local member = workspace.members[memberIndex]
-		member.window = window
+		setMemberWindow(member, window)
 		member.name = getApplicationName(window) or member.name or nameFromBundleID(bundleID)
 		M.rebuildWindowIndex()
 		M.layoutWorkspace(screenName, workspace)
@@ -1285,6 +1326,8 @@ function M.attachCreatedWindow(window)
 				{
 					bundleID = bundleID,
 					name = getApplicationName(window) or nameFromBundleID(bundleID),
+					pid = getApplicationPID(window),
+					windowID = windowID,
 					window = window,
 				},
 			},
@@ -1298,11 +1341,15 @@ function M.attachCreatedWindow(window)
 end
 
 local function destroyedWindowLocation(window)
-	if not window then return nil end
+	if not window then
+		return nil
+	end
 
 	-- The accessibility object can already be invalid by the time macOS
 	-- reports its destruction, so window:id() is not a reliable sole lookup.
-	local ok, windowID = pcall(function() return window:id() end)
+	local ok, windowID = pcall(function()
+		return window:id()
+	end)
 	if ok and windowID and M.windowIndex[windowID] then
 		return M.windowIndex[windowID]
 	end
@@ -1334,7 +1381,9 @@ local function clearUnavailableIndicator(screenName, workspaceIndex)
 
 	if not M.expandedIndicator and not M.mouseExpandedIndicator then
 		M.indicatorVersion = (M.indicatorVersion or 0) + 1
-		if M.indicatorTimer then M.indicatorTimer:stop() end
+		if M.indicatorTimer then
+			M.indicatorTimer:stop()
+		end
 		M.indicatorTimer = nil
 	end
 end
@@ -1351,8 +1400,7 @@ function M.windowDestroyed(window)
 	local member = workspace.members[location.memberIndex]
 	-- Clear the stale object before doing any other work. Its saved name and
 	-- bundle ID remain available for UI labels and a later stack restore.
-	member.window = nil
-	member.parked = nil
+	setMemberWindow(member, nil)
 	member.name = member.name or nameFromBundleID(member.bundleID)
 
 	if liveMemberCount(workspace) == 0 then
@@ -1362,6 +1410,152 @@ function M.windowDestroyed(window)
 	M.rebuildWindowIndex()
 	M.raiseActiveWorkspaces()
 	M.render()
+end
+
+local function methodReturnsTrue(object, methodName)
+	local found, method = pcall(function()
+		return object and object[methodName]
+	end)
+	if not found or type(method) ~= "function" then
+		return false
+	end
+
+	local ok, value = pcall(method, object)
+	return ok and value == true
+end
+
+function M.windowNotVisible(window)
+	-- windowNotVisible is emitted before windowHidden in the same event chain.
+	-- Wait until the next tick so the final hidden/minimized state is readable.
+	hs.timer.doAfter(0, function()
+		local ok, application = pcall(function()
+			return window and window:application()
+		end)
+		local hidden = ok and methodReturnsTrue(application, "isHidden")
+		local minimized = methodReturnsTrue(window, "isMinimized")
+
+		if not hidden and not minimized then
+			M.windowDestroyed(window)
+		end
+	end)
+end
+
+function M.applicationTerminated(pid)
+	if not pid then
+		return
+	end
+
+	local changed = false
+	for _, screenName in ipairs(M.screenOrder) do
+		for workspaceIndex, workspace in ipairs(M.screens[screenName].workspaces) do
+			local workspaceChanged = false
+			for _, member in ipairs(workspace.members) do
+				if member.window and member.pid == pid then
+					setMemberWindow(member, nil)
+					member.name = member.name or nameFromBundleID(member.bundleID)
+					changed = true
+					workspaceChanged = true
+				end
+			end
+
+			if workspaceChanged and liveMemberCount(workspace) == 0 then
+				clearUnavailableIndicator(screenName, workspaceIndex)
+			end
+		end
+	end
+
+	if changed then
+		M.rebuildWindowIndex()
+		M.raiseActiveWorkspaces()
+		M.render()
+	end
+end
+
+function M.applicationDeactivated(pid)
+	if not pid then
+		return
+	end
+
+	local changed = false
+	for _, screenName in ipairs(M.screenOrder) do
+		for workspaceIndex, workspace in ipairs(M.screens[screenName].workspaces) do
+			local workspaceChanged = false
+			for _, member in ipairs(workspace.members) do
+				if member.window and member.pid == pid then
+					local visible = methodReturnsTrue(member.window, "isVisible")
+
+					if not visible then
+						local ok, application = pcall(function()
+							return member.window:application()
+						end)
+						local hidden = ok and methodReturnsTrue(application, "isHidden")
+						local minimized = methodReturnsTrue(member.window, "isMinimized")
+
+						if not hidden and not minimized then
+							setMemberWindow(member, nil)
+							member.name = member.name or nameFromBundleID(member.bundleID)
+							changed = true
+							workspaceChanged = true
+						end
+					end
+				end
+			end
+
+			if workspaceChanged and liveMemberCount(workspace) == 0 then
+				clearUnavailableIndicator(screenName, workspaceIndex)
+			end
+		end
+	end
+
+	if changed then
+		M.rebuildWindowIndex()
+		M.raiseActiveWorkspaces()
+		M.render()
+	end
+end
+
+function M.reconcileWindows()
+	local changed = false
+
+	for _, screenName in ipairs(M.screenOrder) do
+		for workspaceIndex, workspace in ipairs(M.screens[screenName].workspaces) do
+			local workspaceChanged = false
+			for _, member in ipairs(workspace.members) do
+				if member.window then
+					local windowID = member.windowID or getWindowID(member.window)
+					member.windowID = windowID
+					local ok, application = pcall(function()
+						return member.window:application()
+					end)
+					local hidden = ok and methodReturnsTrue(application, "isHidden")
+					local minimized = methodReturnsTrue(member.window, "isMinimized")
+					local visible = methodReturnsTrue(member.window, "isVisible")
+					local unavailable = not windowID
+						or not hs.window.get(windowID)
+						or (not visible and not hidden and not minimized)
+
+					if unavailable then
+						setMemberWindow(member, nil)
+						member.name = member.name or nameFromBundleID(member.bundleID)
+						changed = true
+						workspaceChanged = true
+					end
+				end
+			end
+
+			if workspaceChanged and liveMemberCount(workspace) == 0 then
+				clearUnavailableIndicator(screenName, workspaceIndex)
+			end
+		end
+	end
+
+	if changed then
+		M.rebuildWindowIndex()
+		M.raiseActiveWorkspaces()
+		M.render()
+	end
+
+	return changed
 end
 
 function M.windowFocused(window)
@@ -1396,14 +1590,53 @@ function M.startWindowWatcher()
 	M.windowFilter:subscribe(hs.window.filter.windowDestroyed, function(window)
 		M.windowDestroyed(window)
 	end)
+	M.windowFilter:subscribe(hs.window.filter.windowNotVisible, function(window)
+		M.windowNotVisible(window)
+	end)
+	M.windowFilter:subscribe(hs.window.filter.windowRejected, function()
+		M.reconcileWindows()
+	end)
 	M.windowFilter:subscribe(hs.window.filter.windowFocused, function(window)
 		M.windowFocused(window)
 	end)
 end
 
+function M.startApplicationWatcher()
+	M.applicationWatcher = hs.application.watcher.new(function(_, eventType, application)
+		if not application then
+			return
+		end
+		local ok, pid = pcall(function()
+			return application:pid()
+		end)
+		if not ok then
+			return
+		end
+
+		if eventType == hs.application.watcher.deactivated then
+			-- A normal application switch leaves its windows visible. Quit can
+			-- instead leave a stale AX window without a destruction event.
+			hs.timer.doAfter(0, function()
+				M.applicationDeactivated(pid)
+			end)
+			return
+		end
+
+		if eventType ~= hs.application.watcher.terminated then
+			return
+		end
+		M.applicationTerminated(pid)
+	end)
+	M.applicationWatcher:start()
+end
+
 function M.screenNameAtPoint(point)
-	if not point then return nil end
-	if M.collapsed then return M.selectedScreenName() or M.screenOrder[1] end
+	if not point then
+		return nil
+	end
+	if M.collapsed then
+		return M.selectedScreenName() or M.screenOrder[1]
+	end
 
 	for _, screenName in ipairs(M.screenOrder) do
 		local frame = M.screens[screenName].frame
@@ -1421,25 +1654,35 @@ function M.screenNameAtPoint(point)
 end
 
 function M.startWorkspaceScrollWatcher()
-	if M.workspaceScrollWatcher then M.workspaceScrollWatcher:stop() end
+	if M.workspaceScrollWatcher then
+		M.workspaceScrollWatcher:stop()
+	end
 
 	local eventTypes = hs.eventtap.event.types
 	local properties = hs.eventtap.event.properties
 	M.workspaceScrollWatcher = hs.eventtap.new({ eventTypes.scrollWheel }, function(event)
-		if not M.enabled or M.suspended then return false end
+		if not M.enabled or M.suspended then
+			return false
+		end
 
 		local flags = event:getFlags()
 		local point = hs.mouse.absolutePosition()
 		local stacklineScreen, _, overStackline = ui.hitTest(point)
 		local altOnly = flags.alt and not flags.cmd and not flags.ctrl and not flags.shift
 		local unmodified = not flags.alt and not flags.cmd and not flags.ctrl and not flags.shift
-		if not altOnly and not (unmodified and overStackline) then return false end
+		if not altOnly and not (unmodified and overStackline) then
+			return false
+		end
 
 		local screenName = stacklineScreen or M.screenNameAtPoint(point)
-		if not screenName then return false end
+		if not screenName then
+			return false
+		end
 
 		local delta = event:getProperty(properties.scrollWheelEventDeltaAxis1) or 0
-		if delta == 0 then return true end
+		if delta == 0 then
+			return true
+		end
 
 		local now = hs.timer.secondsSinceEpoch()
 		local throttle = tonumber(M.options.workspaceScrollThrottle) or 0.18
@@ -1449,7 +1692,9 @@ function M.startWorkspaceScrollWatcher()
 		M.lastWorkspaceScrollAt = now
 
 		local direction = delta > 0 and -1 or 1
-		if M.options.workspaceScrollDirection == "natural" then direction = -direction end
+		if M.options.workspaceScrollDirection == "natural" then
+			direction = -direction
+		end
 
 		hotkeys.runBeforeHandlers()
 		M.noteMouseInteraction()
@@ -1464,11 +1709,15 @@ function M.startWorkspaceScrollWatcher()
 end
 
 function M.startWorkspaceHoverWatcher()
-	if M.workspaceHoverWatcher then M.workspaceHoverWatcher:stop() end
+	if M.workspaceHoverWatcher then
+		M.workspaceHoverWatcher:stop()
+	end
 
 	M.hoveredScreenName = nil
 	M.workspaceHoverWatcher = hs.eventtap.new({ hs.eventtap.event.types.mouseMoved }, function()
-		if not M.enabled or M.suspended then return false end
+		if not M.enabled or M.suspended then
+			return false
+		end
 
 		local point = hs.mouse.absolutePosition()
 		local stacklineScreen, stacklineWorkspace, overStackline = ui.hitTest(point)
@@ -1480,17 +1729,22 @@ function M.startWorkspaceHoverWatcher()
 			M.hoveredScreenName = screenName
 			M.expandedIndicator = nil
 			local group = screenName and M.screens[screenName]
-			M.mouseExpandedIndicator = group and {
-				screenName = screenName,
-				workspaceIndex = (stacklineScreen == screenName and stacklineWorkspace) or group.activeWorkspace,
-				source = "mouse",
-			} or nil
+			M.mouseExpandedIndicator = group
+					and {
+						screenName = screenName,
+						workspaceIndex = (stacklineScreen == screenName and stacklineWorkspace)
+							or group.activeWorkspace,
+						source = "mouse",
+					}
+				or nil
 
 			if M.mouseExpandedIndicator then
 				M.scheduleIndicatorCollapse()
 			else
 				M.indicatorVersion = (M.indicatorVersion or 0) + 1
-				if M.indicatorTimer then M.indicatorTimer:stop() end
+				if M.indicatorTimer then
+					M.indicatorTimer:stop()
+				end
 				M.indicatorTimer = nil
 			end
 
@@ -1500,12 +1754,16 @@ function M.startWorkspaceHoverWatcher()
 
 		if overStackline and not wasOverStackline then
 			local group = stacklineScreen and M.screens[stacklineScreen]
-			M.mouseExpandedIndicator = group and {
-				screenName = stacklineScreen,
-				workspaceIndex = stacklineWorkspace or group.activeWorkspace,
-				source = "mouse",
-			} or nil
-			if M.mouseExpandedIndicator then M.scheduleIndicatorCollapse() end
+			M.mouseExpandedIndicator = group
+					and {
+						screenName = stacklineScreen,
+						workspaceIndex = stacklineWorkspace or group.activeWorkspace,
+						source = "mouse",
+					}
+				or nil
+			if M.mouseExpandedIndicator then
+				M.scheduleIndicatorCollapse()
+			end
 			M.render()
 			return false
 		end
@@ -1530,6 +1788,8 @@ function M.detachWindow(window)
 		return {
 			bundleID = bundleID,
 			name = getApplicationName(window) or nameFromBundleID(bundleID),
+			pid = getApplicationPID(window),
+			windowID = getWindowID(window),
 			window = window,
 		}
 	end
@@ -1538,6 +1798,8 @@ function M.detachWindow(window)
 	local workspace = virtualScreen.workspaces[location.workspaceIndex]
 	local member = table.remove(workspace.members, location.memberIndex)
 	member.name = getApplicationName(window) or member.name or nameFromBundleID(member.bundleID)
+	member.pid = getApplicationPID(window) or member.pid
+	member.windowID = getWindowID(window) or member.windowID
 
 	if #workspace.members == 0 then
 		if workspace.keepEmpty then
@@ -2007,13 +2269,19 @@ end
 
 function M.cycleWorkspaceInGroup(screenName, delta, shouldMoveMouse)
 	local virtualScreen = M.screens[screenName]
-	if not M.enabled or M.suspended or not virtualScreen then return false end
+	if not M.enabled or M.suspended or not virtualScreen then
+		return false
+	end
 
 	local workspaceIndices = {}
 	for index, workspace in ipairs(virtualScreen.workspaces) do
-		if isWorkspaceNavigable(workspace) then table.insert(workspaceIndices, index) end
+		if isWorkspaceNavigable(workspace) then
+			table.insert(workspaceIndices, index)
+		end
 	end
-	if #workspaceIndices < 2 then return false end
+	if #workspaceIndices < 2 then
+		return false
+	end
 
 	local current = 1
 	for index, workspaceIndex in ipairs(workspaceIndices) do
@@ -2225,11 +2493,15 @@ for index = 1, 9 do
 	local groupIndex = index
 	workspaceHotkeyHandlers["moveWindowToGroup" .. groupIndex] = function()
 		local groupID = M.screenOrder[groupIndex]
-		if groupID then M.moveWindowToScreen(groupID) end
+		if groupID then
+			M.moveWindowToScreen(groupID)
+		end
 	end
 	workspaceHotkeyHandlers["addWindowToGroup" .. groupIndex] = function()
 		local groupID = M.screenOrder[groupIndex]
-		if groupID then M.addWindowToActiveWorkspace(groupID) end
+		if groupID then
+			M.addWindowToActiveWorkspace(groupID)
+		end
 	end
 end
 
