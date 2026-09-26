@@ -10,6 +10,9 @@ order preserve the grouping without spending bar space on labels.
 - Built-in display: always visible, with notch-aware height enabled.
 - The first keyboard-navigation session after Hammerspoon starts selects the
   rightmost control item (`clock`); later sessions restore the last selection.
+- `sketchybar.rightItemOrder` in Hammerspoon's `init.lua` defines the static
+  controls from left to right for both display and keyboard navigation. It is
+  reapplied automatically after `sketchybar --reload`.
 - Return invokes the selected item.
 - Space opens the selected item's action menu.
 - Selecting the Codex item shows its usage popup. J/K moves between the Codex

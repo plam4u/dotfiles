@@ -66,6 +66,9 @@ remains visible on the built-in display.
 The first navigation session after Hammerspoon starts selects the rightmost
 control item (`clock`), configurable through `sketchybar.initialSelectedItem`.
 Later sessions restore the item selected when navigation last closed.
+Set `sketchybar.rightItemOrder` in `init.lua` to arrange the right-side static
+controls from left to right. The same order drives keyboard navigation and is
+reapplied automatically after `sketchybar --reload`.
 With the Volume item selected, Space toggles mute while J/K lower/raise volume;
 these direct adjustments keep SketchyBar navigation open. Holding J/K repeats
 the adjustment using the macOS keyboard-repeat delay and rate.

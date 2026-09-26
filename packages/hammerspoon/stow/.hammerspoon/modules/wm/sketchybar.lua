@@ -117,7 +117,7 @@ local staticItems = {
 	},
 }
 
-local rightStaticNavigationOrder = { "codex", "plex", "key_lights", "battery", "volume", "clock" }
+local defaultRightItemOrder = { "codex", "key_lights", "plex", "battery", "volume", "clock" }
 local validWorkspaceFocusStyles = {
 	background = true,
 	border = true,
@@ -180,6 +180,40 @@ function M.itemDefinition(itemID)
 	return nil
 end
 
+local function rightItemOrder(configuredOrder)
+	local order = {}
+	local seen = {}
+
+	for _, itemID in ipairs(configuredOrder or {}) do
+		if itemID ~= "front_app" and M.itemDefinition(itemID) and not seen[itemID] then
+			table.insert(order, itemID)
+			seen[itemID] = true
+		end
+	end
+
+	-- Invalid or omitted entries keep their default relative order instead of
+	-- silently disappearing from keyboard navigation.
+	for _, itemID in ipairs(defaultRightItemOrder) do
+		if not seen[itemID] then
+			table.insert(order, itemID)
+		end
+	end
+
+	return order
+end
+
+function M.applyRightItemOrder()
+	local args = { "--reorder" }
+
+	-- SketchyBar lays out right-positioned items in reverse internal order.
+	-- Configuration and keyboard navigation stay intuitive: left to right.
+	for index = #M.rightItemOrder, 1, -1 do
+		table.insert(args, M.rightItemOrder[index])
+	end
+
+	return M.run(args)
+end
+
 function M.rebuildNavigation()
 	local previousID = M.navigableItems[M.selectedIndex] and M.navigableItems[M.selectedIndex].id
 	local items = { { id = "front_app", type = "static" } }
@@ -199,7 +233,7 @@ function M.rebuildNavigation()
 
 	-- Right-positioned SketchyBar items render in reverse insertion order.
 	-- Keep keyboard traversal aligned with their actual left-to-right geometry.
-	for _, itemID in ipairs(rightStaticNavigationOrder) do
+	for _, itemID in ipairs(M.rightItemOrder) do
 		table.insert(items, { id = itemID, type = "static" })
 	end
 
@@ -780,6 +814,7 @@ end
 function M.handleURL(_, params)
 	local command = params.command
 	if command == "refresh" then
+		M.applyRightItemOrder()
 		M.publish()
 		M.applyBarMode()
 		return
@@ -847,6 +882,7 @@ end
 
 function M.setup(config)
 	M.config = config or {}
+	M.rightItemOrder = rightItemOrder(M.config.rightItemOrder or defaultRightItemOrder)
 	M.workspaceFocusStyle = M.config.workspaceFocusStyle or "underline"
 	if not validWorkspaceFocusStyles[M.workspaceFocusStyle] then
 		M.workspaceFocusStyle = "underline"
@@ -971,6 +1007,7 @@ function M.setup(config)
 	end
 
 	hs.urlevent.bind("wm-bar", M.handleURL)
+	M.applyRightItemOrder()
 	stacking.subscribe(function(snapshot)
 		local fingerprint = hs.json.encode(snapshot)
 		local modeFingerprint = tostring(snapshot.collapsed) .. ":" .. tostring(snapshot.suspended)

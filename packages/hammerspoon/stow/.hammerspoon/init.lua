@@ -165,6 +165,8 @@ require("modules.wm").setup({
 		-- Options: "background", "border", "underline", "left_bar", "text".
 		workspaceFocusStyle = "underline",
 		initialSelectedItem = "clock",
+		-- Static controls in their visual and keyboard-navigation order.
+		rightItemOrder = { "codex", "plex", "key_lights", "battery", "volume", "clock" },
 		keyLights = {
 			left = {
 				match = "8B25",

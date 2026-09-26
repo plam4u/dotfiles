@@ -42,6 +42,8 @@ sketchybar --add item front_app left \
   click_script="$PLUGIN_DIR/action_click.sh front_app" \
   --subscribe front_app front_app_switched
 
+# This is only the bootstrap insertion order. Hammerspoon reapplies the
+# left-to-right order from sketchybar.rightItemOrder after every reload.
 sketchybar --add item clock right \
   --set clock \
   update_freq=10 \
