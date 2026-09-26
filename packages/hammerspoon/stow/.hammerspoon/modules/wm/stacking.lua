@@ -1299,7 +1299,26 @@ function M.attachCreatedWindow(window)
 		return
 	end
 
-	local screenName, workspaceIndex, memberIndex = M.firstPendingMember(bundleID)
+	local screenName, workspaceIndex, memberIndex
+	local launchTarget = M.launchTargets and M.launchTargets[bundleID]
+
+	if launchTarget then
+		screenName = launchTarget.screenName
+		workspaceIndex = M.screens[screenName] and M.findWorkspace(screenName, launchTarget.workspace)
+		if workspaceIndex then
+			for index, member in ipairs(launchTarget.workspace.members) do
+				if member == launchTarget.member and not member.window then
+					memberIndex = index
+					break
+				end
+			end
+		end
+		M.launchTargets[bundleID] = nil
+	end
+
+	if not memberIndex then
+		screenName, workspaceIndex, memberIndex = M.firstPendingMember(bundleID)
+	end
 
 	if not screenName then
 		screenName, workspaceIndex, memberIndex = M.findFinderTabReplacement(window)
@@ -2227,6 +2246,59 @@ function M.focusWorkspace(workspaceIndex)
 	M.rebuildWindowIndex()
 	M.activateWorkspaceExplicitly(screenName, workspaceIndex)
 	M.flashWorkspaceIndicator(screenName, workspaceIndex)
+	return true
+end
+
+function M.restoreActiveWorkspace()
+	if not M.enabled or M.suspended then
+		return false
+	end
+
+	local screenName = M.selectedScreenName()
+	local virtualScreen = screenName and M.screens[screenName]
+	local workspace = virtualScreen and virtualScreen.workspaces[virtualScreen.activeWorkspace]
+
+	if not workspace or liveMemberCount(workspace) > 0 then
+		hs.alert.show("Focus an unavailable workspace first")
+		return false
+	end
+
+	local attempted = 0
+	local launched = 0
+	local seen = {}
+
+	M.launchTargets = M.launchTargets or {}
+	for _, member in ipairs(workspace.members) do
+		local bundleID = member.bundleID
+		if type(bundleID) == "string" and bundleID ~= "" and not seen[bundleID] then
+			seen[bundleID] = true
+			attempted = attempted + 1
+			M.launchTargets[bundleID] = {
+				screenName = screenName,
+				workspace = workspace,
+				member = member,
+			}
+			local ok, result = pcall(hs.application.launchOrFocusByBundleID, bundleID)
+			if ok and result then
+				launched = launched + 1
+			else
+				M.launchTargets[bundleID] = nil
+			end
+		end
+	end
+
+	if attempted == 0 then
+		hs.alert.show("This workspace has no saved applications")
+		return false
+	end
+
+	if launched == 0 then
+		hs.alert.show("Unable to restore workspace applications")
+		return false
+	elseif launched < attempted then
+		hs.alert.show("Some workspace applications could not be opened")
+	end
+
 	return true
 end
 

@@ -33,6 +33,7 @@ Shortcut | Action
 meh + = | Save the current stack model
 hyper + = | Load and restore the saved stack model
 meh + D | Show/hide empty and closed-window workspaces
+meh + R | Open the saved apps in the active unavailable workspace
 meh + U/I/O | Move the focused window into a new left/center/right group
 hyper + U/I/O | Add the focused window to the active left/center/right group
 hyper + P | Extract the focused window into its own group
