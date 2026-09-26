@@ -34,47 +34,47 @@ sketchybar --add event wm_workspace_change
 
 sketchybar --add item front_app left \
   --set front_app \
-    icon.drawing=off \
-    label.width=140 \
-    label.max_chars=26 \
-    label.align=left \
-    script="$PLUGIN_DIR/front_app.sh" \
-    click_script="$PLUGIN_DIR/action_click.sh front_app" \
+  icon.drawing=off \
+  label.width=140 \
+  label.max_chars=26 \
+  label.align=left \
+  script="$PLUGIN_DIR/front_app.sh" \
+  click_script="$PLUGIN_DIR/action_click.sh front_app" \
   --subscribe front_app front_app_switched
 
 sketchybar --add item clock right \
   --set clock \
-    update_freq=10 \
-    icon= \
-    script="$PLUGIN_DIR/clock.sh" \
-    click_script="$PLUGIN_DIR/action_click.sh clock" \
+  update_freq=10 \
+  icon= \
+  script="$PLUGIN_DIR/clock.sh" \
+  click_script="$PLUGIN_DIR/action_click.sh clock" \
   --add item volume right \
   --set volume \
-    script="$PLUGIN_DIR/volume.sh" \
-    click_script="$PLUGIN_DIR/action_click.sh volume" \
+  script="$PLUGIN_DIR/volume.sh" \
+  click_script="$PLUGIN_DIR/action_click.sh volume" \
   --subscribe volume volume_change \
   --add item battery right \
   --set battery \
-    update_freq=120 \
-    script="$PLUGIN_DIR/battery.sh" \
-    click_script="$PLUGIN_DIR/action_click.sh battery" \
+  update_freq=120 \
+  script="$PLUGIN_DIR/battery.sh" \
+  click_script="$PLUGIN_DIR/action_click.sh battery" \
   --subscribe battery system_woke power_source_change \
-  --add item plex right \
-  --set plex \
-    icon="󰚺" \
-    label="Off" \
-    click_script="$PLUGIN_DIR/action_click.sh plex" \
   --add item key_lights right \
   --set key_lights \
-    icon="󰛨" \
-    label="…" \
-    click_script="$PLUGIN_DIR/action_click.sh key_lights" \
+  icon="󰛨" \
+  label="…" \
+  click_script="$PLUGIN_DIR/action_click.sh key_lights" \
+  --add item plex right \
+  --set plex \
+  icon="󰚺" \
+  label="Off" \
+  click_script="$PLUGIN_DIR/action_click.sh plex" \
   --add item codex right \
   --set codex \
-    icon="󰚩" \
-    update_freq=30 \
-    script="$PLUGIN_DIR/codex_usage.sh" \
-    click_script="$PLUGIN_DIR/action_click.sh codex"
+  icon="󰚩" \
+  update_freq=30 \
+  script="$PLUGIN_DIR/codex_usage.sh" \
+  click_script="$PLUGIN_DIR/action_click.sh codex"
 
 sketchybar --add item wm_observer left \
   --set wm_observer drawing=off script="$PLUGIN_DIR/workspace_sync.sh" \

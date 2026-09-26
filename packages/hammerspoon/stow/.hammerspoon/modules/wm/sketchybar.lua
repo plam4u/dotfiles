@@ -23,7 +23,9 @@ local staticItems = {
 				label = "Hide front application",
 				handler = function()
 					local app = hs.application.frontmostApplication()
-					if app then app:hide() end
+					if app then
+						app:hide()
+					end
 				end,
 			},
 		},
@@ -34,7 +36,9 @@ local staticItems = {
 			{
 				id = "calendar",
 				label = "Open Calendar",
-				handler = function() hs.application.launchOrFocus("Calendar") end,
+				handler = function()
+					hs.application.launchOrFocus("Calendar")
+				end,
 			},
 		},
 	},
@@ -46,7 +50,9 @@ local staticItems = {
 				label = "Toggle mute",
 				handler = function()
 					local device = hs.audiodevice.defaultOutputDevice()
-					if device then device:setMuted(not device:muted()) end
+					if device then
+						device:setMuted(not device:muted())
+					end
 				end,
 			},
 			{
@@ -54,7 +60,9 @@ local staticItems = {
 				label = "Volume up",
 				handler = function()
 					local device = hs.audiodevice.defaultOutputDevice()
-					if device then device:setVolume(math.min(100, device:volume() + 5)) end
+					if device then
+						device:setVolume(math.min(100, device:volume() + 5))
+					end
 				end,
 			},
 			{
@@ -62,7 +70,9 @@ local staticItems = {
 				label = "Volume down",
 				handler = function()
 					local device = hs.audiodevice.defaultOutputDevice()
-					if device then device:setVolume(math.max(0, device:volume() - 5)) end
+					if device then
+						device:setVolume(math.max(0, device:volume() - 5))
+					end
 				end,
 			},
 		},
@@ -73,7 +83,9 @@ local staticItems = {
 			{
 				id = "settings",
 				label = "Open System Settings",
-				handler = function() hs.application.launchOrFocus("System Settings") end,
+				handler = function()
+					hs.application.launchOrFocus("System Settings")
+				end,
 			},
 		},
 	},
@@ -87,7 +99,9 @@ local staticItems = {
 			{
 				id = "toggle",
 				label = "Toggle all key lights",
-				handler = function() keyLights.togglePower("all") end,
+				handler = function()
+					keyLights.togglePower("all")
+				end,
 			},
 		},
 	},
@@ -103,7 +117,7 @@ local staticItems = {
 	},
 }
 
-local rightStaticNavigationOrder = { "codex", "key_lights", "plex", "battery", "volume", "clock" }
+local rightStaticNavigationOrder = { "codex", "plex", "key_lights", "battery", "volume", "clock" }
 local validWorkspaceFocusStyles = {
 	background = true,
 	border = true,
@@ -114,7 +128,9 @@ local validWorkspaceFocusStyles = {
 
 local function findExecutable(configured)
 	local paths = { "/opt/homebrew/bin/sketchybar", "/usr/local/bin/sketchybar" }
-	if configured then table.insert(paths, 1, configured) end
+	if configured then
+		table.insert(paths, 1, configured)
+	end
 
 	for _, path in ipairs(paths) do
 		if path and hs.fs.attributes(path, "mode") == "file" then
@@ -125,9 +141,13 @@ local function findExecutable(configured)
 end
 
 local function copyTable(value)
-	if type(value) ~= "table" then return value end
+	if type(value) ~= "table" then
+		return value
+	end
 	local result = {}
-	for key, child in pairs(value) do result[key] = copyTable(child) end
+	for key, child in pairs(value) do
+		result[key] = copyTable(child)
+	end
 	return result
 end
 
@@ -136,20 +156,26 @@ local function shellQuote(value)
 end
 
 function M.run(args)
-	if not M.executable then return false end
+	if not M.executable then
+		return false
+	end
 	local command = shellQuote(M.executable)
 	for _, argument in ipairs(args) do
 		command = command .. " " .. shellQuote(argument)
 	end
 
 	local _, success = hs.execute(command)
-	if not success then M.logger.w("SketchyBar command failed") end
+	if not success then
+		M.logger.w("SketchyBar command failed")
+	end
 	return success
 end
 
 function M.itemDefinition(itemID)
 	for _, item in ipairs(staticItems) do
-		if item.id == itemID then return item end
+		if item.id == itemID then
+			return item
+		end
 	end
 	return nil
 end
@@ -181,7 +207,10 @@ function M.rebuildNavigation()
 	M.selectedIndex = math.min(M.selectedIndex, math.max(1, #items))
 	if previousID then
 		for index, item in ipairs(items) do
-			if item.id == previousID then M.selectedIndex = index break end
+			if item.id == previousID then
+				M.selectedIndex = index
+				break
+			end
 		end
 	end
 end
@@ -213,7 +242,9 @@ function M.selectInitialItem()
 					end
 				end
 			end
-			if wanted then break end
+			if wanted then
+				break
+			end
 		end
 	end
 
@@ -228,7 +259,9 @@ function M.selectInitialItem()
 end
 
 function M.publish(shouldTrigger)
-	if not M.snapshot then return end
+	if not M.snapshot then
+		return
+	end
 	local document = copyTable(M.snapshot)
 	document.navigation = {
 		active = M.active,
@@ -237,7 +270,9 @@ function M.publish(shouldTrigger)
 	}
 	hs.fs.mkdir(hs.configdir .. "/state")
 	hs.json.write(document, M.stateFile, true, true)
-	if shouldTrigger ~= false then M.run({ "--trigger", "wm_workspace_change" }) end
+	if shouldTrigger ~= false then
+		M.run({ "--trigger", "wm_workspace_change" })
+	end
 end
 
 local function appendWorkspaceFocusStyle(args, style)
@@ -265,7 +300,9 @@ local function appendWorkspaceFocusStyle(args, style)
 end
 
 function M.applySelection()
-	if not M.snapshot then return end
+	if not M.snapshot then
+		return
+	end
 
 	local args = {}
 	local selected = M.active and M.navigableItems[M.selectedIndex]
@@ -273,8 +310,7 @@ function M.applySelection()
 	for _, group in ipairs(M.snapshot.groups or {}) do
 		for _, workspace in ipairs(group.workspaces or {}) do
 			local item = string.format("wm.%s.%d", group.id, workspace.index)
-			local focused = selectedID == item
-				or (not M.active and group.active and workspace.active)
+			local focused = selectedID == item or (not M.active and group.active and workspace.active)
 			table.insert(args, "--set")
 			table.insert(args, item)
 			table.insert(args, "icon.drawing=off")
@@ -285,7 +321,9 @@ function M.applySelection()
 			table.insert(args, "background.corner_radius=7")
 			table.insert(args, "background.y_offset=0")
 			table.insert(args, "background.drawing=off")
-			if focused then appendWorkspaceFocusStyle(args, M.workspaceFocusStyle) end
+			if focused then
+				appendWorkspaceFocusStyle(args, M.workspaceFocusStyle)
+			end
 		end
 	end
 
@@ -309,11 +347,15 @@ function M.applySelection()
 		end
 	end
 
-	if #args > 0 then M.run(args) end
+	if #args > 0 then
+		M.run(args)
+	end
 end
 
 function M.applyBarMode()
-	if not M.snapshot then return end
+	if not M.snapshot then
+		return
+	end
 	local laptop = M.snapshot.collapsed == true
 	M.run({
 		"--bar",
@@ -337,10 +379,14 @@ local function clearCodexUsagePopup()
 end
 
 function M.closeCodexUsageDetails()
-	if not M.codexUsageDetailsVisible then return end
+	if not M.codexUsageDetailsVisible then
+		return
+	end
 	clearCodexUsagePopup()
 	M.codexUsageDetailsVisible = false
-	if not M.active then M.applyBarMode() end
+	if not M.active then
+		M.applyBarMode()
+	end
 end
 
 local function usagePercentage(window)
@@ -353,7 +399,9 @@ local function usagePercentage(window)
 end
 
 local function timeUntilReset(timestamp)
-	if type(timestamp) ~= "number" then return "—" end
+	if type(timestamp) ~= "number" then
+		return "—"
+	end
 	local minutes = math.max(0, math.ceil((timestamp - os.time()) / 60))
 	local hours = math.floor(minutes / 60)
 	minutes = minutes % 60
@@ -361,8 +409,12 @@ local function timeUntilReset(timestamp)
 end
 
 local function resetTime(window, format)
-	if type(window) ~= "table" or type(window.resetsAt) ~= "number" then return "—" end
-	if format == "remaining" then return timeUntilReset(window.resetsAt) end
+	if type(window) ~= "table" or type(window.resetsAt) ~= "number" then
+		return "—"
+	end
+	if format == "remaining" then
+		return timeUntilReset(window.resetsAt)
+	end
 
 	local reset = os.date(format == "date" and "%b %d" or "%H:%M", window.resetsAt)
 	reset = reset:gsub(" 0(%d)$", " %1")
@@ -370,15 +422,21 @@ local function resetTime(window, format)
 end
 
 local function daysUntilReset(window)
-	if type(window) ~= "table" or type(window.resetsAt) ~= "number" then return "—" end
+	if type(window) ~= "table" or type(window.resetsAt) ~= "number" then
+		return "—"
+	end
 	local today = os.date("*t")
 	local reset = os.date("*t", window.resetsAt)
 	-- Comparing local noons keeps this a calendar-day count across DST changes.
 	local todayNoon = os.time({ year = today.year, month = today.month, day = today.day, hour = 12 })
 	local resetNoon = os.time({ year = reset.year, month = reset.month, day = reset.day, hour = 12 })
 	local days = math.max(0, math.min(7, math.floor((resetNoon - todayNoon) / 86400 + 0.5)))
-	if days == 0 then return "today" end
-	if days == 1 then return "1 day" end
+	if days == 0 then
+		return "today"
+	end
+	if days == 1 then
+		return "1 day"
+	end
 	return string.format("%d days", days)
 end
 
@@ -406,7 +464,9 @@ local function codexUsageRows(details)
 end
 
 function M.renderCodexUsageDetails()
-	if not M.codexUsageDetailsVisible then return end
+	if not M.codexUsageDetailsVisible then
+		return
+	end
 	local rows = codexUsageRows(M.codexUsageDetails)
 	local args = { "--set", "/^wm.codex.usage\\./", "background.drawing=off" }
 	for index, row in ipairs(rows) do
@@ -415,7 +475,9 @@ function M.renderCodexUsageDetails()
 		table.insert(args, name)
 		table.insert(args, "icon=" .. row.heading)
 		table.insert(args, "label=" .. row.value)
-		if index == M.codexUsageRowIndex then table.insert(args, "background.drawing=on") end
+		if index == M.codexUsageRowIndex then
+			table.insert(args, "background.drawing=on")
+		end
 	end
 	M.run(args)
 end
@@ -465,14 +527,18 @@ function M.openCodexUsageDetails()
 end
 
 function M.handleCodexUsageVertical(selected, delta)
-	if not selected or selected.id ~= "codex" or not M.codexUsageDetailsVisible then return false end
+	if not selected or selected.id ~= "codex" or not M.codexUsageDetailsVisible then
+		return false
+	end
 	M.codexUsageRowIndex = ((M.codexUsageRowIndex + delta) % (M.codexUsageRowCount + 1))
 	M.renderCodexUsageDetails()
 	return true
 end
 
 function M.invokeCodexUsageSelected(selected)
-	if not selected or selected.id ~= "codex" or not M.codexUsageDetailsVisible then return false end
+	if not selected or selected.id ~= "codex" or not M.codexUsageDetailsVisible then
+		return false
+	end
 	if M.codexUsageRowIndex == 1 then
 		M.codexFiveHourTimeFormat = M.codexFiveHourTimeFormat == "remaining" and "time" or "remaining"
 		M.renderCodexUsageDetails()
@@ -495,7 +561,9 @@ end
 
 function M.openMenu(itemID)
 	local definition = M.itemDefinition(itemID)
-	if not definition or #(definition.actions or {}) == 0 then return false end
+	if not definition or #(definition.actions or {}) == 0 then
+		return false
+	end
 	if M.menuParent == itemID then
 		M.closeMenu()
 		return true
@@ -536,8 +604,17 @@ function M.openMenu(itemID)
 end
 
 function M.updateMenuSelection()
-	if not M.menuIndex then return end
-	local args = { "--set", "/^wm.menu\\./", "background.drawing=off", "--set", "wm.menu." .. M.menuIndex, "background.drawing=on" }
+	if not M.menuIndex then
+		return
+	end
+	local args = {
+		"--set",
+		"/^wm.menu\\./",
+		"background.drawing=off",
+		"--set",
+		"wm.menu." .. M.menuIndex,
+		"background.drawing=on",
+	}
 	M.run(args)
 end
 
@@ -548,7 +625,9 @@ function M.moveSelection(delta)
 		return
 	end
 
-	if #M.navigableItems == 0 then return end
+	if #M.navigableItems == 0 then
+		return
+	end
 	M.selectedIndex = ((M.selectedIndex - 1 + delta) % #M.navigableItems) + 1
 	M.publish(false)
 	M.applySelection()
@@ -559,7 +638,9 @@ end
 
 function M.runAction(itemID, actionID)
 	local definition = M.itemDefinition(itemID)
-	if not definition then return false end
+	if not definition then
+		return false
+	end
 
 	for _, action in ipairs(definition.actions or {}) do
 		if action.id == actionID then
@@ -572,7 +653,9 @@ end
 
 function M.invokeAction(itemID, actionID)
 	local definition = M.itemDefinition(itemID)
-	if not definition then return false end
+	if not definition then
+		return false
+	end
 	M.closeMenu()
 	return M.runAction(itemID, actionID)
 end
@@ -585,9 +668,15 @@ function M.handleVerticalNavigation(delta)
 	end
 
 	local item = M.navigableItems[M.selectedIndex]
-	if M.handleCodexUsageVertical(item, delta) then return end
-	if keyLights.handleVertical(item, delta) then return end
-	if plex.handleVertical(item, delta) then return end
+	if M.handleCodexUsageVertical(item, delta) then
+		return
+	end
+	if keyLights.handleVertical(item, delta) then
+		return
+	end
+	if plex.handleVertical(item, delta) then
+		return
+	end
 	if item and item.id == "volume" then
 		M.volumeRepeatDirection = delta
 		M.runAction("volume", delta < 0 and "up" or "down")
@@ -599,7 +688,9 @@ end
 
 function M.handleHorizontalNavigation(delta)
 	local item = M.navigableItems[M.selectedIndex]
-	if keyLights.handleHorizontal(item, delta) then return end
+	if keyLights.handleHorizontal(item, delta) then
+		return
+	end
 	keyLights.stopRepeat()
 	M.moveSelection(delta)
 end
@@ -616,35 +707,53 @@ end
 
 function M.handleSpace()
 	local item = M.navigableItems[M.selectedIndex]
-	if M.invokeCodexUsageSelected(item) then return end
-	if keyLights.invokeSelected(item) then return end
+	if M.invokeCodexUsageSelected(item) then
+		return
+	end
+	if keyLights.invokeSelected(item) then
+		return
+	end
 	local plexHandled, closeAfterPlexAction = plex.invokeSelected(item)
 	if plexHandled then
-		if closeAfterPlexAction then M.modal:exit() end
+		if closeAfterPlexAction then
+			M.modal:exit()
+		end
 		return
 	end
 	if item and item.id == "volume" then
-		if M.menuIndex then M.closeMenu() end
+		if M.menuIndex then
+			M.closeMenu()
+		end
 		M.runAction("volume", "mute")
 		return
 	end
-	if item and item.type == "static" then M.openMenu(item.id) end
+	if item and item.type == "static" then
+		M.openMenu(item.id)
+	end
 end
 
 function M.invokeSelected()
 	if M.menuIndex then
 		local action = M.menuItems[M.menuIndex]
-		if action then M.invokeAction(M.menuParent, action.id) end
+		if action then
+			M.invokeAction(M.menuParent, action.id)
+		end
 		M.modal:exit()
 		return
 	end
 
 	local item = M.navigableItems[M.selectedIndex]
-	if not item then return end
-	if keyLights.invokeSelected(item) then return end
+	if not item then
+		return
+	end
+	if keyLights.invokeSelected(item) then
+		return
+	end
 	local plexHandled, closeAfterPlexAction = plex.invokeSelected(item)
 	if plexHandled then
-		if closeAfterPlexAction then M.modal:exit() end
+		if closeAfterPlexAction then
+			M.modal:exit()
+		end
 		return
 	end
 
@@ -653,13 +762,19 @@ function M.invokeSelected()
 	else
 		local definition = M.itemDefinition(item.id)
 		local action = definition and definition.actions and definition.actions[1]
-		if action then action.handler() end
+		if action then
+			action.handler()
+		end
 	end
 	M.modal:exit()
 end
 
 function M.toggleNavigation()
-	if M.active then M.modal:exit() else M.modal:enter() end
+	if M.active then
+		M.modal:exit()
+	else
+		M.modal:enter()
+	end
 end
 
 function M.handleURL(_, params)
@@ -687,29 +802,45 @@ function M.handleURL(_, params)
 			-- workspace activation keeps the configured mouse-follows-focus behavior.
 			stacking.activateWorkspaceExplicitly(params.group, index, true, false)
 		end
-		if M.active then M.modal:exit() end
+		if M.active then
+			M.modal:exit()
+		end
 		return
 	end
 
 	if command == "action" and tostring(params.item or ""):match("^[%w_.-]+$") then
 		M.invokeAction(params.item, params.action)
-		if M.active then M.modal:exit() end
+		if M.active then
+			M.modal:exit()
+		end
 		return
 	end
 
 	if command == "click" and tostring(params.item or ""):match("^[%w_.-]+$") then
 		local definition = M.itemDefinition(params.item)
-		if not definition then return end
-		if params.item ~= "codex" then M.closeCodexUsageDetails() end
-		if params.item ~= "key_lights" then keyLights.closeDetails() end
-		if params.item ~= "plex" then plex.closeDetails() end
+		if not definition then
+			return
+		end
+		if params.item ~= "codex" then
+			M.closeCodexUsageDetails()
+		end
+		if params.item ~= "key_lights" then
+			keyLights.closeDetails()
+		end
+		if params.item ~= "plex" then
+			plex.closeDetails()
+		end
 		if params.button == "right" then
 			M.openMenu(params.item)
 		else
 			local actionIndex = (params.button == "middle" or params.button == "other") and 2 or 1
 			local action = definition.actions and definition.actions[actionIndex]
-			if action then action.handler() end
-			if M.active and params.item ~= "codex" then M.modal:exit() end
+			if action then
+				action.handler()
+			end
+			if M.active and params.item ~= "codex" then
+				M.modal:exit()
+			end
 		end
 	end
 end
@@ -753,48 +884,78 @@ function M.setup(config)
 		M.applyBarMode()
 	end
 
-	M.modal:bind({}, "left", function() M.moveSelection(-1) end)
+	M.modal:bind({}, "left", function()
+		M.moveSelection(-1)
+	end)
 	M.modal:bind(
 		{},
 		"h",
-		function() M.handleHorizontalNavigation(-1) end,
+		function()
+			M.handleHorizontalNavigation(-1)
+		end,
 		keyLights.stopRepeat,
-		function() keyLights.repeatAdjustment(-1) end
+		function()
+			keyLights.repeatAdjustment(-1)
+		end
 	)
-	M.modal:bind({}, "right", function() M.moveSelection(1) end)
+	M.modal:bind({}, "right", function()
+		M.moveSelection(1)
+	end)
 	M.modal:bind(
 		{},
 		"l",
-		function() M.handleHorizontalNavigation(1) end,
+		function()
+			M.handleHorizontalNavigation(1)
+		end,
 		keyLights.stopRepeat,
-		function() keyLights.repeatAdjustment(1) end
+		function()
+			keyLights.repeatAdjustment(1)
+		end
 	)
-	M.modal:bind({}, "up", function() M.moveSelection(-1) end)
+	M.modal:bind({}, "up", function()
+		M.moveSelection(-1)
+	end)
 	M.modal:bind(
 		{},
 		"k",
-		function() M.handleVerticalNavigation(-1) end,
+		function()
+			M.handleVerticalNavigation(-1)
+		end,
 		M.stopVolumeRepeat,
-		function() M.repeatVolume(-1) end
+		function()
+			M.repeatVolume(-1)
+		end
 	)
-	M.modal:bind({}, "down", function() M.moveSelection(1) end)
+	M.modal:bind({}, "down", function()
+		M.moveSelection(1)
+	end)
 	M.modal:bind(
 		{},
 		"j",
-		function() M.handleVerticalNavigation(1) end,
+		function()
+			M.handleVerticalNavigation(1)
+		end,
 		M.stopVolumeRepeat,
-		function() M.repeatVolume(1) end
+		function()
+			M.repeatVolume(1)
+		end
 	)
 	M.modal:bind({}, "return", M.invokeSelected)
 	M.modal:bind({}, "space", M.handleSpace)
 	M.modal:bind({}, "escape", function()
-		if M.menuIndex then M.closeMenu() else M.modal:exit() end
+		if M.menuIndex then
+			M.closeMenu()
+		else
+			M.modal:exit()
+		end
 	end)
 	hotkeys.addBeforeHandler(function()
 		if M.active then
 			M.modal:exit()
 		else
-			if M.menuIndex then M.closeMenu() end
+			if M.menuIndex then
+				M.closeMenu()
+			end
 			M.closeCodexUsageDetails()
 			keyLights.closeDetails()
 			plex.closeDetails()
@@ -817,8 +978,12 @@ function M.setup(config)
 		local modeChanged = modeFingerprint ~= M.modeFingerprint
 		M.snapshot = snapshot
 		M.rebuildNavigation()
-		if changed then M.publish() end
-		if modeChanged then M.applyBarMode() end
+		if changed then
+			M.publish()
+		end
+		if modeChanged then
+			M.applyBarMode()
+		end
 		M.snapshotFingerprint = fingerprint
 		M.modeFingerprint = modeFingerprint
 	end)
