@@ -16,7 +16,8 @@ order preserve the grouping without spending bar space on labels.
   item and the 5-hour, weekly, and manual-reset rows. Space on the 5-hour row
   toggles between an `in   HH:mm` countdown and percentage plus reset time. Space on the weekly row
   toggles between percentage plus reset date and `in` plus `today`, `1 day`, or `2–7 days`. The manual-reset row is
-  read-only. Moving to another item or leaving navigation closes the popup.
+  read-only. Both rows initially show the `in` remaining-time view. Moving to
+  another item or leaving navigation closes the popup.
 - Selecting the Key Lights item opens its control popup. J/K
   selects all-power, then power, temperature, and brightness for the left and
   right lights. H/L adjusts temperature in 50 K steps and brightness in 5%

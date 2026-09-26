@@ -87,7 +87,8 @@ this repository.
 With the Codex item selected, J/K moves between the item and its usage rows.
 Space on the 5-hour row toggles between an `in   HH:mm` countdown and percentage plus reset time.
 Space on the weekly row toggles between percentage plus reset date and `in`
-plus `today`, `1 day`, or `2–7 days`. The
+plus `today`, `1 day`, or `2–7 days`. Both rows initially use the `in`
+remaining-time view. The
 manual-reset row remains read-only, and H/L returns to bar-item navigation.
 Invoking another WM hotkey exits SketchyBar navigation before running that
 command, preventing the navigation modal from consuming subsequent typing.

@@ -10,6 +10,8 @@ local M = {
 	menuItems = {},
 	menuIndex = nil,
 	menuParent = nil,
+	codexFiveHourTimeFormat = "remaining",
+	codexWeeklyTimeFormat = "remaining",
 }
 
 local staticItems = {
@@ -387,7 +389,7 @@ local function codexUsageRows(details)
 
 	local resets = tonumber(details.manualResets)
 	local fivePercent = usagePercentage(details.fiveHour)
-	local fiveReset = resetTime(details.fiveHour, M.codexFiveHourTimeFormat or "time")
+	local fiveReset = resetTime(details.fiveHour, M.codexFiveHourTimeFormat or "remaining")
 	local weeklyPercent = usagePercentage(details.weekly)
 	local weeklyRemaining = M.codexWeeklyTimeFormat == "remaining"
 	local weeklyReset = weeklyRemaining and daysUntilReset(details.weekly) or resetTime(details.weekly, "date")
