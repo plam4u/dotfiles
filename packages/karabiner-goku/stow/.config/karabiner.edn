@@ -368,9 +368,9 @@
         {:des "Dactyl Manuform Keyboard" :rules [:dm-kb
 
           ;; mirror "mash + u/i/o" to the left hand
-          [:!TOSw [:!TOSu]]
-          [:!TOSe [:!TOSi]]
-          [:!TOSr [:!TOSo]]
+          ; [:!TOSw [:!TOSu]]
+          ; [:!TOSe [:!TOSi]]
+          ; [:!TOSr [:!TOSo]]
 
           ;; ========================
           ;; Layer LOWER2

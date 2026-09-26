@@ -2681,66 +2681,6 @@
         "description" : "Dactyl Manuform Keyboard",
         "manipulators" : [ {
           "from" : {
-            "key_code" : "w",
-            "modifiers" : {
-              "mandatory" : [ "left_control", "left_option", "left_shift" ]
-            }
-          },
-          "to" : [ {
-            "key_code" : "u",
-            "modifiers" : [ "left_control", "left_option", "left_shift" ]
-          } ],
-          "conditions" : [ {
-            "identifiers" : [ {
-              "vendor_id" : 47789,
-              "product_id" : 1,
-              "is_keyboard" : true
-            } ],
-            "type" : "device_if"
-          } ],
-          "type" : "basic"
-        }, {
-          "from" : {
-            "key_code" : "e",
-            "modifiers" : {
-              "mandatory" : [ "left_control", "left_option", "left_shift" ]
-            }
-          },
-          "to" : [ {
-            "key_code" : "i",
-            "modifiers" : [ "left_control", "left_option", "left_shift" ]
-          } ],
-          "conditions" : [ {
-            "identifiers" : [ {
-              "vendor_id" : 47789,
-              "product_id" : 1,
-              "is_keyboard" : true
-            } ],
-            "type" : "device_if"
-          } ],
-          "type" : "basic"
-        }, {
-          "from" : {
-            "key_code" : "r",
-            "modifiers" : {
-              "mandatory" : [ "left_control", "left_option", "left_shift" ]
-            }
-          },
-          "to" : [ {
-            "key_code" : "o",
-            "modifiers" : [ "left_control", "left_option", "left_shift" ]
-          } ],
-          "conditions" : [ {
-            "identifiers" : [ {
-              "vendor_id" : 47789,
-              "product_id" : 1,
-              "is_keyboard" : true
-            } ],
-            "type" : "device_if"
-          } ],
-          "type" : "basic"
-        }, {
-          "from" : {
             "key_code" : "f12",
             "modifiers" : {
               "mandatory" : [ "left_shift" ]
