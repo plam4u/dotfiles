@@ -15,6 +15,12 @@ order preserve the grouping without spending bar space on labels.
 - Selecting the Codex item automatically shows a passive usage popup with
   5-hour and weekly remaining limits, their reset times, and available manual
   resets. Moving to another item or leaving navigation closes it.
+- Selecting the Key Lights item opens its control popup. J/K
+  selects all-power, then power, temperature, and brightness for the left and
+  right lights. H/L adjusts temperature and brightness in 5-unit steps, repeats
+  while held, and otherwise keeps navigating the bar; Space or Return toggles
+  power rows.
+  Left/Right leaves the item, and any WM action closes the popup with the bar.
 - With Volume selected, Space toggles mute and J/K lower/raise volume without
   leaving navigation mode. Hold J/K for continuous adjustment at the macOS
   keyboard-repeat rate.

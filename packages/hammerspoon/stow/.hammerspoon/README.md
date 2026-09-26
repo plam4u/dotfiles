@@ -67,6 +67,16 @@ Later sessions restore the item selected when navigation last closed.
 With the Volume item selected, Space toggles mute while J/K lower/raise volume;
 these direct adjustments keep SketchyBar navigation open. Holding J/K repeats
 the adjustment using the macOS keyboard-repeat delay and rate.
+With the Key Lights item selected, its popup remains open while focused. J/K
+selects all-power, then the power, temperature, and brightness rows for the left
+and right lights. H/L adjusts temperature and brightness in 5-unit steps, and
+holding either key repeats the adjustment; on power rows H/L continues bar
+navigation. Space or Return toggles power.
+Left/Right returns to bar-item navigation. The default role matching uses the
+device-name suffixes `8B25` (left) and `07C7` (right). Their current LAN
+addresses are pinned under `sketchybar.keyLights` in `init.lua`, with Bonjour
+discovery retained as a fallback. Hammerspoon must be enabled in macOS System
+Settings → Privacy & Security → Local Network.
 Invoking another WM hotkey exits SketchyBar navigation before running that
 command, preventing the navigation modal from consuming subsequent typing.
 

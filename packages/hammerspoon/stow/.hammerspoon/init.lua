@@ -161,6 +161,16 @@ require("modules.wm").setup({
 		-- Options: "background", "border", "underline", "left_bar", "text".
 		workspaceFocusStyle = "underline",
 		initialSelectedItem = "clock",
+		keyLights = {
+			left = {
+				match = "8B25",
+				host = "192.168.1.40",
+			},
+			right = {
+				match = "07C7",
+				host = "192.168.1.44",
+			},
+		},
 		mapping = {
 			toggleNavigation = { "alt", "m" },
 		},

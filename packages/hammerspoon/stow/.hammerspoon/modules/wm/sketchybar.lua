@@ -1,5 +1,6 @@
 local hotkeys = require("modules.wm.hotkeys")
 local stacking = require("modules.wm.stacking")
+local keyLights = require("modules.key_lights")
 
 local M = {
 	active = false,
@@ -77,9 +78,19 @@ local staticItems = {
 		id = "codex",
 		actions = {},
 	},
+	{
+		id = "key_lights",
+		actions = {
+			{
+				id = "toggle",
+				label = "Toggle all key lights",
+				handler = function() keyLights.togglePower("all") end,
+			},
+		},
+	},
 }
 
-local rightStaticNavigationOrder = { "codex", "battery", "volume", "clock" }
+local rightStaticNavigationOrder = { "codex", "key_lights", "battery", "volume", "clock" }
 local validWorkspaceFocusStyles = {
 	background = true,
 	border = true,
@@ -299,6 +310,152 @@ function M.applyBarMode()
 	})
 end
 
+local keyLightRows = {
+	{ heading = "All lights", role = "all", property = "power" },
+	{ heading = "Left power", role = "left", property = "power" },
+	{ heading = "Left temperature", role = "left", property = "temperature" },
+	{ heading = "Left brightness", role = "left", property = "brightness" },
+	{ heading = "Right power", role = "right", property = "power" },
+	{ heading = "Right temperature", role = "right", property = "temperature" },
+	{ heading = "Right brightness", role = "right", property = "brightness" },
+}
+
+local function keyLightPowerValue(role)
+	local roles = {}
+	if role == "all" then
+		roles = { "left", "right" }
+	else
+		roles = { role }
+	end
+	local onCount, offCount, knownCount = 0, 0, 0
+	for _, deviceRole in ipairs(roles) do
+		local device = keyLights.devices[deviceRole]
+		local state = device and device.reachable ~= false and device.state
+		if state then
+			knownCount = knownCount + 1
+			if state.on then onCount = onCount + 1 else offCount = offCount + 1 end
+		end
+	end
+	if knownCount == 0 then return "Unavailable" end
+	if knownCount < #roles then return "Partial" end
+	if onCount > 0 and offCount > 0 then return "Mixed" end
+	if onCount > 0 then return "On" end
+	if offCount > 0 then return "Off" end
+	return "Unavailable"
+end
+
+local function keyLightRowValue(row)
+	if row.property == "power" then return keyLightPowerValue(row.role) end
+	local device = keyLights.devices[row.role]
+	local state = device and device.reachable ~= false and device.state
+	if not state then return "Unavailable" end
+	if row.property == "brightness" then
+		return state.brightness and string.format("%d%%", state.brightness) or "—"
+	end
+	if state.temperature then
+		return string.format("%dK", math.floor(1000000 / state.temperature + 0.5))
+	end
+	return "—"
+end
+
+local function clearKeyLightsPopup()
+	M.run({ "--set", "key_lights", "popup.drawing=off", "--remove", "/^wm.key_lights\\./" })
+end
+
+function M.updateKeyLightsItem()
+	if not M.executable or not keyLights.devices.left or not keyLights.devices.right then return end
+	local status = keyLightPowerValue("all")
+	local label = status == "Unavailable" and "Lights …" or "Lights " .. status
+	M.run({ "--set", "key_lights", "label=" .. label })
+	if M.keyLightsDetailsVisible then M.renderKeyLightsDetails() end
+end
+
+function M.renderKeyLightsDetails()
+	if not M.keyLightsDetailsVisible then return end
+	local args = { "--set", "/^wm.key_lights\\./", "background.drawing=off" }
+	for index, row in ipairs(keyLightRows) do
+		local name = "wm.key_lights." .. tostring(index)
+		table.insert(args, "--set")
+		table.insert(args, name)
+		table.insert(args, "label=" .. keyLightRowValue(row))
+		if index == M.keyLightsRowIndex then
+			table.insert(args, "background.drawing=on")
+		end
+	end
+	M.run(args)
+end
+
+function M.openKeyLightsDetails()
+	M.closeMenu()
+	M.closeCodexUsageDetails()
+	clearKeyLightsPopup()
+	M.keyLightsRowIndex = M.keyLightsRowIndex or 1
+	local args = {}
+	for index, row in ipairs(keyLightRows) do
+		local name = "wm.key_lights." .. tostring(index)
+		table.insert(args, "--add")
+		table.insert(args, "item")
+		table.insert(args, name)
+		table.insert(args, "popup.key_lights")
+		table.insert(args, "--set")
+		table.insert(args, name)
+		table.insert(args, "icon=" .. row.heading)
+		table.insert(args, "icon.font=Hack Nerd Font:Bold:13.0")
+		table.insert(args, "icon.width=132")
+		table.insert(args, "icon.align=left")
+		table.insert(args, "icon.padding_left=10")
+		table.insert(args, "icon.padding_right=4")
+		table.insert(args, "label=" .. keyLightRowValue(row))
+		table.insert(args, "label.font=Hack Nerd Font:Regular:13.0")
+		table.insert(args, "label.width=92")
+		table.insert(args, "label.align=right")
+		table.insert(args, "label.padding_left=4")
+		table.insert(args, "label.padding_right=10")
+		table.insert(args, "background.color=0xff3b82f6")
+		table.insert(args, "background.corner_radius=6")
+		table.insert(args, "background.height=26")
+		table.insert(args, "background.drawing=" .. (index == M.keyLightsRowIndex and "on" or "off"))
+	end
+	M.run(args)
+	M.run({ "--set", "key_lights", "popup.drawing=on" })
+	M.keyLightsDetailsVisible = true
+	keyLights.refresh()
+end
+
+function M.closeKeyLightsDetails()
+	if not M.keyLightsDetailsVisible then return end
+	clearKeyLightsPopup()
+	M.keyLightsDetailsVisible = false
+	M.keyLightsRowIndex = nil
+end
+
+function M.syncKeyLightsDetails()
+	local selected = M.active and M.navigableItems[M.selectedIndex]
+	local shouldShow = selected and selected.id == "key_lights" and not M.menuIndex
+	if shouldShow and not M.keyLightsDetailsVisible then
+		M.openKeyLightsDetails()
+	elseif not shouldShow and M.keyLightsDetailsVisible then
+		M.closeKeyLightsDetails()
+	end
+end
+
+function M.moveKeyLightsRow(delta)
+	M.keyLightsRowIndex = ((M.keyLightsRowIndex - 1 + delta) % #keyLightRows) + 1
+	M.renderKeyLightsDetails()
+end
+
+function M.adjustKeyLightsRow(delta)
+	local row = keyLightRows[M.keyLightsRowIndex or 1]
+	if not row or row.property == "power" then return false end
+	keyLights.adjust(row.role, row.property, delta)
+	return true
+end
+
+function M.invokeKeyLightsRow()
+	local row = keyLightRows[M.keyLightsRowIndex or 1]
+	if row.property == "power" then keyLights.togglePower(row.role) end
+end
+
 function M.closeMenu()
 	if M.menuParent then
 		M.run({ "--set", M.menuParent, "popup.drawing=off", "--remove", "/^wm.menu\\./" })
@@ -334,6 +491,7 @@ local function usageColumns(window, includeDate)
 end
 
 function M.openCodexUsageDetails()
+	M.closeKeyLightsDetails()
 	M.closeMenu()
 	clearCodexUsagePopup()
 	local details = hs.json.read(M.codexUsageStateFile)
@@ -399,6 +557,7 @@ function M.openMenu(itemID)
 		return true
 	end
 	M.closeCodexUsageDetails()
+	M.closeKeyLightsDetails()
 	M.closeMenu()
 	M.menuParent = itemID
 	M.menuItems = definition.actions
@@ -449,6 +608,7 @@ function M.moveSelection(delta)
 	M.publish(false)
 	M.applySelection()
 	M.syncCodexUsageDetails()
+	M.syncKeyLightsDetails()
 end
 
 function M.runAction(itemID, actionID)
@@ -479,6 +639,10 @@ function M.handleVerticalNavigation(delta)
 	end
 
 	local item = M.navigableItems[M.selectedIndex]
+	if item and item.id == "key_lights" and M.keyLightsDetailsVisible then
+		M.moveKeyLightsRow(delta)
+		return
+	end
 	if item and item.id == "volume" then
 		M.volumeRepeatDirection = delta
 		M.runAction("volume", delta < 0 and "up" or "down")
@@ -486,6 +650,26 @@ function M.handleVerticalNavigation(delta)
 	end
 
 	M.moveSelection(delta)
+end
+
+function M.handleHorizontalNavigation(delta)
+	local item = M.navigableItems[M.selectedIndex]
+	if item and item.id == "key_lights" and M.keyLightsDetailsVisible then
+		if M.adjustKeyLightsRow(delta) then
+			M.keyLightsRepeatDirection = delta
+			return
+		end
+	end
+	M.keyLightsRepeatDirection = nil
+	M.moveSelection(delta)
+end
+
+function M.repeatKeyLightsAdjustment(delta)
+	if M.keyLightsRepeatDirection == delta then M.adjustKeyLightsRow(delta) end
+end
+
+function M.stopKeyLightsRepeat()
+	M.keyLightsRepeatDirection = nil
 end
 
 function M.repeatVolume(delta)
@@ -500,6 +684,10 @@ end
 
 function M.handleSpace()
 	local item = M.navigableItems[M.selectedIndex]
+	if item and item.id == "key_lights" and M.keyLightsDetailsVisible then
+		M.invokeKeyLightsRow()
+		return
+	end
 	if item and item.id == "volume" then
 		if M.menuIndex then M.closeMenu() end
 		M.runAction("volume", "mute")
@@ -518,6 +706,10 @@ function M.invokeSelected()
 
 	local item = M.navigableItems[M.selectedIndex]
 	if not item then return end
+	if item.id == "key_lights" and M.keyLightsDetailsVisible then
+		M.invokeKeyLightsRow()
+		return
+	end
 
 	if item.type == "workspace" then
 		stacking.activateWorkspaceExplicitly(item.group, item.workspaceIndex)
@@ -572,6 +764,7 @@ function M.handleURL(_, params)
 		local definition = M.itemDefinition(params.item)
 		if not definition then return end
 		if params.item ~= "codex" then M.closeCodexUsageDetails() end
+		if params.item ~= "key_lights" then M.closeKeyLightsDetails() end
 		if params.button == "right" then
 			M.openMenu(params.item)
 		else
@@ -595,6 +788,8 @@ function M.setup(config)
 	M.pluginDir = hs.configdir:gsub("%.hammerspoon$", ".config/sketchybar/plugins")
 	M.codexUsageStateFile = os.getenv("HOME") .. "/Library/Caches/SketchyBar/codex_usage.json"
 	clearCodexUsagePopup()
+	clearKeyLightsPopup()
+	keyLights.setup(M.config.keyLights or {}, function() M.updateKeyLightsItem() end)
 
 	M.modal = hs.hotkey.modal.new()
 	M.modal.entered = function()
@@ -605,19 +800,35 @@ function M.setup(config)
 		M.publish(false)
 		M.applySelection()
 		M.syncCodexUsageDetails()
+		M.syncKeyLightsDetails()
 	end
 	M.modal.exited = function()
 		M.lastSelectedID = M.navigableItems[M.selectedIndex] and M.navigableItems[M.selectedIndex].id
 		M.active = false
 		M.closeMenu()
 		M.closeCodexUsageDetails()
+		M.closeKeyLightsDetails()
 		M.publish(false)
 		M.applySelection()
 		M.applyBarMode()
 	end
 
-	for _, key in ipairs({ "left", "h" }) do M.modal:bind({}, key, function() M.moveSelection(-1) end) end
-	for _, key in ipairs({ "right", "l" }) do M.modal:bind({}, key, function() M.moveSelection(1) end) end
+	M.modal:bind({}, "left", function() M.moveSelection(-1) end)
+	M.modal:bind(
+		{},
+		"h",
+		function() M.handleHorizontalNavigation(-1) end,
+		M.stopKeyLightsRepeat,
+		function() M.repeatKeyLightsAdjustment(-1) end
+	)
+	M.modal:bind({}, "right", function() M.moveSelection(1) end)
+	M.modal:bind(
+		{},
+		"l",
+		function() M.handleHorizontalNavigation(1) end,
+		M.stopKeyLightsRepeat,
+		function() M.repeatKeyLightsAdjustment(1) end
+	)
 	M.modal:bind({}, "up", function() M.moveSelection(-1) end)
 	M.modal:bind(
 		{},
@@ -645,6 +856,7 @@ function M.setup(config)
 		else
 			if M.menuIndex then M.closeMenu() end
 			M.closeCodexUsageDetails()
+			M.closeKeyLightsDetails()
 		end
 	end)
 	for action, hotkey in pairs(M.config.mapping or {}) do
