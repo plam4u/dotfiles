@@ -114,6 +114,8 @@ require("modules.wm").setup({
 			loadStacks = { hyper, "=" },
 			-- Reveal/hide empty workspaces and workspaces whose windows are closed.
 			toggleUnavailableWorkspaces = { meh, "d" },
+			-- Move inactive workspaces out of the selected virtual screen.
+			parkInactiveWorkspaces = { meh, "e" },
 			-- Open the saved apps for the active unavailable workspace.
 			restoreActiveWorkspace = { meh, "r" },
 			-- Select or create a workspace on the focused virtual screen.

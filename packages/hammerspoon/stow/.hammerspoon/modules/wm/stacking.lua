@@ -1095,6 +1095,40 @@ function M.parkAllGroups()
 	end
 end
 
+function M.parkInactiveWorkspaces()
+	if not M.enabled or M.suspended then
+		return false
+	end
+
+	local screenName = M.selectedScreenName()
+	local virtualScreen = screenName and M.screens[screenName]
+
+	if not virtualScreen then
+		return false
+	end
+
+	for _, groupID in ipairs(M.screenOrder) do
+		-- Separate ultrawide groups do not overlap, so only clear the selected
+		-- region. Collapsed laptop groups share a frame and must all be cleared.
+		if M.collapsed or groupID == screenName then
+			local group = M.screens[groupID]
+			for workspaceIndex, workspace in ipairs(group.workspaces) do
+				local isActive = groupID == screenName and workspaceIndex == virtualScreen.activeWorkspace
+				if not isActive then
+					M.parkWorkspace(workspace)
+				end
+			end
+		end
+	end
+
+	local active = virtualScreen.workspaces[virtualScreen.activeWorkspace]
+	if active and liveMemberCount(active) > 0 then
+		M.raiseWorkspace(active, false)
+	end
+
+	return true
+end
+
 function M.activateWorkspace(screenName, workspaceIndex, shouldFocus, shouldMoveMouse)
 	local virtualScreen = M.screens[screenName]
 	if not virtualScreen then
