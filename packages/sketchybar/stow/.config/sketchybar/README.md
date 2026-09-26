@@ -12,9 +12,11 @@ order preserve the grouping without spending bar space on labels.
   rightmost control item (`clock`); later sessions restore the last selection.
 - Return invokes the selected item.
 - Space opens the selected item's action menu.
-- Selecting the Codex item automatically shows a passive usage popup with
-  5-hour and weekly remaining limits, their reset times, and available manual
-  resets. Moving to another item or leaving navigation closes it.
+- Selecting the Codex item shows its usage popup. J/K moves between the Codex
+  item and the 5-hour, weekly, and manual-reset rows. Space on the 5-hour row
+  toggles between an `in   HH:mm` countdown and percentage plus reset time. Space on the weekly row
+  toggles between percentage plus reset date and `in` plus `today`, `1 day`, or `2–7 days`. The manual-reset row is
+  read-only. Moving to another item or leaving navigation closes the popup.
 - Selecting the Key Lights item opens its control popup. J/K
   selects all-power, then power, temperature, and brightness for the left and
   right lights. H/L adjusts temperature in 50 K steps and brightness in 5%

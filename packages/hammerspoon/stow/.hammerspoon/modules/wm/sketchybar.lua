@@ -341,18 +341,81 @@ function M.closeCodexUsageDetails()
 	if not M.active then M.applyBarMode() end
 end
 
-local function usageColumns(window, includeDate)
+local function usagePercentage(window)
 	if type(window) ~= "table" or type(window.usedPercent) ~= "number" then
-		return "—", "—"
+		return "—"
 	end
 
 	local remaining = math.max(0, 100 - window.usedPercent)
-	local percentage = string.format("%.0f%%", remaining)
-	if type(window.resetsAt) ~= "number" then return percentage, "—" end
+	return string.format("%.0f%%", remaining)
+end
 
-	local reset = os.date(includeDate and "%b %d" or "%H:%M", window.resetsAt)
+local function timeUntilReset(timestamp)
+	if type(timestamp) ~= "number" then return "—" end
+	local minutes = math.max(0, math.ceil((timestamp - os.time()) / 60))
+	local hours = math.floor(minutes / 60)
+	minutes = minutes % 60
+	return string.format("%02d:%02d", hours, minutes)
+end
+
+local function resetTime(window, format)
+	if type(window) ~= "table" or type(window.resetsAt) ~= "number" then return "—" end
+	if format == "remaining" then return timeUntilReset(window.resetsAt) end
+
+	local reset = os.date(format == "date" and "%b %d" or "%H:%M", window.resetsAt)
 	reset = reset:gsub(" 0(%d)$", " %1")
-	return percentage, reset
+	return reset
+end
+
+local function daysUntilReset(window)
+	if type(window) ~= "table" or type(window.resetsAt) ~= "number" then return "—" end
+	local today = os.date("*t")
+	local reset = os.date("*t", window.resetsAt)
+	-- Comparing local noons keeps this a calendar-day count across DST changes.
+	local todayNoon = os.time({ year = today.year, month = today.month, day = today.day, hour = 12 })
+	local resetNoon = os.time({ year = reset.year, month = reset.month, day = reset.day, hour = 12 })
+	local days = math.max(0, math.min(7, math.floor((resetNoon - todayNoon) / 86400 + 0.5)))
+	if days == 0 then return "today" end
+	if days == 1 then return "1 day" end
+	return string.format("%d days", days)
+end
+
+local function codexUsageRows(details)
+	if type(details) ~= "table" then
+		return { { heading = "Codex", value = "Usage unavailable" } }
+	end
+
+	local resets = tonumber(details.manualResets)
+	local fivePercent = usagePercentage(details.fiveHour)
+	local fiveReset = resetTime(details.fiveHour, M.codexFiveHourTimeFormat or "time")
+	local weeklyPercent = usagePercentage(details.weekly)
+	local weeklyRemaining = M.codexWeeklyTimeFormat == "remaining"
+	local weeklyReset = weeklyRemaining and daysUntilReset(details.weekly) or resetTime(details.weekly, "date")
+	-- Keep this field exactly three characters wide. Leading padding at the
+	-- SketchyBar label boundary is not preserved reliably, so the countdown
+	-- marker uses a trailing space instead of formatting "in" with %3s.
+	local fivePrefix = M.codexFiveHourTimeFormat == "remaining" and "in " or fivePercent
+	local weeklyPrefix = weeklyRemaining and "in " or weeklyPercent
+	return {
+		{ heading = "5h", value = string.format("%s   %6s", fivePrefix, fiveReset) },
+		{ heading = "Weekly", value = string.format("%s   %6s", weeklyPrefix, weeklyReset) },
+		{ heading = "Resets", value = resets and string.format("%d available", resets) or "Unavailable" },
+	}
+end
+
+function M.renderCodexUsageDetails()
+	if not M.codexUsageDetailsVisible then return end
+	local rows = codexUsageRows(M.codexUsageDetails)
+	local args = { "--set", "/^wm.codex.usage\\./", "background.drawing=off" }
+	for index, row in ipairs(rows) do
+		local name = "wm.codex.usage." .. tostring(index)
+		table.insert(args, "--set")
+		table.insert(args, name)
+		table.insert(args, "icon=" .. row.heading)
+		table.insert(args, "label=" .. row.value)
+		if index == M.codexUsageRowIndex then table.insert(args, "background.drawing=on") end
+	end
+	M.run(args)
 end
 
 function M.openCodexUsageDetails()
@@ -361,19 +424,10 @@ function M.openCodexUsageDetails()
 	M.closeMenu()
 	clearCodexUsagePopup()
 	local details = hs.json.read(M.codexUsageStateFile)
-	local rows
-	if type(details) == "table" then
-		local resets = tonumber(details.manualResets)
-		local fivePercent, fiveReset = usageColumns(details.fiveHour, false)
-		local weeklyPercent, weeklyReset = usageColumns(details.weekly, true)
-		rows = {
-			{ heading = "5h", value = string.format("%3s   %s", fivePercent, fiveReset) },
-			{ heading = "Weekly", value = string.format("%3s   %s", weeklyPercent, weeklyReset) },
-			{ heading = "Resets", value = resets and string.format("%d available", resets) or "Unavailable" },
-		}
-	else
-		rows = { { heading = "Codex", value = "Usage unavailable" } }
-	end
+	M.codexUsageDetails = details
+	M.codexUsageRowIndex = 0
+	local rows = codexUsageRows(details)
+	M.codexUsageRowCount = #rows
 
 	local args = {}
 	for index, row in ipairs(rows) do
@@ -396,6 +450,9 @@ function M.openCodexUsageDetails()
 		table.insert(args, "label.align=right")
 		table.insert(args, "label.padding_left=4")
 		table.insert(args, "label.padding_right=10")
+		table.insert(args, "background.color=0xff3b82f6")
+		table.insert(args, "background.corner_radius=6")
+		table.insert(args, "background.height=26")
 		table.insert(args, "background.drawing=off")
 	end
 	M.run(args)
@@ -403,6 +460,25 @@ function M.openCodexUsageDetails()
 	-- shown, otherwise it can render an empty popup background intermittently.
 	M.run({ "--set", "codex", "popup.drawing=on" })
 	M.codexUsageDetailsVisible = true
+end
+
+function M.handleCodexUsageVertical(selected, delta)
+	if not selected or selected.id ~= "codex" or not M.codexUsageDetailsVisible then return false end
+	M.codexUsageRowIndex = ((M.codexUsageRowIndex + delta) % (M.codexUsageRowCount + 1))
+	M.renderCodexUsageDetails()
+	return true
+end
+
+function M.invokeCodexUsageSelected(selected)
+	if not selected or selected.id ~= "codex" or not M.codexUsageDetailsVisible then return false end
+	if M.codexUsageRowIndex == 1 then
+		M.codexFiveHourTimeFormat = M.codexFiveHourTimeFormat == "remaining" and "time" or "remaining"
+		M.renderCodexUsageDetails()
+	elseif M.codexUsageRowIndex == 2 then
+		M.codexWeeklyTimeFormat = M.codexWeeklyTimeFormat == "remaining" and "date" or "remaining"
+		M.renderCodexUsageDetails()
+	end
+	return true
 end
 
 function M.syncCodexUsageDetails()
@@ -507,6 +583,7 @@ function M.handleVerticalNavigation(delta)
 	end
 
 	local item = M.navigableItems[M.selectedIndex]
+	if M.handleCodexUsageVertical(item, delta) then return end
 	if keyLights.handleVertical(item, delta) then return end
 	if plex.handleVertical(item, delta) then return end
 	if item and item.id == "volume" then
@@ -537,6 +614,7 @@ end
 
 function M.handleSpace()
 	local item = M.navigableItems[M.selectedIndex]
+	if M.invokeCodexUsageSelected(item) then return end
 	if keyLights.invokeSelected(item) then return end
 	if plex.invokeSelected(item) then return end
 	if item and item.id == "volume" then
