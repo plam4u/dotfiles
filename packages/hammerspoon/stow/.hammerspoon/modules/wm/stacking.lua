@@ -1297,8 +1297,50 @@ function M.attachCreatedWindow(window)
 	end
 end
 
+local function destroyedWindowLocation(window)
+	if not window then return nil end
+
+	-- The accessibility object can already be invalid by the time macOS
+	-- reports its destruction, so window:id() is not a reliable sole lookup.
+	local ok, windowID = pcall(function() return window:id() end)
+	if ok and windowID and M.windowIndex[windowID] then
+		return M.windowIndex[windowID]
+	end
+
+	for _, screenName in ipairs(M.screenOrder) do
+		for workspaceIndex, workspace in ipairs(M.screens[screenName].workspaces) do
+			for memberIndex, member in ipairs(workspace.members) do
+				if member.window == window then
+					return {
+						screenName = screenName,
+						workspaceIndex = workspaceIndex,
+						memberIndex = memberIndex,
+					}
+				end
+			end
+		end
+	end
+
+	return nil
+end
+
+local function clearUnavailableIndicator(screenName, workspaceIndex)
+	for _, field in ipairs({ "expandedIndicator", "mouseExpandedIndicator" }) do
+		local indicator = M[field]
+		if indicator and indicator.screenName == screenName and indicator.workspaceIndex == workspaceIndex then
+			M[field] = nil
+		end
+	end
+
+	if not M.expandedIndicator and not M.mouseExpandedIndicator then
+		M.indicatorVersion = (M.indicatorVersion or 0) + 1
+		if M.indicatorTimer then M.indicatorTimer:stop() end
+		M.indicatorTimer = nil
+	end
+end
+
 function M.windowDestroyed(window)
-	local location = window and window:id() and M.windowIndex[window:id()]
+	local location = destroyedWindowLocation(window)
 
 	if not location then
 		return
@@ -1307,8 +1349,16 @@ function M.windowDestroyed(window)
 	local virtualScreen = M.screens[location.screenName]
 	local workspace = virtualScreen.workspaces[location.workspaceIndex]
 	local member = workspace.members[location.memberIndex]
-	member.name = getApplicationName(window) or member.name or nameFromBundleID(member.bundleID)
+	-- Clear the stale object before doing any other work. Its saved name and
+	-- bundle ID remain available for UI labels and a later stack restore.
 	member.window = nil
+	member.parked = nil
+	member.name = member.name or nameFromBundleID(member.bundleID)
+
+	if liveMemberCount(workspace) == 0 then
+		clearUnavailableIndicator(location.screenName, location.workspaceIndex)
+	end
+
 	M.rebuildWindowIndex()
 	M.raiseActiveWorkspaces()
 	M.render()
