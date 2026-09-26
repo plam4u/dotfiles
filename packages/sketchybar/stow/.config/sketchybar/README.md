@@ -22,6 +22,12 @@ order preserve the grouping without spending bar space on labels.
   Return toggles power rows; on temperature and brightness it cycles through
   maximum, minimum, and the value captured when cycling began.
   Left/Right leaves the item, and any WM action closes the popup with the bar.
+- Selecting the Plex item opens its status popup. Space on the bar item starts
+  or stops Plex Media Server. J/K moves between the item, the read-only stream
+  count, Open Plex, and Update Libraries; Space invokes the selected action.
+  H/L returns to normal bar navigation and closes the popup. The integration
+  reads the local Plex token at runtime from the standard macOS preferences
+  file and never stores it in the dotfiles.
 - With Volume selected, Space toggles mute and J/K lower/raise volume without
   leaving navigation mode. Hold J/K for continuous adjustment at the macOS
   keyboard-repeat rate.

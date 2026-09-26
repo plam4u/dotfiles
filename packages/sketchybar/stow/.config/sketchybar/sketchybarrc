@@ -59,6 +59,11 @@ sketchybar --add item clock right \
     script="$PLUGIN_DIR/battery.sh" \
     click_script="$PLUGIN_DIR/action_click.sh battery" \
   --subscribe battery system_woke power_source_change \
+  --add item plex right \
+  --set plex \
+    icon="󰚺" \
+    label="Off" \
+    click_script="$PLUGIN_DIR/action_click.sh plex" \
   --add item key_lights right \
   --set key_lights \
     icon="󰛨" \

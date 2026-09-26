@@ -78,6 +78,12 @@ device-name suffixes `8B25` (left) and `07C7` (right). Their current LAN
 addresses are pinned under `sketchybar.keyLights` in `init.lua`, with Bonjour
 discovery retained as a fallback. Hammerspoon must be enabled in macOS System
 Settings → Privacy & Security → Local Network.
+With the Plex item selected, its popup shows the active stream count and offers
+Open Plex and Update Libraries actions. Space on the main item starts or stops
+Plex Media Server; J/K selects the popup rows, and H/L returns to bar-item
+navigation. The Plex token is read at runtime from
+`~/Library/Preferences/com.plexapp.plexmediaserver.plist` and is not stored in
+this repository.
 Invoking another WM hotkey exits SketchyBar navigation before running that
 command, preventing the navigation modal from consuming subsequent typing.
 

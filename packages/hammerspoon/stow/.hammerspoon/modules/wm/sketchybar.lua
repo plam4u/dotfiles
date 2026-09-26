@@ -1,6 +1,7 @@
 local hotkeys = require("modules.wm.hotkeys")
 local stacking = require("modules.wm.stacking")
 local keyLights = require("modules.wm.sketchybar.key_lights")
+local plex = require("modules.wm.sketchybar.plex")
 
 local M = {
 	active = false,
@@ -88,9 +89,19 @@ local staticItems = {
 			},
 		},
 	},
+	{
+		id = "plex",
+		actions = {
+			{
+				id = "toggle",
+				label = "Toggle Plex Media Server",
+				handler = plex.toggleServer,
+			},
+		},
+	},
 }
 
-local rightStaticNavigationOrder = { "codex", "key_lights", "battery", "volume", "clock" }
+local rightStaticNavigationOrder = { "codex", "key_lights", "plex", "battery", "volume", "clock" }
 local validWorkspaceFocusStyles = {
 	background = true,
 	border = true,
@@ -346,6 +357,7 @@ end
 
 function M.openCodexUsageDetails()
 	keyLights.closeDetails()
+	plex.closeDetails()
 	M.closeMenu()
 	clearCodexUsagePopup()
 	local details = hs.json.read(M.codexUsageStateFile)
@@ -412,6 +424,7 @@ function M.openMenu(itemID)
 	end
 	M.closeCodexUsageDetails()
 	keyLights.closeDetails()
+	plex.closeDetails()
 	M.closeMenu()
 	M.menuParent = itemID
 	M.menuItems = definition.actions
@@ -463,6 +476,7 @@ function M.moveSelection(delta)
 	M.applySelection()
 	M.syncCodexUsageDetails()
 	keyLights.syncDetails(M.active, M.navigableItems[M.selectedIndex], M.menuIndex)
+	plex.syncDetails(M.active, M.navigableItems[M.selectedIndex], M.menuIndex)
 end
 
 function M.runAction(itemID, actionID)
@@ -494,6 +508,7 @@ function M.handleVerticalNavigation(delta)
 
 	local item = M.navigableItems[M.selectedIndex]
 	if keyLights.handleVertical(item, delta) then return end
+	if plex.handleVertical(item, delta) then return end
 	if item and item.id == "volume" then
 		M.volumeRepeatDirection = delta
 		M.runAction("volume", delta < 0 and "up" or "down")
@@ -523,6 +538,7 @@ end
 function M.handleSpace()
 	local item = M.navigableItems[M.selectedIndex]
 	if keyLights.invokeSelected(item) then return end
+	if plex.invokeSelected(item) then return end
 	if item and item.id == "volume" then
 		if M.menuIndex then M.closeMenu() end
 		M.runAction("volume", "mute")
@@ -542,6 +558,7 @@ function M.invokeSelected()
 	local item = M.navigableItems[M.selectedIndex]
 	if not item then return end
 	if keyLights.invokeSelected(item) then return end
+	if plex.invokeSelected(item) then return end
 
 	if item.type == "workspace" then
 		stacking.activateWorkspaceExplicitly(item.group, item.workspaceIndex)
@@ -597,6 +614,7 @@ function M.handleURL(_, params)
 		if not definition then return end
 		if params.item ~= "codex" then M.closeCodexUsageDetails() end
 		if params.item ~= "key_lights" then keyLights.closeDetails() end
+		if params.item ~= "plex" then plex.closeDetails() end
 		if params.button == "right" then
 			M.openMenu(params.item)
 		else
@@ -621,6 +639,7 @@ function M.setup(config)
 	M.codexUsageStateFile = os.getenv("HOME") .. "/Library/Caches/SketchyBar/codex_usage.json"
 	clearCodexUsagePopup()
 	keyLights.setup(M.config.keyLights or {}, M)
+	plex.setup(M.config.plex or {}, M)
 
 	M.modal = hs.hotkey.modal.new()
 	M.modal.entered = function()
@@ -632,6 +651,7 @@ function M.setup(config)
 		M.applySelection()
 		M.syncCodexUsageDetails()
 		keyLights.syncDetails(M.active, M.navigableItems[M.selectedIndex], M.menuIndex)
+		plex.syncDetails(M.active, M.navigableItems[M.selectedIndex], M.menuIndex)
 	end
 	M.modal.exited = function()
 		M.lastSelectedID = M.navigableItems[M.selectedIndex] and M.navigableItems[M.selectedIndex].id
@@ -639,6 +659,7 @@ function M.setup(config)
 		M.closeMenu()
 		M.closeCodexUsageDetails()
 		keyLights.closeDetails()
+		plex.closeDetails()
 		M.publish(false)
 		M.applySelection()
 		M.applyBarMode()
@@ -688,6 +709,7 @@ function M.setup(config)
 			if M.menuIndex then M.closeMenu() end
 			M.closeCodexUsageDetails()
 			keyLights.closeDetails()
+			plex.closeDetails()
 		end
 	end)
 	for action, hotkey in pairs(M.config.mapping or {}) do
