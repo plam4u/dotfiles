@@ -133,7 +133,8 @@ left member in the slot's top-left and the right member in its bottom-right.
 `stacking.config.ui.expandOnKeyboardScreenNavigation` controls transient
 expansion while moving between virtual screens with keyboard navigation and is
 off by default. `expandOnMouseMovement` independently controls mouse group/row
-hover expansion and is also off by default; its presentation uses
+hover expansion and expansion after clicking a window in another virtual
+screen, and is also off by default; its hover presentation uses
 `mouseWorkspaceDisplayMode`, which defaults to `icon`. Workspace activation uses
 `workspaceDisplayMode` and expands by default; set `expandOnWorkspaceChange` to
 `false` to disable it. `toggleStacklineExpanded` (configured as `meh + S`) pins

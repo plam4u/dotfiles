@@ -357,6 +357,7 @@ function M.setup(config)
 	M.startWindowWatcher()
 	M.startApplicationWatcher()
 	M.startScreenWatcher()
+	M.startMouseFocusWatcher()
 	M.startWorkspaceScrollWatcher()
 	M.startWorkspaceHoverWatcher()
 	M.bindHotkeys(M.config.mapping or {})
@@ -1761,8 +1762,31 @@ function M.windowFocused(window)
 	workspace.focusedMember = location.memberIndex
 	M.activateWorkspace(location.screenName, location.workspaceIndex, false)
 	if previousScreenName and previousScreenName ~= location.screenName then
-		M.flashWorkspaceIndicator(location.screenName, location.workspaceIndex)
+		local threshold = tonumber(M.options.mouseFocusDetectionWindow) or 0.5
+		local mouseTriggered = M.lastMouseDownAt
+			and hs.timer.secondsSinceEpoch() - M.lastMouseDownAt <= threshold
+		M.flashWorkspaceIndicator(
+			location.screenName,
+			location.workspaceIndex,
+			mouseTriggered and "mouse" or "workspaceChange"
+		)
 	end
+end
+
+function M.startMouseFocusWatcher()
+	if M.mouseFocusWatcher then
+		M.mouseFocusWatcher:stop()
+	end
+	local eventTypes = hs.eventtap.event.types
+	M.mouseFocusWatcher = hs.eventtap.new({
+		eventTypes.leftMouseDown,
+		eventTypes.rightMouseDown,
+		eventTypes.otherMouseDown,
+	}, function()
+		M.lastMouseDownAt = hs.timer.secondsSinceEpoch()
+		return false
+	end)
+	M.mouseFocusWatcher:start()
 end
 
 function M.startWindowWatcher()
