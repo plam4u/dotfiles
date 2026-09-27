@@ -4,14 +4,14 @@ PLUGIN_DIR="$CONFIG_DIR/plugins"
 
 sketchybar --bar \
   position=top \
-  height=40 \
+  height=32 \
   display=main \
   hidden=on \
-  topmost=window \
+  topmost=off \
   sticky=on \
-  blur_radius=30 \
-  color=0xcc111318 \
-  shadow=on
+  blur_radius=0 \
+  color=0xff111318 \
+  shadow=off
 
 default=(
   padding_left=5

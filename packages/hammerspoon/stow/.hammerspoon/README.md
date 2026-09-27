@@ -102,6 +102,10 @@ command, preventing the navigation modal from consuming subsequent typing.
 `sketchybar.workspaceFocusStyle` controls the focused-workspace decoration.
 Supported values are `background`, `border`, `underline`, `left_bar`, and
 `text`; the default configuration uses `underline`.
+`sketchybar.workspaceDisplayMode` controls workspace content and accepts
+`icon`, `label`, or `icon_label` (`icon+label` is an alias). The default is the
+compact app-icon view. `sketchybar.workspaceActiveLabel` displays a label only
+for the active workspace when icon mode is selected.
 
 Native-fullscreen windows are never moved, resized, parked, or raised by the
 WM. The rest of the manager remains active unless it is explicitly paused with
@@ -120,6 +124,10 @@ Mouse movement expands Stackline only when the pointer crosses into a different
 virtual-screen group. Its independent `mouseWorkspaceDisplayMode` defaults to
 `icon`; keyboard-triggered expansion continues to use `workspaceDisplayMode`.
 Moving onto Stackline also expands it and keeps it open until the pointer leaves.
+On a collapsed laptop layout, `stacking.config.ui.groupGap` controls the extra
+space between virtual-screen groups. No group names are drawn. Hover follows
+workspace rows without treating those overlapping groups as separate physical
+screens.
 Rows can be clicked to activate their workspace, and scrolling over Stackline
 cycles workspaces without requiring the option modifier.
 Missing application artwork uses macOS's generic application icon.
@@ -137,8 +145,10 @@ hotkey is pressed. Hammerspoon restores that snapshot once during startup or
 reload; the load hotkey can reapply it later. Workspaces are restored by application
 bundle ID. Window minimum widths are learned when an application refuses a
 requested width and are included in the next manual save.
-The version 4 document stores `screens` and `layouts` directly at the top level;
-older `groups.screens`, profile, and region formats are migrated automatically.
+The version 5 document stores `screens` and `layouts` directly at the top level.
+Two-window splits are persisted as ratios, so they keep their proportions when
+moving between ultrawide and laptop profiles. Older absolute widths,
+`groups.screens`, profile, and region formats are migrated automatically.
 
 When a second window joins a group, its current width is preserved when the
 region and both applications' minimum widths allow it. Use `hyper + ;` to opt

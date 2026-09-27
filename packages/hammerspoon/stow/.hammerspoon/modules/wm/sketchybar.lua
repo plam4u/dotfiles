@@ -125,6 +125,11 @@ local validWorkspaceFocusStyles = {
 	left_bar = true,
 	text = true,
 }
+local validWorkspaceDisplayModes = {
+	icon = true,
+	icon_label = true,
+	label = true,
+}
 
 local function findExecutable(configured)
 	local paths = { "/opt/homebrew/bin/sketchybar", "/usr/local/bin/sketchybar" }
@@ -216,7 +221,10 @@ end
 
 function M.rebuildNavigation()
 	local previousID = M.navigableItems[M.selectedIndex] and M.navigableItems[M.selectedIndex].id
-	local items = { { id = "front_app", type = "static" } }
+	local items = {}
+	if not (M.snapshot and M.snapshot.collapsed) then
+		table.insert(items, { id = "front_app", type = "static" })
+	end
 
 	if not (M.snapshot and M.snapshot.suspended) then
 		for _, group in ipairs((M.snapshot and M.snapshot.groups) or {}) do
@@ -231,8 +239,8 @@ function M.rebuildNavigation()
 		end
 	end
 
-	-- Right-positioned SketchyBar items render in reverse insertion order.
-	-- Keep keyboard traversal aligned with their actual left-to-right geometry.
+	-- Static controls remain right-positioned. Workspace items are traversed
+	-- above in natural group/workspace order and render together in the center.
 	for _, itemID in ipairs(M.rightItemOrder) do
 		table.insert(items, { id = itemID, type = "static" })
 	end
@@ -302,6 +310,16 @@ function M.publish(shouldTrigger)
 		selected = M.active and M.navigableItems[M.selectedIndex] and M.navigableItems[M.selectedIndex].id or nil,
 		focusStyle = M.workspaceFocusStyle,
 	}
+	document.workspaceDisplayMode = M.workspaceDisplayMode
+	document.workspaceActiveLabel = M.workspaceActiveLabel
+	document.workspaceGroupSeparator = M.workspaceGroupSeparator
+	document.workspaceGroupSeparatorGap = M.workspaceGroupSeparatorGap
+	document.workspaceIconWidth = M.workspaceIconWidth
+	document.workspaceIconOffset = M.workspaceIconOffset
+	document.workspaceFocusInset = M.workspaceFocusInset
+	document.workspaceLabelGap = M.workspaceLabelGap
+	document.workspaceLabelCharacterWidth = M.workspaceLabelCharacterWidth
+	document.workspaceLabelExtraWidth = M.workspaceLabelExtraWidth
 	hs.fs.mkdir(hs.configdir .. "/state")
 	hs.json.write(document, M.stateFile, true, true)
 	if shouldTrigger ~= false then
@@ -325,11 +343,12 @@ local function appendWorkspaceFocusStyle(args, style)
 	elseif style == "text" then
 		table.insert(args, "label.color=0xff60a5fa")
 	else
-		table.insert(args, "background.color=0xff3b82f6")
-		table.insert(args, "background.height=3")
-		table.insert(args, "background.corner_radius=2")
-		table.insert(args, "background.y_offset=-12")
-		table.insert(args, "background.drawing=on")
+		local prefix = M.workspaceDisplayMode == "label" and "label.background" or "icon.background"
+		table.insert(args, prefix .. ".color=0xff3b82f6")
+		table.insert(args, prefix .. ".height=3")
+		table.insert(args, prefix .. ".corner_radius=0")
+		table.insert(args, prefix .. ".y_offset=-12")
+		table.insert(args, prefix .. ".drawing=on")
 	end
 end
 
@@ -345,19 +364,30 @@ function M.applySelection()
 		for _, workspace in ipairs(group.workspaces or {}) do
 			local item = string.format("wm.%s.%d", group.id, workspace.index)
 			local focused = selectedID == item or (not M.active and group.active and workspace.active)
+			local labelItem = string.format("wm.label.%s.%d", group.id, workspace.index)
+			local labelFocused = focused and group.active and workspace.active
 			table.insert(args, "--set")
 			table.insert(args, item)
-			table.insert(args, "icon.drawing=off")
 			table.insert(args, "label.color=" .. (M.snapshot.suspended and "0x66ffffff" or "0xffffffff"))
 			table.insert(args, "background.color=0x00000000")
 			table.insert(args, "background.border_width=0")
 			table.insert(args, "background.height=28")
 			table.insert(args, "background.corner_radius=7")
 			table.insert(args, "background.y_offset=0")
-			table.insert(args, "background.drawing=off")
+			table.insert(args, "background.drawing=on")
+			table.insert(args, "icon.background.drawing=off")
+			table.insert(args, "label.background.drawing=off")
 			if focused then
 				appendWorkspaceFocusStyle(args, M.workspaceFocusStyle)
 			end
+			table.insert(args, "--set")
+			table.insert(args, labelItem)
+			table.insert(args, "background.drawing=off")
+			table.insert(args, "label.background.color=0xff3b82f6")
+			table.insert(args, "label.background.height=3")
+			table.insert(args, "label.background.corner_radius=0")
+			table.insert(args, "label.background.y_offset=-12")
+			table.insert(args, "label.background.drawing=" .. (labelFocused and "on" or "off"))
 		end
 	end
 
@@ -391,12 +421,25 @@ function M.applyBarMode()
 		return
 	end
 	local laptop = M.snapshot.collapsed == true
-	M.run({
+	local args = {
 		"--bar",
-		"topmost=window",
+		"topmost=" .. (laptop and "off" or "window"),
+		"height=" .. tostring(M.config.barHeight or 32),
 		"hidden=" .. ((laptop or M.active or M.codexUsageDetailsVisible) and "off" or "on"),
-		"notch_display_height=" .. (laptop and tostring(M.config.notchDisplayHeight or 40) or "0"),
-	})
+		"notch_display_height=" .. (laptop and tostring(M.config.notchDisplayHeight or M.config.barHeight or 32) or "0"),
+		"notch_width=" .. tostring(M.config.notchWidth or 200),
+	}
+	table.insert(args, "--set")
+	table.insert(args, "front_app")
+	table.insert(args, "position=left")
+	table.insert(args, "drawing=" .. (laptop and "off" or "on"))
+	for _, itemID in ipairs(M.rightItemOrder) do
+		table.insert(args, "--set")
+		table.insert(args, itemID)
+		table.insert(args, "position=right")
+	end
+	M.run(args)
+	M.applyRightItemOrder()
 end
 
 function M.closeMenu()
@@ -418,9 +461,6 @@ function M.closeCodexUsageDetails()
 	end
 	clearCodexUsagePopup()
 	M.codexUsageDetailsVisible = false
-	if not M.active then
-		M.applyBarMode()
-	end
 end
 
 local function usagePercentage(window)
@@ -887,6 +927,22 @@ function M.setup(config)
 	if not validWorkspaceFocusStyles[M.workspaceFocusStyle] then
 		M.workspaceFocusStyle = "underline"
 	end
+	M.workspaceDisplayMode = M.config.workspaceDisplayMode or "icon"
+	if M.workspaceDisplayMode == "icon+label" then
+		M.workspaceDisplayMode = "icon_label"
+	end
+	if not validWorkspaceDisplayModes[M.workspaceDisplayMode] then
+		M.workspaceDisplayMode = "icon"
+	end
+	M.workspaceActiveLabel = M.config.workspaceActiveLabel ~= false
+	M.workspaceGroupSeparator = tostring(M.config.workspaceGroupSeparator or ">")
+	M.workspaceGroupSeparatorGap = tonumber(M.config.workspaceGroupSeparatorGap) or 4
+	M.workspaceIconWidth = tonumber(M.config.workspaceIconWidth) or 23
+	M.workspaceIconOffset = tonumber(M.config.workspaceIconOffset) or 0
+	M.workspaceFocusInset = tonumber(M.config.workspaceFocusInset) or 0
+	M.workspaceLabelGap = tonumber(M.config.workspaceLabelGap) or 0
+	M.workspaceLabelCharacterWidth = tonumber(M.config.workspaceLabelCharacterWidth) or 9
+	M.workspaceLabelExtraWidth = tonumber(M.config.workspaceLabelExtraWidth) or 0
 	M.logger = hs.logger.new("sketchybar", "info")
 	M.executable = findExecutable(M.config.executable)
 	M.stateFile = hs.configdir .. "/state/sketchybar.json"
@@ -901,7 +957,9 @@ function M.setup(config)
 		M.active = true
 		M.rebuildNavigation()
 		M.selectInitialItem()
-		M.applyBarMode()
+		if not (M.snapshot and M.snapshot.collapsed) then
+			M.applyBarMode()
+		end
 		M.publish(false)
 		M.applySelection()
 		M.syncCodexUsageDetails()
@@ -917,7 +975,9 @@ function M.setup(config)
 		plex.closeDetails()
 		M.publish(false)
 		M.applySelection()
-		M.applyBarMode()
+		if not (M.snapshot and M.snapshot.collapsed) then
+			M.applyBarMode()
+		end
 	end
 
 	M.modal:bind({}, "left", function()

@@ -248,6 +248,16 @@ local function physicalScreen()
 	return widest or primary
 end
 
+local function managedPhysicalFrame(screen)
+	if not screen then return nil end
+	local fullFrame = screen:fullFrame()
+	local profile = virtualScreens.resolve(fullFrame, M.options).profileName
+	-- hs.screen:frame() already excludes the macOS menu-bar area. SketchyBar
+	-- replaces that bar on the laptop, so adding laptopBarHeight to frame()
+	-- reserves the native menu-bar height twice and leaves a visible gap.
+	return profile == "laptop" and fullFrame or screen:frame()
+end
+
 local function emptyScreens()
 	local screens = {}
 	for _, screenName in ipairs(M.screenOrder) do
@@ -256,21 +266,32 @@ local function emptyScreens()
 	return screens
 end
 
+local function needsSplitRatioMigration(screens)
+	for _, savedScreen in pairs(screens or {}) do
+		for _, workspace in ipairs(savedScreen.workspaces or savedScreen.groups or {}) do
+			if tonumber(workspace.leftWidth) and not tonumber(workspace.splitRatio) then
+				return true
+			end
+		end
+	end
+	return false
+end
+
 local function normalizeDocument(state)
 	if type(state.screens) == "table" then
 		return {
-			version = 4,
+			version = 5,
 			screens = state.screens,
 			layouts = type(state.layouts) == "table" and state.layouts or {},
 		},
-			state.version ~= 4
+			state.version ~= 5 or needsSplitRatioMigration(state.screens)
 	end
 
 	if type(state.groups) == "table" then
 		-- Version 3 wrapped the actual screen map in groups.screens even though
 		-- groups never contained any other data. Flatten it during migration.
 		return {
-			version = 4,
+			version = 5,
 			screens = type(state.groups.screens) == "table" and state.groups.screens or state.groups,
 			layouts = type(state.layouts) == "table" and state.layouts or {},
 		},
@@ -286,7 +307,7 @@ local function normalizeDocument(state)
 			source.screens.center = source.screens.main
 		end
 		return {
-			version = 4,
+			version = 5,
 			screens = source and source.screens or {},
 			layouts = {},
 		}, true
@@ -296,13 +317,13 @@ local function normalizeDocument(state)
 	-- intact and migrate it into the ultrawide virtual-screen profile.
 	if type(state.regions) == "table" then
 		return {
-			version = 4,
+			version = 5,
 			screens = state.regions,
 			layouts = {},
 		}, true
 	end
 
-	return { version = 4, screens = {}, layouts = {} }, true
+	return { version = 5, screens = {}, layouts = {} }, true
 end
 
 -- Setup ----------------------------------------------------------------------
@@ -316,7 +337,7 @@ function M.setup(config)
 	M.loadedFromDisk = false
 
 	local targetScreen = physicalScreen()
-	local physicalFrame = targetScreen and targetScreen:frame()
+	local physicalFrame = managedPhysicalFrame(targetScreen)
 
 	if not physicalFrame then
 		M.logger.e("Unable to resolve the primary screen")
@@ -364,13 +385,24 @@ end
 
 function M.applyResolvedLayout()
 	local targetScreen = physicalScreen()
-	local physicalFrame = targetScreen and targetScreen:frame()
+	local physicalFrame = managedPhysicalFrame(targetScreen)
 
 	if not physicalFrame then
 		return false
 	end
 
 	local initial = virtualScreens.resolve(physicalFrame, M.options)
+	-- Split geometry is profile-independent. Capture it before replacing the
+	-- virtual-screen frames so an ultrawide pixel width never leaks into the
+	-- laptop layout (or vice versa).
+	for _, groupID in ipairs(M.screenOrder) do
+		local previous = M.screens[groupID]
+		for _, workspace in ipairs(previous and previous.workspaces or {}) do
+			if #workspace.members == 2 and not workspace.splitRatio and workspace.leftWidth and previous.frame.w > 0 then
+				workspace.splitRatio = clamp(workspace.leftWidth / previous.frame.w, 0, 1)
+			end
+		end
+	end
 	local resolved = virtualScreens.resolve(physicalFrame, M.options, M.layouts[initial.profileName])
 	local previousScreens = M.screens
 
@@ -409,7 +441,12 @@ function M.reconfigureDisplay()
 	M.mouseExpandedIndicator = nil
 
 	if not M.suspended then
-		M.layoutAllWorkspaces()
+		-- On the laptop all virtual screens overlap. Relayout only the visible
+		-- workspace; moving every inactive window through the same frame causes
+		-- them to flash above one another during a display change.
+		if not M.collapsed then
+			M.layoutAllWorkspaces()
+		end
 		M.raiseActiveWorkspaces()
 	end
 
@@ -471,9 +508,20 @@ function M.applyScreens(savedScreens)
 		M.screens[screenName].activeWorkspace = tonumber(savedScreen.activeWorkspace or savedScreen.activeGroup) or 1
 
 		for _, savedWorkspace in ipairs(savedWorkspaces) do
+			local splitRatio = tonumber(savedWorkspace.splitRatio)
+			local legacyLeftWidth = tonumber(savedWorkspace.leftWidth)
+			if not splitRatio and legacyLeftWidth then
+				local ultrawideLayout = M.layouts.ultrawide or {}
+				local weight = tonumber(ultrawideLayout.weights and ultrawideLayout.weights[screenName])
+					or tonumber(M.options.groupWeights and M.options.groupWeights[screenName])
+					or (1 / math.max(1, #M.screenOrder))
+				local legacyFrameWidth = (tonumber(M.options.ultrawideWidth) or 5120) * weight
+				splitRatio = clamp(legacyLeftWidth / math.max(1, legacyFrameWidth), 0, 1)
+			end
 			local workspace = {
 				members = {},
-				leftWidth = tonumber(savedWorkspace.leftWidth),
+				leftWidth = legacyLeftWidth,
+				splitRatio = splitRatio,
 				focusedMember = tonumber(savedWorkspace.focusedMember) or 1,
 				keepEmpty = savedWorkspace.keepEmpty == true or #(savedWorkspace.members or {}) == 0,
 			}
@@ -517,6 +565,7 @@ function M.serializableScreens()
 
 			if #workspace.members == 2 then
 				savedWorkspace.leftWidth = workspace.leftWidth
+				savedWorkspace.splitRatio = workspace.splitRatio
 			end
 
 			for _, member in ipairs(workspace.members) do
@@ -537,7 +586,7 @@ end
 
 function M.saveState()
 	local document = {
-		version = 4,
+		version = 5,
 		screens = M.serializableScreens(),
 		layouts = M.layouts,
 	}
@@ -593,7 +642,11 @@ function M.loadStacks(showAlert)
 	M.restoreWindows()
 	M.render()
 
-	if migrated and not store.save(M.stateFile, document) then
+	if migrated and not store.save(M.stateFile, {
+		version = 5,
+		screens = M.serializableScreens(),
+		layouts = M.layouts,
+	}) then
 		M.logger.w("Loaded legacy stack state but could not migrate " .. M.stateFile)
 	end
 
@@ -704,7 +757,7 @@ end
 function M.render()
 	if M.enabled and not M.suspended then
 		local expanded = M.expandedIndicator or M.mouseExpandedIndicator
-		if expanded and expanded.source == "mouse" then
+		if expanded and expanded.source == "mouse" and not M.collapsed then
 			local group = M.screens[expanded.screenName]
 			expanded.workspaceIndex = group and group.activeWorkspace or expanded.workspaceIndex
 		end
@@ -748,26 +801,37 @@ function M.snapshot()
 			local members = {}
 			for _, member in ipairs(workspace.members or {}) do
 				if member.window then
-					table.insert(members, memberDisplayName(member))
+					table.insert(members, {
+						name = memberDisplayName(member),
+						bundleID = member.bundleID,
+					})
 				end
 			end
 
 			if #members > 0 or M.showUnavailableWorkspaces then
-				local displayMembers = members
-				if #displayMembers == 0 then
-					displayMembers = {}
-					for _, member in ipairs(workspace.members or {}) do
-						local name = memberDisplayName(member)
-						if name then
-							table.insert(displayMembers, name)
-						end
+				-- Availability is workspace-wide, but its title/icon composition is
+				-- the persisted workspace definition. Keep a temporarily missing
+				-- member (for example Calendar beside live Reminders) represented.
+				local displayMembers = {}
+				for _, member in ipairs(workspace.members or {}) do
+					local name = memberDisplayName(member)
+					if name then
+						table.insert(displayMembers, {
+							name = name,
+							bundleID = member.bundleID,
+							available = member.window ~= nil,
+						})
 					end
 				end
 				table.insert(workspaces, {
 					index = index,
 					active = index == group.activeWorkspace,
-					members = members,
-					name = #displayMembers > 0 and table.concat(displayMembers, " + ") or "Empty workspace",
+					members = displayMembers,
+					name = #displayMembers > 0 and (function()
+						local names = {}
+						for _, member in ipairs(displayMembers) do table.insert(names, member.name) end
+						return table.concat(names, " + ")
+					end)() or "Empty workspace",
 					unavailable = #members == 0,
 				})
 			end
@@ -944,7 +1008,13 @@ function M.layoutWorkspace(screenName, workspace, shouldVerify)
 		return
 	end
 
-	local requestedLeftWidth = round(workspace.leftWidth or virtualScreen.frame.w / 2)
+	local splitRatio = tonumber(workspace.splitRatio)
+	if not splitRatio and workspace.leftWidth then
+		splitRatio = workspace.leftWidth / math.max(1, virtualScreen.frame.w)
+	end
+	splitRatio = clamp(splitRatio or 0.5, 0, 1)
+	workspace.splitRatio = splitRatio
+	local requestedLeftWidth = round(virtualScreen.frame.w * splitRatio)
 	requestedLeftWidth = clamp(requestedLeftWidth, leftMin, virtualScreen.frame.w - rightMin)
 	workspace.leftWidth = requestedLeftWidth
 
@@ -1075,8 +1145,10 @@ function M.parkWorkspace(workspace)
 			local frame = window:frame()
 			frame.x = M.physicalFrame.x + M.physicalFrame.w + offset
 			frame.y = M.physicalFrame.y + M.physicalFrame.h + offset
-			setFrameIfChanged(window, frame)
+			-- Mark it first: moving the window can synchronously produce a
+			-- not-visible event on some applications.
 			member.parked = true
+			setFrameIfChanged(window, frame)
 		end
 	end
 end
@@ -1143,7 +1215,10 @@ function M.activateWorkspace(screenName, workspaceIndex, shouldFocus, shouldMove
 	M.currentScreenName = screenName
 	virtualScreen.activeWorkspace = workspaceIndex
 
-	if M.collapsed then
+	if M.collapsed and liveMemberCount(workspace) == 0 then
+		-- A non-empty target covers the previous workspace once raised. Parking
+		-- every window first makes macOS redraw/clamp them one by one and causes
+		-- the visible Finder/desktop flash seen on the built-in display.
 		M.parkAllGroups()
 	end
 
@@ -1190,10 +1265,11 @@ function M.raiseActiveWorkspaces()
 			virtualScreen.activeWorkspace = activeIndex
 		end
 
-		M.parkAllGroups()
 		if active then
 			M.layoutWorkspace(screenName, active)
 			M.raiseWorkspace(active, false)
+		else
+			M.parkAllGroups()
 		end
 		return
 	end
@@ -1250,10 +1326,16 @@ end
 -- Live window restoration ----------------------------------------------------
 
 function M.restoreWindows()
+	-- Inactive workspaces are intentionally parked outside the physical frame.
+	-- A visible-only window filter omits some of those windows, which makes an
+	-- otherwise intact saved workspace look unavailable after a reload.
 	local filter = hs.window.filter.new()
-	filter:setOverrideFilter({ visible = true, fullscreen = false, allowRoles = "AXStandardWindow" })
+	-- The inherited default rejects invisible windows. Parked workspaces are
+	-- intentionally invisible, so start from an unrestricted default before
+	-- applying the standard-window/fullscreen constraints.
+	filter:setDefaultFilter({})
+	filter:setOverrideFilter({ fullscreen = false, allowRoles = "AXStandardWindow" })
 	filter:setSortOrder(hs.window.filter.sortByCreated)
-
 	local windows = filter:getWindows()
 	local used = {}
 
@@ -1303,7 +1385,11 @@ function M.restoreWindows()
 	end
 
 	M.rebuildWindowIndex()
-	M.layoutAllWorkspaces()
+	if M.collapsed then
+		M.parkInactiveWorkspaces()
+	else
+		M.layoutAllWorkspaces()
+	end
 	M.raiseActiveWorkspaces()
 end
 
@@ -1481,6 +1567,14 @@ function M.windowNotVisible(window)
 	-- windowNotVisible is emitted before windowHidden in the same event chain.
 	-- Wait until the next tick so the final hidden/minimized state is readable.
 	hs.timer.doAfter(0, function()
+		local location = M.getWindowLocation(window)
+		local virtualScreen = location and M.screens[location.screenName]
+		local workspace = virtualScreen and virtualScreen.workspaces[location.workspaceIndex]
+		local member = workspace and workspace.members[location.memberIndex]
+		if member and member.parked then
+			return
+		end
+
 		local ok, application = pcall(function()
 			return window and window:application()
 		end)
@@ -1534,7 +1628,7 @@ function M.applicationDeactivated(pid)
 		for workspaceIndex, workspace in ipairs(M.screens[screenName].workspaces) do
 			local workspaceChanged = false
 			for _, member in ipairs(workspace.members) do
-				if member.window and member.pid == pid then
+				if member.window and member.pid == pid and not member.parked then
 					local visible = methodReturnsTrue(member.window, "isVisible")
 
 					if not visible then
@@ -1585,7 +1679,7 @@ function M.reconcileWindows()
 					local visible = methodReturnsTrue(member.window, "isVisible")
 					local unavailable = not windowID
 						or not hs.window.get(windowID)
-						or (not visible and not hidden and not minimized)
+						or (not member.parked and not visible and not hidden and not minimized)
 
 					if unavailable then
 						setMemberWindow(member, nil)
@@ -1778,6 +1872,32 @@ function M.startWorkspaceHoverWatcher()
 		local wasOverStackline = M.stacklineHovered
 		M.stacklineHovered = overStackline
 
+		-- Collapsed virtual screens all occupy the same physical display. Treat
+		-- Stackline as one surface and follow its workspace rows directly instead
+		-- of interpreting each row's group as a newly hovered screen.
+		if M.collapsed then
+			M.hoveredScreenName = nil
+			local previous = M.mouseExpandedIndicator
+			if overStackline and stacklineScreen then
+				local changed = not previous
+					or previous.screenName ~= stacklineScreen
+					or previous.workspaceIndex ~= stacklineWorkspace
+				M.mouseExpandedIndicator = {
+					screenName = stacklineScreen,
+					workspaceIndex = stacklineWorkspace or M.screens[stacklineScreen].activeWorkspace,
+					source = "mouse",
+				}
+				if changed then
+					M.scheduleIndicatorCollapse()
+					M.render()
+				end
+			elseif previous or wasOverStackline then
+				M.mouseExpandedIndicator = nil
+				M.render()
+			end
+			return false
+		end
+
 		if screenName ~= M.hoveredScreenName then
 			M.hoveredScreenName = screenName
 			M.expandedIndicator = nil
@@ -1857,6 +1977,7 @@ function M.detachWindow(window)
 	if #workspace.members == 0 then
 		if workspace.keepEmpty then
 			workspace.leftWidth = nil
+			workspace.splitRatio = nil
 			workspace.focusedMember = 1
 		else
 			table.remove(virtualScreen.workspaces, location.workspaceIndex)
@@ -1865,6 +1986,7 @@ function M.detachWindow(window)
 		end
 	else
 		workspace.leftWidth = nil
+		workspace.splitRatio = nil
 		workspace.focusedMember = 1
 		M.layoutWorkspace(location.screenName, workspace)
 	end
@@ -1900,6 +2022,7 @@ function M.addWindowToWorkspace(screenName, workspace, window, allowEmptyWorkspa
 		-- fully unavailable placeholder. The new window becomes authoritative.
 		workspace.members = {}
 		workspace.leftWidth = nil
+		workspace.splitRatio = nil
 		workspace.focusedMember = 1
 	end
 
@@ -1928,6 +2051,7 @@ function M.addWindowToWorkspace(screenName, workspace, window, allowEmptyWorkspa
 		local rightMin = workspace.members[2].minWidth or defaultMinWidth
 		local rightWidth = clamp(originalWidth, rightMin, virtualScreen.frame.w - leftMin)
 		workspace.leftWidth = virtualScreen.frame.w - rightWidth
+		workspace.splitRatio = workspace.leftWidth / math.max(1, virtualScreen.frame.w)
 		workspace.focusedMember = 2
 	else
 		workspace.focusedMember = 1
@@ -2038,6 +2162,7 @@ function M.extractWindowFromWorkspace()
 
 	local member = table.remove(workspace.members, location.memberIndex)
 	workspace.leftWidth = nil
+	workspace.splitRatio = nil
 	workspace.focusedMember = 1
 	local newWorkspace = { members = { member }, focusedMember = 1 }
 
@@ -2558,7 +2683,8 @@ function M.resizeFocusedMember(direction)
 
 	local amount = M.options.resizeStep or 80
 	local change = location.memberIndex == 1 and direction * amount or -direction * amount
-	workspace.leftWidth = round(workspace.leftWidth or virtualScreen.frame.w / 2) + change
+	workspace.leftWidth = round(virtualScreen.frame.w * (workspace.splitRatio or 0.5)) + change
+	workspace.splitRatio = clamp(workspace.leftWidth / math.max(1, virtualScreen.frame.w), 0, 1)
 	M.layoutWorkspace(location.screenName, workspace)
 	M.render()
 end
@@ -2583,6 +2709,7 @@ function M.resetWorkspaceSplit()
 
 	if #workspace.members == 2 then
 		workspace.leftWidth = round(virtualScreen.frame.w / 2)
+		workspace.splitRatio = 0.5
 		M.layoutWorkspace(location.screenName, workspace)
 	end
 end

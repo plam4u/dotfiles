@@ -48,8 +48,11 @@ local function memberName(member)
 	return name or member.name or "Unknown application"
 end
 
-local function workspaceName(workspace, members)
-	local displayMembers = #members > 0 and members or workspace.members or {}
+local function workspaceName(workspace)
+	-- Names describe the configured workspace, not only the subset of windows
+	-- currently exposed by Accessibility. This keeps Stackline consistent with
+	-- Sketchybar when one member is temporarily unavailable or parked.
+	local displayMembers = workspace.members or {}
 	local names = {}
 
 	for _, member in ipairs(displayMembers) do
@@ -262,7 +265,9 @@ local function appendWorkspace(canvas, group, entry, y, options, expandedWorkspa
 		and expandedWorkspace.screenName == group.id
 		and expandedWorkspace.workspaceIndex == entry.index
 	local members = liveMembers(entry.workspace)
-	local iconMembers = #members > 0 and members or entry.workspace.members or {}
+	-- Keep the configured pair visible even if one AX window is momentarily
+	-- detached. This mirrors the stable workspace name and Sketchybar model.
+	local iconMembers = entry.workspace.members or {}
 	local unavailable = #members == 0
 
 	if isFocused then
@@ -306,7 +311,7 @@ local function appendWorkspace(canvas, group, entry, y, options, expandedWorkspa
 			local textHeight = math.min(lineHeight, textSize + 6)
 			canvas:appendElements({
 				type = "text",
-				text = workspaceName(entry.workspace, members),
+				text = workspaceName(entry.workspace),
 				frame = {
 					x = contentX,
 					y = y + (lineHeight - textHeight) / 2,
@@ -334,7 +339,8 @@ function M.render(screens, screenOrder, options, expandedWorkspace, collapsed, s
 	if collapsed then
 		local first = screens[screenOrder[1]]
 		local entries = {}
-		local groupGap = options.groupGap or 10
+		local groupGap = options.groupGap or 18
+		local workspaceSpacing = options.collapsedWorkspaceSpacing or 2
 
 		for _, screenName in ipairs(screenOrder) do
 			local group = screens[screenName]
@@ -349,12 +355,15 @@ function M.render(screens, screenOrder, options, expandedWorkspace, collapsed, s
 
 		if first and #entries > 0 then
 			local isExpanded = expandedWorkspace ~= nil
-			local height = #entries * lineHeight + math.max(0, #entries - 1) * spacing
+			local height = 0
 			local previousGroup
 			for _, item in ipairs(entries) do
-				if previousGroup and previousGroup ~= item.group.id then
-					height = height + groupGap
+				if previousGroup ~= item.group.id then
+					if previousGroup then height = height + groupGap end
+				elseif previousGroup then
+					height = height + workspaceSpacing
 				end
+				height = height + lineHeight
 				previousGroup = item.group.id
 			end
 
@@ -380,8 +389,10 @@ function M.render(screens, screenOrder, options, expandedWorkspace, collapsed, s
 			local rows = {}
 			previousGroup = nil
 			for _, item in ipairs(entries) do
-				if previousGroup and previousGroup ~= item.group.id then
-					y = y + groupGap
+				if previousGroup ~= item.group.id then
+					if previousGroup then y = y + groupGap end
+				elseif previousGroup then
+					y = y + workspaceSpacing
 				end
 				appendWorkspace(canvas, item.group, item.entry, y, options, expandedWorkspace, expandedWidth)
 				table.insert(rows, {
@@ -390,7 +401,7 @@ function M.render(screens, screenOrder, options, expandedWorkspace, collapsed, s
 					screenName = item.group.id,
 					workspaceIndex = item.entry.index,
 				})
-				y = y + lineHeight + spacing
+				y = y + lineHeight
 				previousGroup = item.group.id
 			end
 

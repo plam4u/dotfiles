@@ -79,7 +79,7 @@ require("modules.wm").setup({
 				center = 0.50,
 				right = 0.25,
 			},
-			laptopBarHeight = 40,
+			laptopBarHeight = 32,
 			mouseFollowsFocus = true,
 			-- "standard": wheel up = previous; "natural": wheel up = next.
 			workspaceScrollDirection = "natural",
@@ -91,6 +91,9 @@ require("modules.wm").setup({
 				lineWidth = 3,
 				lineHeight = 48,
 				spacing = 6,
+				collapsedWorkspaceSpacing = 2,
+				-- Extra vertical space between virtual-screen groups on the laptop.
+				groupGap = 20,
 				leftInset = 3,
 				topInset = 3,
 				-- Keyboard-triggered expansion: "label", "icon_label", or "icon".
@@ -164,6 +167,20 @@ require("modules.wm").setup({
 	sketchybar = {
 		-- Options: "background", "border", "underline", "left_bar", "text".
 		workspaceFocusStyle = "underline",
+		-- Workspace content: "icon", "label", or "icon_label" ("icon+label" is also accepted).
+		workspaceDisplayMode = "icon",
+		workspaceActiveLabel = true,
+		workspaceGroupSeparator = ">",
+		workspaceGroupSeparatorGap = 4,
+		workspaceIconWidth = 23,
+		workspaceIconOffset = 0,
+		workspaceFocusInset = 0,
+		workspaceLabelGap = 0,
+		workspaceLabelCharacterWidth = 9,
+		workspaceLabelExtraWidth = 0,
+		barHeight = 32,
+		notchDisplayHeight = 32,
+		notchWidth = 200,
 		initialSelectedItem = "clock",
 		-- Static controls in their visual and keyboard-navigation order.
 		rightItemOrder = { "codex", "plex", "key_lights", "battery", "volume", "clock" },
