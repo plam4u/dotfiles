@@ -5,6 +5,13 @@ The window manager uses two modifier sets:
 - `meh`: shift + control + option
 - `hyper`: shift + control + option + command
 
+## Zotero reader navigation
+
+`modules.remap.zotero` provides Vim-style navigation only while focus is inside
+Zotero's PDF or EPUB document content. `j`/`k` scroll down/up. `h`/`l` move to
+the previous/next page using the native shortcut for the detected document
+type. Modified keys and editable controls pass through unchanged.
+
 ## Workspace groups and display profiles
 
 Workspaces belong to stable, named groups. The default groups are:

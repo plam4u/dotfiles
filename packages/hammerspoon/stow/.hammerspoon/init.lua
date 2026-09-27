@@ -6,6 +6,22 @@ require("modules.caffeine").setup({
 		toggle = { meh, "y" },
 	},
 })
+require("modules.remap.zotero").setup({
+	mapping = {
+		pdf = {
+			h = { { "alt" }, "up" },
+			j = { {}, "down" },
+			k = { {}, "up" },
+			l = { { "alt" }, "down" },
+		},
+		epub = {
+			h = { {}, "left" },
+			j = { {}, "space" },
+			k = { { "shift" }, "space" },
+			l = { {}, "right" },
+		},
+	},
+})
 require("modules.wm").setup({
 	borders = {
 		arguments = {
