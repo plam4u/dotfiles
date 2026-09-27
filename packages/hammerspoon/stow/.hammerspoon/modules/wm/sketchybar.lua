@@ -832,7 +832,9 @@ function M.invokeSelected()
 	end
 
 	if item.type == "workspace" then
-		stacking.activateWorkspaceExplicitly(item.group, item.workspaceIndex)
+		if stacking.activateWorkspaceExplicitly(item.group, item.workspaceIndex) then
+			stacking.flashWorkspaceIndicator(item.group, item.workspaceIndex, "workspaceChange")
+		end
 	else
 		local definition = M.itemDefinition(item.id)
 		local action = definition and definition.actions and definition.actions[1]
@@ -875,7 +877,9 @@ function M.handleURL(_, params)
 		if index and not stacking.isSuspended() then
 			-- A mouse click may move focus, but must never move the pointer. Keyboard
 			-- workspace activation keeps the configured mouse-follows-focus behavior.
-			stacking.activateWorkspaceExplicitly(params.group, index, true, false)
+			if stacking.activateWorkspaceExplicitly(params.group, index, true, false) then
+				stacking.flashWorkspaceIndicator(params.group, index, "workspaceChange")
+			end
 		end
 		if M.active then
 			M.modal:exit()

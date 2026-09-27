@@ -756,7 +756,15 @@ end
 
 function M.render()
 	if M.enabled and not M.suspended then
-		local expanded = M.expandedIndicator or M.mouseExpandedIndicator
+		local expanded
+		if M.stacklineExpanded then
+			expanded = {
+				allScreens = true,
+				source = "pinned",
+			}
+		else
+			expanded = M.expandedIndicator or M.mouseExpandedIndicator
+		end
 		if expanded and expanded.source == "mouse" and not M.collapsed then
 			local group = M.screens[expanded.screenName]
 			expanded.workspaceIndex = group and group.activeWorkspace or expanded.workspaceIndex
@@ -879,7 +887,8 @@ function M.scheduleIndicatorCollapse()
 
 	M.indicatorTimer = hs.timer.doAfter(M.options.indicatorDuration or 1.5, function()
 		if M.indicatorVersion == version then
-			M.stacklineHovered = ui.containsPoint(hs.mouse.absolutePosition())
+			local mouseExpansionEnabled = ((M.options.ui or {}).expandOnMouseMovement == true)
+			M.stacklineHovered = mouseExpansionEnabled and ui.containsPoint(hs.mouse.absolutePosition())
 			if M.stacklineHovered then
 				M.scheduleIndicatorCollapse()
 				return
@@ -892,6 +901,31 @@ function M.scheduleIndicatorCollapse()
 	end)
 end
 
+local function stacklineExpansionEnabled(trigger)
+	local options = M.options.ui or {}
+	if trigger == "keyboardScreenNavigation" then
+		return options.expandOnKeyboardScreenNavigation == true
+	end
+	if trigger == "mouse" then
+		return options.expandOnMouseMovement == true
+	end
+	-- Workspace changes expand unless explicitly disabled.
+	return options.expandOnWorkspaceChange ~= false
+end
+
+function M.toggleStacklineExpanded()
+	M.stacklineExpanded = not M.stacklineExpanded
+	M.indicatorVersion = (M.indicatorVersion or 0) + 1
+	if M.indicatorTimer then
+		M.indicatorTimer:stop()
+	end
+	M.indicatorTimer = nil
+	M.expandedIndicator = nil
+	M.mouseExpandedIndicator = nil
+	M.hoveredScreenName = nil
+	M.render()
+end
+
 function M.activateWorkspaceExplicitly(screenName, workspaceIndex, shouldFocus, shouldMoveMouse)
 	local virtualScreen = M.screens[screenName]
 	local workspace = virtualScreen and virtualScreen.workspaces[workspaceIndex]
@@ -902,10 +936,15 @@ function M.activateWorkspaceExplicitly(screenName, workspaceIndex, shouldFocus, 
 	return M.activateWorkspace(screenName, workspaceIndex, shouldFocus, shouldMoveMouse)
 end
 
-function M.flashWorkspaceIndicator(screenName, workspaceIndex)
+function M.flashWorkspaceIndicator(screenName, workspaceIndex, trigger)
+	trigger = trigger or "workspaceChange"
+	if M.stacklineExpanded or not stacklineExpansionEnabled(trigger) then
+		return false
+	end
 	M.expandedIndicator = { screenName = screenName, workspaceIndex = workspaceIndex, source = "keyboard" }
 	M.scheduleIndicatorCollapse()
 	M.render()
+	return true
 end
 
 function M.findWorkspace(screenName, wantedWorkspace)
@@ -1859,6 +1898,14 @@ function M.startWorkspaceHoverWatcher()
 	if M.workspaceHoverWatcher then
 		M.workspaceHoverWatcher:stop()
 	end
+	M.workspaceHoverWatcher = nil
+
+	if not stacklineExpansionEnabled("mouse") then
+		M.hoveredScreenName = nil
+		M.mouseExpandedIndicator = nil
+		M.stacklineHovered = false
+		return
+	end
 
 	M.hoveredScreenName = nil
 	M.workspaceHoverWatcher = hs.eventtap.new({ hs.eventtap.event.types.mouseMoved }, function()
@@ -2607,7 +2654,7 @@ function M.focusScreenInDirection(screenName, delta)
 
 		if isWorkspaceNavigable(active) then
 			if M.activateWorkspace(targetName, target.activeWorkspace) then
-				M.flashWorkspaceIndicator(targetName, target.activeWorkspace)
+				M.flashWorkspaceIndicator(targetName, target.activeWorkspace, "keyboardScreenNavigation")
 				return true
 			end
 		end
@@ -2615,7 +2662,7 @@ function M.focusScreenInDirection(screenName, delta)
 		for workspaceIndex, workspace in ipairs(target.workspaces) do
 			if isWorkspaceNavigable(workspace) then
 				if M.activateWorkspace(targetName, workspaceIndex) then
-					M.flashWorkspaceIndicator(targetName, workspaceIndex)
+					M.flashWorkspaceIndicator(targetName, workspaceIndex, "keyboardScreenNavigation")
 					return true
 				end
 			end

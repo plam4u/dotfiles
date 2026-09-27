@@ -262,8 +262,13 @@ local function appendWorkspace(canvas, group, entry, y, options, expandedWorkspa
 	local lineHeight = options.lineHeight or 24
 	local isActive = entry.index == group.activeWorkspace
 	local isFocused = expandedWorkspace
-		and expandedWorkspace.screenName == group.id
-		and expandedWorkspace.workspaceIndex == entry.index
+		and (
+			(expandedWorkspace.allScreens and isActive)
+			or (
+				expandedWorkspace.screenName == group.id
+				and expandedWorkspace.workspaceIndex == entry.index
+			)
+		)
 	local members = liveMembers(entry.workspace)
 	-- Keep the configured pair visible even if one AX window is momentarily
 	-- detached. This mirrors the stable workspace name and Sketchybar model.
@@ -419,7 +424,8 @@ function M.render(screens, screenOrder, options, expandedWorkspace, collapsed, s
 		virtualScreen.id = screenName
 		local visible = visibleWorkspaces(virtualScreen, showUnavailableWorkspaces)
 		local workspaceCount = #visible
-		local isExpandedScreen = expandedWorkspace and expandedWorkspace.screenName == screenName
+		local isExpandedScreen = expandedWorkspace
+			and (expandedWorkspace.allScreens or expandedWorkspace.screenName == screenName)
 
 		if workspaceCount > 0 then
 			local frame = {

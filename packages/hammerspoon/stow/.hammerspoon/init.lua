@@ -88,6 +88,11 @@ require("modules.wm").setup({
 			defaultMinWidth = 200,
 			indicatorDuration = 1,
 			ui = {
+				-- Automatic expansion triggers are independent. Keyboard virtual-screen
+				-- navigation and mouse hover are opt-in; workspace changes expand by default.
+				expandOnKeyboardScreenNavigation = false,
+				expandOnMouseMovement = false,
+				expandOnWorkspaceChange = true,
 				lineWidth = 3,
 				lineHeight = 48,
 				spacing = 6,
@@ -115,6 +120,8 @@ require("modules.wm").setup({
 			-- Persist and restore the complete workspace model on demand.
 			saveStacks = { meh, "=" },
 			loadStacks = { hyper, "=" },
+			-- Pin/unpin the expanded Stackline UI.
+			toggleStacklineExpanded = { meh, "s" },
 			-- Reveal/hide empty workspaces and workspaces whose windows are closed.
 			toggleUnavailableWorkspaces = { meh, "d" },
 			-- Move inactive workspaces out of the selected virtual screen.

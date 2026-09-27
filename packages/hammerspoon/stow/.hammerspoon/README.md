@@ -120,10 +120,14 @@ be `left` or `right` to show that member at full size, or `both` to show the
 left member in the slot's top-left and the right member in its bottom-right.
 `stackedIconSize` controls both smaller icon sizes and defaults to half of
 `iconSize` when omitted; values are clamped to the available icon slot.
-Mouse movement expands Stackline only when the pointer crosses into a different
-virtual-screen group. Its independent `mouseWorkspaceDisplayMode` defaults to
-`icon`; keyboard-triggered expansion continues to use `workspaceDisplayMode`.
-Moving onto Stackline also expands it and keeps it open until the pointer leaves.
+`stacking.config.ui.expandOnKeyboardScreenNavigation` controls transient
+expansion while moving between virtual screens with keyboard navigation and is
+off by default. `expandOnMouseMovement` independently controls mouse group/row
+hover expansion and is also off by default; its presentation uses
+`mouseWorkspaceDisplayMode`, which defaults to `icon`. Workspace activation uses
+`workspaceDisplayMode` and expands by default; set `expandOnWorkspaceChange` to
+`false` to disable it. `toggleStacklineExpanded` (configured as `meh + S`) pins
+every virtual screen's Stackline open until toggled again.
 On a collapsed laptop layout, `stacking.config.ui.groupGap` controls the extra
 space between virtual-screen groups. No group names are drawn. Hover follows
 workspace rows without treating those overlapping groups as separate physical
