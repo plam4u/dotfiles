@@ -6,7 +6,8 @@ require("modules.caffeine").setup({
 		toggle = { meh, "y" },
 	},
 })
-require("modules.remap.zotero").setup({
+local keyboard = require("modules.keyboard").setup()
+require("modules.keyboard.zotero").setup(keyboard, {
 	mapping = {
 		pdf = {
 			h = { { "alt" }, "up" },

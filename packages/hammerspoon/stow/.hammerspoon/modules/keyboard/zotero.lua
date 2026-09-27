@@ -1,6 +1,5 @@
 local M = {
 	bundleID = "org.zotero.zotero",
-	swallowedKeys = {},
 }
 
 local editableRoles = {
@@ -35,10 +34,6 @@ local function attribute(element, name)
 		return nil
 	end
 	return value
-end
-
-local function hasActionModifiers(flags)
-	return flags.cmd or flags.ctrl or flags.alt or flags.shift or flags.fn
 end
 
 local function readerContext()
@@ -78,60 +73,24 @@ local function readerContext()
 	return nil
 end
 
-local function keyName(event)
-	local code = event:getKeyCode()
-	for _, name in ipairs({ "h", "j", "k", "l" }) do
-		if hs.keycodes.map[name] == code then
-			return name, code
-		end
-	end
-	return nil, code
-end
-
-local function handleKeyEvent(event)
-	local eventTypes = hs.eventtap.event.types
-	local name, code = keyName(event)
-	if not name then
-		return false
-	end
-
-	if event:getType() == eventTypes.keyUp then
-		if M.swallowedKeys[code] then
-			M.swallowedKeys[code] = nil
-			return true
-		end
-		return false
-	end
-
-	if hasActionModifiers(event:getFlags()) then
-		return false
-	end
-	local context = readerContext()
-	local mapping = context and M.mappings[context] and M.mappings[context][name]
-	if not mapping then
-		return false
-	end
-
-	M.swallowedKeys[code] = true
-	hs.eventtap.keyStroke(mapping[1], mapping[2], 0)
-	return true
-end
-
-function M.setup(config)
+function M.setup(keyboard, config)
 	config = config or {}
 	M.bundleID = config.bundleID or M.bundleID
 	M.maxAncestorDepth = config.maxAncestorDepth or 20
 	M.mappings = config.mapping or defaultMappings
-
-	if M.eventTap then
-		M.eventTap:stop()
-	end
-	M.swallowedKeys = {}
-	M.eventTap = hs.eventtap.new({
-		hs.eventtap.event.types.keyDown,
-		hs.eventtap.event.types.keyUp,
-	}, handleKeyEvent)
-	M.eventTap:start()
+	keyboard.register("zotero-reader", {
+		priority = config.priority or 10,
+		keys = { "h", "j", "k", "l" },
+		pressed = function(key)
+			local context = readerContext()
+			local mapping = context and M.mappings[context] and M.mappings[context][key]
+			if not mapping then
+				return false
+			end
+			hs.eventtap.keyStroke(mapping[1], mapping[2], 0)
+			return true
+		end,
+	})
 	return M
 end
 

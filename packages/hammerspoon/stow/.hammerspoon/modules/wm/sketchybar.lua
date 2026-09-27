@@ -1,3 +1,4 @@
+local keyboard = require("modules.keyboard")
 local hotkeys = require("modules.wm.hotkeys")
 local stacking = require("modules.wm.stacking")
 local caffeine = require("modules.caffeine")
@@ -1054,59 +1055,46 @@ function M.setup(config)
 	M.modal:bind({}, "left", function()
 		M.moveSelection(-1)
 	end)
-	M.modal:bind(
-		{},
-		"h",
-		function()
-			M.handleHorizontalNavigation(-1)
-		end,
-		keyLights.stopRepeat,
-		function()
-			keyLights.repeatAdjustment(-1)
-		end
-	)
 	M.modal:bind({}, "right", function()
 		M.moveSelection(1)
 	end)
-	M.modal:bind(
-		{},
-		"l",
-		function()
-			M.handleHorizontalNavigation(1)
-		end,
-		keyLights.stopRepeat,
-		function()
-			keyLights.repeatAdjustment(1)
-		end
-	)
 	M.modal:bind({}, "up", function()
 		M.moveSelection(-1)
 	end)
-	M.modal:bind(
-		{},
-		"k",
-		function()
-			M.handleVerticalNavigation(-1)
-		end,
-		M.stopVolumeRepeat,
-		function()
-			M.repeatVolume(-1)
-		end
-	)
 	M.modal:bind({}, "down", function()
 		M.moveSelection(1)
 	end)
-	M.modal:bind(
-		{},
-		"j",
-		function()
-			M.handleVerticalNavigation(1)
+	keyboard.register("sketchybar-navigation", {
+		priority = 100,
+		keys = { "h", "j", "k", "l" },
+		active = function()
+			return M.active
 		end,
-		M.stopVolumeRepeat,
-		function()
-			M.repeatVolume(1)
-		end
-	)
+		pressed = function(key)
+			if key == "h" or key == "l" then
+				M.handleHorizontalNavigation(key == "h" and -1 or 1)
+			else
+				M.handleVerticalNavigation(key == "k" and -1 or 1)
+			end
+			return true
+		end,
+		repeated = function(key)
+			if key == "h" or key == "l" then
+				keyLights.repeatAdjustment(key == "h" and -1 or 1)
+			else
+				M.repeatVolume(key == "k" and -1 or 1)
+			end
+			return true
+		end,
+		released = function(key)
+			if key == "h" or key == "l" then
+				keyLights.stopRepeat()
+			else
+				M.stopVolumeRepeat()
+			end
+			return true
+		end,
+	})
 	M.modal:bind({}, "return", M.invokeSelected)
 	M.modal:bind({}, "space", M.handleSpace)
 	M.modal:bind({}, "escape", function()

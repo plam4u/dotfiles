@@ -7,10 +7,13 @@ The window manager uses two modifier sets:
 
 ## Zotero reader navigation
 
-`modules.remap.zotero` provides Vim-style navigation only while focus is inside
+`modules.keyboard.zotero` registers Vim-style navigation with the centralized
+keyboard router only while focus is inside
 Zotero's PDF or EPUB document content. `j`/`k` scroll down/up. `h`/`l` move to
 the previous/next page using the native shortcut for the detected document
-type. Modified keys and editable controls pass through unchanged.
+type. Modified keys and editable controls pass through unchanged. SketchyBar's
+navigation handler has higher priority, so its H/J/K/L controls always win while
+the bar is open. The router owns intercepted key-down, repeat, and key-up state.
 
 ## Workspace groups and display profiles
 
