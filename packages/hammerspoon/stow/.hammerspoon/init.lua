@@ -106,9 +106,11 @@ require("modules.wm").setup({
 			indicatorDuration = 1,
 			ui = {
 				-- Automatic expansion triggers are independent. Keyboard virtual-screen
-				-- navigation and mouse hover are opt-in; workspace changes expand by default.
+				-- navigation, mouse activity, and automatic window focus are opt-in;
+				-- explicit workspace changes expand by default.
 				expandOnKeyboardScreenNavigation = false,
 				expandOnMouseMovement = false,
+				expandOnWindowFocusChange = false,
 				expandOnWorkspaceChange = true,
 				lineWidth = 3,
 				lineHeight = 48,

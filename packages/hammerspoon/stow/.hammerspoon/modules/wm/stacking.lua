@@ -910,7 +910,10 @@ local function stacklineExpansionEnabled(trigger)
 	if trigger == "mouse" then
 		return options.expandOnMouseMovement == true
 	end
-	-- Workspace changes expand unless explicitly disabled.
+	if trigger == "windowFocusChange" then
+		return options.expandOnWindowFocusChange == true
+	end
+	-- Explicit workspace changes expand unless explicitly disabled.
 	return options.expandOnWorkspaceChange ~= false
 end
 
@@ -1768,7 +1771,7 @@ function M.windowFocused(window)
 		M.flashWorkspaceIndicator(
 			location.screenName,
 			location.workspaceIndex,
-			mouseTriggered and "mouse" or "workspaceChange"
+			mouseTriggered and "mouse" or "windowFocusChange"
 		)
 	end
 end

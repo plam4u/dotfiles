@@ -135,7 +135,10 @@ expansion while moving between virtual screens with keyboard navigation and is
 off by default. `expandOnMouseMovement` independently controls mouse group/row
 hover expansion and expansion after clicking a window in another virtual
 screen, and is also off by default; its hover presentation uses
-`mouseWorkspaceDisplayMode`, which defaults to `icon`. Workspace activation uses
+`mouseWorkspaceDisplayMode`, which defaults to `icon`.
+`expandOnWindowFocusChange` independently controls expansion caused by an app
+focusing a window in another virtual screen (for example Xcode launching an app
+in Simulator) and is off by default. Explicit workspace activation uses
 `workspaceDisplayMode` and expands by default; set `expandOnWorkspaceChange` to
 `false` to disable it. `toggleStacklineExpanded` (configured as `meh + S`) pins
 every virtual screen's Stackline open until toggled again.
