@@ -1,4 +1,25 @@
-local M = {}
+local M = {
+	subscribers = {},
+}
+
+local function publishState(state)
+	M.state = state == true
+	for _, callback in ipairs(M.subscribers) do
+		local ok, err = pcall(callback, M.state)
+		if not ok and M.logger then
+			M.logger.e("Caffeine subscriber failed: " .. tostring(err))
+		end
+	end
+end
+
+function M.subscribe(callback)
+	if type(callback) ~= "function" then
+		return false
+	end
+	table.insert(M.subscribers, callback)
+	callback(hs.caffeinate.get("displayIdle"))
+	return true
+end
 
 function M.setup(config)
 	M.config = config or {}
@@ -51,6 +72,7 @@ function M.setCaffeineDisplay(state)
 		M.caffeine:setIcon(M.icons.sleepy)
 		M.caffeine:setTitle(M.shouldDisplayTitle and "Sleepy" or nil)
 	end
+	publishState(state)
 end
 
 function M.caffeineClicked(mods)

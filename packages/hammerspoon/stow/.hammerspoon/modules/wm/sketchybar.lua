@@ -1,5 +1,6 @@
 local hotkeys = require("modules.wm.hotkeys")
 local stacking = require("modules.wm.stacking")
+local caffeine = require("modules.caffeine")
 local keyLights = require("modules.wm.sketchybar.key_lights")
 local plex = require("modules.wm.sketchybar.plex")
 
@@ -106,6 +107,20 @@ local staticItems = {
 		},
 	},
 	{
+		id = "caffeine",
+		actions = {
+			{
+				id = "toggle",
+				label = "Toggle Caffeine",
+				handler = function()
+					-- Use the same silent toggle as the macOS menubar item. State
+					-- publication updates both surfaces immediately.
+					caffeine.caffeineClicked({})
+				end,
+			},
+		},
+	},
+	{
 		id = "plex",
 		actions = {
 			{
@@ -117,7 +132,7 @@ local staticItems = {
 	},
 }
 
-local defaultRightItemOrder = { "codex", "key_lights", "plex", "battery", "volume", "clock" }
+local defaultRightItemOrder = { "codex", "key_lights", "caffeine", "plex", "battery", "volume", "clock" }
 local validWorkspaceFocusStyles = {
 	background = true,
 	border = true,
@@ -217,6 +232,52 @@ function M.applyRightItemOrder()
 	end
 
 	return M.run(args)
+end
+
+function M.updateCaffeine(state)
+	local icon = hs.configdir
+		.. "/modules/caffeine/assets/coffee."
+		.. (state and "fill" or "empty")
+		.. ".16.png"
+	M.run({
+		"--set",
+		"caffeine",
+		"icon.background.image=" .. icon,
+		"icon.background.image.drawing=on",
+		"label=" .. (state and "On" or "Off"),
+	})
+end
+
+function M.ensureCaffeineItem()
+	local configured = false
+	for _, itemID in ipairs(M.rightItemOrder or {}) do
+		if itemID == "caffeine" then
+			configured = true
+			break
+		end
+	end
+	if not configured or not M.executable then
+		return
+	end
+
+	local _, exists = hs.execute(shellQuote(M.executable) .. " --query caffeine >/dev/null 2>&1")
+	if not exists then
+		M.run({ "--add", "item", "caffeine", "right" })
+	end
+	M.run({
+		"--set",
+		"caffeine",
+		"position=right",
+		"icon= ",
+		"icon.drawing=on",
+		"icon.width=21",
+		"icon.align=center",
+		"icon.background.drawing=on",
+		"icon.background.image.scale=1.0",
+		"label.drawing=on",
+		"click_script=" .. M.pluginDir .. "/action_click.sh caffeine",
+	})
+	M.updateCaffeine(hs.caffeinate.get("displayIdle"))
 end
 
 function M.rebuildNavigation()
@@ -801,6 +862,10 @@ function M.handleSpace()
 		M.runAction("volume", "mute")
 		return
 	end
+	if item and item.id == "caffeine" then
+		M.runAction("caffeine", "toggle")
+		return
+	end
 	if item and item.type == "static" then
 		M.openMenu(item.id)
 	end
@@ -856,6 +921,7 @@ end
 function M.handleURL(_, params)
 	local command = params.command
 	if command == "refresh" then
+		M.ensureCaffeineItem()
 		M.applyRightItemOrder()
 		M.publish()
 		M.applyBarMode()
@@ -953,6 +1019,7 @@ function M.setup(config)
 	M.pluginDir = hs.configdir:gsub("%.hammerspoon$", ".config/sketchybar/plugins")
 	M.codexUsageStateFile = os.getenv("HOME") .. "/Library/Caches/SketchyBar/codex_usage.json"
 	clearCodexUsagePopup()
+	caffeine.subscribe(M.updateCaffeine)
 	keyLights.setup(M.config.keyLights or {}, M)
 	plex.setup(M.config.plex or {}, M)
 
@@ -1071,6 +1138,7 @@ function M.setup(config)
 	end
 
 	hs.urlevent.bind("wm-bar", M.handleURL)
+	M.ensureCaffeineItem()
 	M.applyRightItemOrder()
 	stacking.subscribe(function(snapshot)
 		local fingerprint = hs.json.encode(snapshot)

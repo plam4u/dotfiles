@@ -66,6 +66,17 @@ sketchybar --add item clock right \
   icon="󰛨" \
   label="…" \
   click_script="$PLUGIN_DIR/action_click.sh key_lights" \
+  --add item caffeine right \
+  --set caffeine \
+  icon=" " \
+  icon.width=21 \
+  icon.align=center \
+  icon.background.drawing=on \
+  icon.background.image="$HOME/.hammerspoon/modules/caffeine/assets/coffee.empty.16.png" \
+  icon.background.image.drawing=on \
+  icon.background.image.scale=1.0 \
+  label="Off" \
+  click_script="$PLUGIN_DIR/action_click.sh caffeine" \
   --add item plex right \
   --set plex \
   icon="󰚺" \

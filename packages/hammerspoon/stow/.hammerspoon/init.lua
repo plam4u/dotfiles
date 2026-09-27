@@ -190,7 +190,7 @@ require("modules.wm").setup({
 		notchWidth = 200,
 		initialSelectedItem = "clock",
 		-- Static controls in their visual and keyboard-navigation order.
-		rightItemOrder = { "codex", "plex", "key_lights", "battery", "volume", "clock" },
+		rightItemOrder = { "codex", "plex", "key_lights", "caffeine", "battery", "volume", "clock" },
 		keyLights = {
 			left = {
 				match = "8B25",

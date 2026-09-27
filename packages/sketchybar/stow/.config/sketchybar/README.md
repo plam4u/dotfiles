@@ -15,6 +15,9 @@ order preserve the grouping without spending bar space on labels.
 - `sketchybar.rightItemOrder` in Hammerspoon's `init.lua` defines the static
   controls from left to right for both display and keyboard navigation. It is
   reapplied automatically after `sketchybar --reload`.
+- The Caffeine control reuses the Hammerspoon module's empty/filled coffee icon,
+  shows `Off`/`On`, and stays synchronized with menubar clicks, its hotkey, and
+  SketchyBar clicks. Space toggles it directly without opening a menu.
 - Return invokes the selected item.
 - Space opens the selected item's action menu.
 - Selecting the Codex item shows its usage popup. J/K moves between the Codex
