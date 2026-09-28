@@ -1904,7 +1904,7 @@ function M.startWorkspaceScrollWatcher()
 		end
 		M.lastWorkspaceScrollAt = now
 
-		local direction = delta > 0 and -1 or 1
+		local direction = delta > 0 and 1 or -1
 		if M.options.workspaceScrollDirection == "natural" then
 			direction = -direction
 		end
