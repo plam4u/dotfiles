@@ -431,15 +431,6 @@ function M.closeCodexUsageDetails()
 	M.codexUsageDetailsVisible = false
 end
 
-local function usagePercentage(window)
-	if type(window) ~= "table" or type(window.usedPercent) ~= "number" then
-		return "—"
-	end
-
-	local remaining = math.max(0, 100 - window.usedPercent)
-	return string.format("%.0f%%", remaining)
-end
-
 local function timeUntilReset(timestamp)
 	if type(timestamp) ~= "number" then
 		return "—"
@@ -488,16 +479,13 @@ local function codexUsageRows(details)
 	end
 
 	local resets = tonumber(details.manualResets)
-	local fivePercent = usagePercentage(details.fiveHour)
 	local fiveReset = resetTime(details.fiveHour, M.codexFiveHourTimeFormat or "remaining")
-	local weeklyPercent = usagePercentage(details.weekly)
 	local weeklyRemaining = M.codexWeeklyTimeFormat == "remaining"
 	local weeklyReset = weeklyRemaining and daysUntilReset(details.weekly) or resetTime(details.weekly, "date")
-	-- Keep this field exactly three characters wide. Leading padding at the
-	-- SketchyBar label boundary is not preserved reliably, so the countdown
-	-- marker uses a trailing space instead of formatting "in" with %3s.
-	local fivePrefix = M.codexFiveHourTimeFormat == "remaining" and "in " or fivePercent
-	local weeklyPrefix = weeklyRemaining and "in " or weeklyPercent
+	-- Keep this field exactly three characters wide so toggling between the
+	-- relative and absolute reset times does not move the values horizontally.
+	local fivePrefix = M.codexFiveHourTimeFormat == "remaining" and "in " or "at "
+	local weeklyPrefix = weeklyRemaining and "in " or "on "
 	return {
 		{ heading = "5h", value = string.format("%s   %6s", fivePrefix, fiveReset) },
 		{ heading = "Weekly", value = string.format("%s   %6s", weeklyPrefix, weeklyReset) },
