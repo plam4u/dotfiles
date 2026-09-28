@@ -66,18 +66,6 @@ require("modules.wm").setup({
 			centerWindow = { meh, "t" },
 		},
 	},
-	navigation = {
-		mapping = {
-			-- Focus window
-			focusWest = { "alt", "h" },
-			focusSouth = { "alt", "j" },
-			focusNorth = { "alt", "k" },
-			focusEast = { "alt", "l" },
-			-- Always use geometric navigation instead of cycling workspaces.
-			focusDirectionalNorth = { "alt", "i" },
-			focusDirectionalSouth = { "alt", "," },
-		},
-	},
 	stacking = {
 		config = {
 			ultrawideWidth = 5120,
@@ -136,6 +124,14 @@ require("modules.wm").setup({
 			},
 		},
 		mapping = {
+			-- Focus windows, workspace members, and adjacent virtual screens.
+			focusWest = { "alt", "h" },
+			focusSouth = { "alt", "j" },
+			focusNorth = { "alt", "k" },
+			focusEast = { "alt", "l" },
+			-- Always use geometric navigation instead of cycling workspaces.
+			focusDirectionalNorth = { "alt", "i" },
+			focusDirectionalSouth = { "alt", "," },
 			-- Persist and restore the complete workspace model on demand.
 			saveStacks = { meh, "=" },
 			loadStacks = { hyper, "=" },
@@ -208,7 +204,8 @@ require("modules.wm").setup({
 		notchDisplayHeight = 32,
 		notchWidth = 200,
 		initialSelectedItem = "clock",
-		-- Static controls in their visual and keyboard-navigation order.
+		-- Enabled static controls in their visual and keyboard-navigation order.
+		-- Remove an item from this list to disable its UI and background updates.
 		rightItemOrder = { "codex", "plex", "key_lights", "caffeine", "battery", "volume", "clock" },
 		keyLights = {
 			left = {
@@ -224,8 +221,6 @@ require("modules.wm").setup({
 			toggleNavigation = { "alt", "m" },
 		},
 	},
-	-- modules.wm.persistence is intentionally disabled. Stacking owns
-	-- managed window restoration; persistence.lua remains as reference.
 })
 require("reload").setup({
 	includeSuffixes = { ".lua", ".json" },

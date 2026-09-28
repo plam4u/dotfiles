@@ -166,7 +166,12 @@ elif [[ "${#center_order[@]}" -gt 0 ]]; then
   sketchybar --reorder "${center_order[@]}"
 fi
 
-for item in front_app clock volume battery codex key_lights caffeine plex; do
+static_items=(front_app)
+while IFS= read -r item; do
+  [[ -n "$item" ]] && static_items+=("$item")
+done < <(jq -r '.rightItemOrder[]?' "$state_file")
+
+for item in "${static_items[@]}"; do
   if [[ "$selected" == "$item" ]]; then
     sketchybar --set "$item" background.drawing=on background.color=0xff3b82f6 background.corner_radius=7 background.height=28
   else

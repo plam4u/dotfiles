@@ -1,8 +1,8 @@
 local keyboard = require("modules.keyboard")
 local hotkeys = require("modules.wm.hotkeys")
 local stacking = require("modules.wm.stacking")
-local caffeine = require("modules.caffeine")
 local keyLights = require("modules.wm.sketchybar.key_lights")
+local items = require("modules.wm.sketchybar.items")
 local plex = require("modules.wm.sketchybar.plex")
 
 local M = {
@@ -16,124 +16,8 @@ local M = {
 	codexWeeklyTimeFormat = "remaining",
 }
 
-local staticItems = {
-	{
-		id = "front_app",
-		actions = {
-			{
-				id = "hide",
-				label = "Hide front application",
-				handler = function()
-					local app = hs.application.frontmostApplication()
-					if app then
-						app:hide()
-					end
-				end,
-			},
-		},
-	},
-	{
-		id = "clock",
-		actions = {
-			{
-				id = "calendar",
-				label = "Open Calendar",
-				handler = function()
-					hs.application.launchOrFocus("Calendar")
-				end,
-			},
-		},
-	},
-	{
-		id = "volume",
-		actions = {
-			{
-				id = "mute",
-				label = "Toggle mute",
-				handler = function()
-					local device = hs.audiodevice.defaultOutputDevice()
-					if device then
-						device:setMuted(not device:muted())
-					end
-				end,
-			},
-			{
-				id = "up",
-				label = "Volume up",
-				handler = function()
-					local device = hs.audiodevice.defaultOutputDevice()
-					if device then
-						device:setVolume(math.min(100, device:volume() + 5))
-					end
-				end,
-			},
-			{
-				id = "down",
-				label = "Volume down",
-				handler = function()
-					local device = hs.audiodevice.defaultOutputDevice()
-					if device then
-						device:setVolume(math.max(0, device:volume() - 5))
-					end
-				end,
-			},
-		},
-	},
-	{
-		id = "battery",
-		actions = {
-			{
-				id = "settings",
-				label = "Open System Settings",
-				handler = function()
-					hs.application.launchOrFocus("System Settings")
-				end,
-			},
-		},
-	},
-	{
-		id = "codex",
-		actions = {},
-	},
-	{
-		id = "key_lights",
-		actions = {
-			{
-				id = "toggle",
-				label = "Toggle all key lights",
-				handler = function()
-					keyLights.togglePower("all")
-				end,
-			},
-		},
-	},
-	{
-		id = "caffeine",
-		actions = {
-			{
-				id = "toggle",
-				label = "Toggle Caffeine",
-				handler = function()
-					-- Use the same silent toggle as the macOS menubar item. State
-					-- publication updates both surfaces immediately.
-					caffeine.caffeineClicked({})
-				end,
-			},
-		},
-	},
-	{
-		id = "plex",
-		actions = {
-			{
-				id = "toggle",
-				label = "Toggle Plex Media Server",
-				handler = plex.toggleServer,
-			},
-		},
-	},
-}
+local staticItems = items.all()
 
-local defaultRightItemOrder = { "codex", "key_lights", "caffeine", "plex", "battery", "volume", "clock" }
 local validWorkspaceFocusStyles = {
 	background = true,
 	border = true,
@@ -193,12 +77,11 @@ function M.run(args)
 end
 
 function M.itemDefinition(itemID)
-	for _, item in ipairs(staticItems) do
-		if item.id == itemID then
-			return item
-		end
-	end
-	return nil
+	return items.find(itemID)
+end
+
+local function availableRightItems()
+	return items.defaultRightOrder()
 end
 
 local function rightItemOrder(configuredOrder)
@@ -209,21 +92,38 @@ local function rightItemOrder(configuredOrder)
 		if itemID ~= "front_app" and M.itemDefinition(itemID) and not seen[itemID] then
 			table.insert(order, itemID)
 			seen[itemID] = true
-		end
-	end
-
-	-- Invalid or omitted entries keep their default relative order instead of
-	-- silently disappearing from keyboard navigation.
-	for _, itemID in ipairs(defaultRightItemOrder) do
-		if not seen[itemID] then
-			table.insert(order, itemID)
+		elseif itemID ~= "front_app" and not M.itemDefinition(itemID) then
+			M.logger.w("Ignoring unknown SketchyBar item: " .. tostring(itemID))
 		end
 	end
 
 	return order
 end
 
+function M.itemEnabled(itemID)
+	return itemID == "front_app" or (M.enabledRightItems and M.enabledRightItems[itemID] == true)
+end
+
+function M.applyEnabledItems()
+	local args = {}
+	for _, itemID in ipairs(availableRightItems()) do
+		local enabled = M.itemEnabled(itemID)
+		table.insert(args, "--set")
+		table.insert(args, itemID)
+		table.insert(args, "drawing=" .. (enabled and "on" or "off"))
+		table.insert(args, "updates=" .. (enabled and "on" or "off"))
+		if not enabled then
+			table.insert(args, "popup.drawing=off")
+		end
+	end
+	M.run(args)
+	M.run({ "--update" })
+end
+
 function M.applyRightItemOrder()
+	if #M.rightItemOrder == 0 then
+		return true
+	end
 	local args = { "--reorder" }
 
 	-- SketchyBar lays out right-positioned items in reverse internal order.
@@ -250,14 +150,7 @@ function M.updateCaffeine(state)
 end
 
 function M.ensureCaffeineItem()
-	local configured = false
-	for _, itemID in ipairs(M.rightItemOrder or {}) do
-		if itemID == "caffeine" then
-			configured = true
-			break
-		end
-	end
-	if not configured or not M.executable then
+	if not M.itemEnabled("caffeine") or not M.executable then
 		return
 	end
 
@@ -382,6 +275,7 @@ function M.publish(shouldTrigger)
 	document.workspaceLabelGap = M.workspaceLabelGap
 	document.workspaceLabelCharacterWidth = M.workspaceLabelCharacterWidth
 	document.workspaceLabelExtraWidth = M.workspaceLabelExtraWidth
+	document.rightItemOrder = copyTable(M.rightItemOrder)
 	hs.fs.mkdir(hs.configdir .. "/state")
 	hs.json.write(document, M.stateFile, true, true)
 	if shouldTrigger ~= false then
@@ -454,10 +348,12 @@ function M.applySelection()
 	end
 
 	for _, item in ipairs(staticItems) do
-		table.insert(args, "--set")
-		table.insert(args, item.id)
-		table.insert(args, "background.border_width=0")
-		table.insert(args, "background.drawing=off")
+		if M.itemEnabled(item.id) then
+			table.insert(args, "--set")
+			table.insert(args, item.id)
+			table.insert(args, "background.border_width=0")
+			table.insert(args, "background.drawing=off")
+		end
 	end
 
 	if selected then
@@ -499,6 +395,7 @@ function M.applyBarMode()
 		table.insert(args, "--set")
 		table.insert(args, itemID)
 		table.insert(args, "position=right")
+		table.insert(args, "drawing=on")
 	end
 	M.run(args)
 	M.applyRightItemOrder()
@@ -922,6 +819,7 @@ end
 function M.handleURL(_, params)
 	local command = params.command
 	if command == "refresh" then
+		M.applyEnabledItems()
 		M.ensureCaffeineItem()
 		M.applyRightItemOrder()
 		M.publish()
@@ -963,6 +861,9 @@ function M.handleURL(_, params)
 	end
 
 	if command == "click" and tostring(params.item or ""):match("^[%w_.-]+$") then
+		if not M.itemEnabled(params.item) then
+			return
+		end
 		local definition = M.itemDefinition(params.item)
 		if not definition then
 			return
@@ -993,7 +894,16 @@ end
 
 function M.setup(config)
 	M.config = config or {}
-	M.rightItemOrder = rightItemOrder(M.config.rightItemOrder or defaultRightItemOrder)
+	M.logger = hs.logger.new("sketchybar", "info")
+	local configuredOrder = M.config.rightItemOrder
+	if configuredOrder == nil then
+		configuredOrder = availableRightItems()
+	end
+	M.rightItemOrder = rightItemOrder(configuredOrder)
+	M.enabledRightItems = {}
+	for _, itemID in ipairs(M.rightItemOrder) do
+		M.enabledRightItems[itemID] = true
+	end
 	M.workspaceFocusStyle = M.config.workspaceFocusStyle or "underline"
 	if not validWorkspaceFocusStyles[M.workspaceFocusStyle] then
 		M.workspaceFocusStyle = "underline"
@@ -1014,15 +924,12 @@ function M.setup(config)
 	M.workspaceLabelGap = tonumber(M.config.workspaceLabelGap) or 0
 	M.workspaceLabelCharacterWidth = tonumber(M.config.workspaceLabelCharacterWidth) or 9
 	M.workspaceLabelExtraWidth = tonumber(M.config.workspaceLabelExtraWidth) or 0
-	M.logger = hs.logger.new("sketchybar", "info")
 	M.executable = findExecutable(M.config.executable)
 	M.stateFile = hs.configdir .. "/state/sketchybar.json"
 	M.pluginDir = hs.configdir:gsub("%.hammerspoon$", ".config/sketchybar/plugins")
 	M.codexUsageStateFile = os.getenv("HOME") .. "/Library/Caches/SketchyBar/codex_usage.json"
 	clearCodexUsagePopup()
-	caffeine.subscribe(M.updateCaffeine)
-	keyLights.setup(M.config.keyLights or {}, M)
-	plex.setup(M.config.plex or {}, M)
+	items.setupEnabled(M.rightItemOrder, M.config, M)
 
 	M.modal = hs.hotkey.modal.new()
 	M.modal.entered = function()
@@ -1126,6 +1033,7 @@ function M.setup(config)
 	end
 
 	hs.urlevent.bind("wm-bar", M.handleURL)
+	M.applyEnabledItems()
 	M.ensureCaffeineItem()
 	M.applyRightItemOrder()
 	stacking.subscribe(function(snapshot)

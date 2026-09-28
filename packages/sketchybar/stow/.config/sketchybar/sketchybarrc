@@ -42,32 +42,37 @@ sketchybar --add item front_app left \
   click_script="$PLUGIN_DIR/action_click.sh front_app" \
   --subscribe front_app front_app_switched
 
-# This is only the bootstrap insertion order. Hammerspoon reapplies the
-# left-to-right order from sketchybar.rightItemOrder after every reload.
+# These are dormant bootstrap definitions. Hammerspoon's
+# sketchybar.rightItemOrder enables and orders only the configured items.
 sketchybar --add item clock right \
   --set clock \
+  drawing=off updates=off \
   update_freq=10 \
   icon= \
   script="$PLUGIN_DIR/clock.sh" \
   click_script="$PLUGIN_DIR/action_click.sh clock" \
   --add item volume right \
   --set volume \
+  drawing=off updates=off \
   script="$PLUGIN_DIR/volume.sh" \
   click_script="$PLUGIN_DIR/action_click.sh volume" \
   --subscribe volume volume_change \
   --add item battery right \
   --set battery \
+  drawing=off updates=off \
   update_freq=120 \
   script="$PLUGIN_DIR/battery.sh" \
   click_script="$PLUGIN_DIR/action_click.sh battery" \
   --subscribe battery system_woke power_source_change \
   --add item key_lights right \
   --set key_lights \
+  drawing=off updates=off \
   icon="󰛨" \
   label="…" \
   click_script="$PLUGIN_DIR/action_click.sh key_lights" \
   --add item caffeine right \
   --set caffeine \
+  drawing=off updates=off \
   icon=" " \
   icon.width=21 \
   icon.align=center \
@@ -79,11 +84,13 @@ sketchybar --add item clock right \
   click_script="$PLUGIN_DIR/action_click.sh caffeine" \
   --add item plex right \
   --set plex \
+  drawing=off updates=off \
   icon="󰚺" \
   label="Off" \
   click_script="$PLUGIN_DIR/action_click.sh plex" \
   --add item codex right \
   --set codex \
+  drawing=off updates=off \
   icon="󰚩" \
   update_freq=30 \
   script="$PLUGIN_DIR/codex_usage.sh" \
