@@ -44,7 +44,13 @@ sketchybar --add item front_app left \
 
 # These are dormant bootstrap definitions. Hammerspoon's
 # sketchybar.rightItemOrder enables and orders only the configured items.
-sketchybar --add item clock right \
+sketchybar --add item input_source right \
+  --set input_source \
+  drawing=off updates=off \
+  icon="󰌌" \
+  label="--" \
+  click_script="$PLUGIN_DIR/action_click.sh input_source" \
+  --add item clock right \
   --set clock \
   drawing=off updates=off \
   update_freq=10 \

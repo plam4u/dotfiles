@@ -8,6 +8,13 @@ require("modules.caffeine").setup({
 })
 local keyboard = require("modules.keyboard").setup()
 require("modules.keyboard.input_source").setup({
+	labels = {
+		["U.S."] = "US",
+		-- ["Bulgarian"] = "BG",
+		-- ["Bulgarian - Phonetic"] = "BG",
+		-- ["Bulgarian – Standard"] = "BG",
+		["Bulgarian – QWERTY"] = "BG",
+	},
 	mapping = {
 		cycle = { meh, "a" },
 	},
@@ -211,7 +218,16 @@ require("modules.wm").setup({
 		initialSelectedItem = "clock",
 		-- Enabled static controls in their visual and keyboard-navigation order.
 		-- Remove an item from this list to disable its UI and background updates.
-		rightItemOrder = { "codex", "plex", "key_lights", "caffeine", "battery", "volume", "clock" },
+		rightItemOrder = {
+			"codex",
+			"plex",
+			"key_lights",
+			"caffeine",
+			"battery",
+			"volume",
+			"input_source",
+			"clock",
+		},
 		keyLights = {
 			left = {
 				match = "8B25",

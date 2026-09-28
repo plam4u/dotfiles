@@ -1,4 +1,5 @@
 local caffeine = require("modules.caffeine")
+local inputSource = require("modules.keyboard.input_source")
 local keyLights = require("modules.wm.sketchybar.key_lights")
 local plex = require("modules.wm.sketchybar.plex")
 
@@ -19,8 +20,23 @@ local definitions = {
 		},
 	},
 	{
+		id = "input_source",
+		defaultOrder = 1,
+		setup = function(_, ui) inputSource.subscribe(ui.updateInputSource) end,
+		refresh = function(_, ui) ui.updateInputSource(inputSource.currentState()) end,
+		onSpace = function() inputSource.cycle(1) end,
+		onVertical = function(delta) inputSource.cycle(delta) end,
+		actions = {
+			{
+				id = "cycle",
+				label = "Change input language",
+				handler = inputSource.cycle,
+			},
+		},
+	},
+	{
 		id = "clock",
-		defaultOrder = 7,
+		defaultOrder = 8,
 		actions = {
 			{
 				id = "calendar",
@@ -31,7 +47,7 @@ local definitions = {
 	},
 	{
 		id = "volume",
-		defaultOrder = 6,
+		defaultOrder = 7,
 		actions = {
 			{
 				id = "mute",
@@ -61,7 +77,7 @@ local definitions = {
 	},
 	{
 		id = "battery",
-		defaultOrder = 5,
+		defaultOrder = 6,
 		actions = {
 			{
 				id = "settings",
@@ -72,12 +88,12 @@ local definitions = {
 	},
 	{
 		id = "codex",
-		defaultOrder = 1,
+		defaultOrder = 2,
 		actions = {},
 	},
 	{
 		id = "key_lights",
-		defaultOrder = 2,
+		defaultOrder = 3,
 		setup = function(config, ui) keyLights.setup(config.keyLights or {}, ui) end,
 		actions = {
 			{
@@ -89,7 +105,7 @@ local definitions = {
 	},
 	{
 		id = "caffeine",
-		defaultOrder = 3,
+		defaultOrder = 4,
 		setup = function(_, ui) caffeine.subscribe(ui.updateCaffeine) end,
 		actions = {
 			{
@@ -101,7 +117,7 @@ local definitions = {
 	},
 	{
 		id = "plex",
-		defaultOrder = 4,
+		defaultOrder = 5,
 		setup = function(config, ui) plex.setup(config.plex or {}, ui) end,
 		actions = {
 			{
@@ -143,6 +159,27 @@ function M.setupEnabled(order, config, ui)
 		local item = M.find(itemID)
 		if item and item.setup then item.setup(config, ui) end
 	end
+end
+
+function M.refreshEnabled(order, config, ui)
+	for _, itemID in ipairs(order) do
+		local item = M.find(itemID)
+		if item and item.refresh then item.refresh(config, ui) end
+	end
+end
+
+function M.handleSpace(itemID)
+	local item = M.find(itemID)
+	if not item or not item.onSpace then return false end
+	item.onSpace()
+	return true
+end
+
+function M.handleVertical(itemID, delta)
+	local item = M.find(itemID)
+	if not item or not item.onVertical then return false end
+	item.onVertical(delta)
+	return true
 end
 
 return M

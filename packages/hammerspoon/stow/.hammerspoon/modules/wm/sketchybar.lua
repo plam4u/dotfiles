@@ -149,6 +149,15 @@ function M.updateCaffeine(state)
 	})
 end
 
+function M.updateInputSource(state)
+	if type(state) ~= "table" then return end
+	M.run({
+		"--set",
+		"input_source",
+		"label=" .. tostring(state.label or state.name or "?"),
+	})
+end
+
 function M.ensureCaffeineItem()
 	if not M.itemEnabled("caffeine") or not M.executable then
 		return
@@ -710,6 +719,9 @@ function M.handleVerticalNavigation(delta)
 	if plex.handleVertical(item, delta) then
 		return
 	end
+	if item and items.handleVertical(item.id, delta) then
+		return
+	end
 	if item and item.id == "volume" then
 		M.volumeRepeatDirection = delta
 		M.runAction("volume", delta < 0 and "up" or "down")
@@ -751,6 +763,9 @@ function M.handleSpace()
 		if closeAfterPlexAction then
 			M.modal:exit()
 		end
+		return
+	end
+	if item and items.handleSpace(item.id) then
 		return
 	end
 	if item and item.id == "volume" then
@@ -820,6 +835,7 @@ function M.handleURL(_, params)
 	local command = params.command
 	if command == "refresh" then
 		M.applyEnabledItems()
+		items.refreshEnabled(M.rightItemOrder, M.config, M)
 		M.ensureCaffeineItem()
 		M.applyRightItemOrder()
 		M.publish()
