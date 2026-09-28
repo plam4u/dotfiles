@@ -7,6 +7,11 @@ require("modules.caffeine").setup({
 	},
 })
 local keyboard = require("modules.keyboard").setup()
+require("modules.keyboard.input_source").setup({
+	mapping = {
+		cycle = { meh, "a" },
+	},
+})
 require("modules.keyboard.zotero").setup(keyboard, {
 	mapping = {
 		pdf = {
