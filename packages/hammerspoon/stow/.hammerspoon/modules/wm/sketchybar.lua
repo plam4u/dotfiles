@@ -517,9 +517,6 @@ function M.renderCodexUsageDetails()
 		table.insert(args, name)
 		table.insert(args, "icon=" .. row.heading)
 		table.insert(args, "label=" .. row.value)
-		if index == M.codexUsageRowIndex then
-			table.insert(args, "background.drawing=on")
-		end
 	end
 	M.run(args)
 end
@@ -531,9 +528,7 @@ function M.openCodexUsageDetails()
 	clearCodexUsagePopup()
 	local details = hs.json.read(M.codexUsageStateFile)
 	M.codexUsageDetails = details
-	M.codexUsageRowIndex = 0
 	local rows = codexUsageRows(details)
-	M.codexUsageRowCount = #rows
 
 	local args = {}
 	for index, row in ipairs(rows) do
@@ -568,26 +563,15 @@ function M.openCodexUsageDetails()
 	M.codexUsageDetailsVisible = true
 end
 
-function M.handleCodexUsageVertical(selected, delta)
-	if not selected or selected.id ~= "codex" or not M.codexUsageDetailsVisible then
-		return false
-	end
-	M.codexUsageRowIndex = ((M.codexUsageRowIndex + delta) % (M.codexUsageRowCount + 1))
-	M.renderCodexUsageDetails()
-	return true
-end
-
 function M.invokeCodexUsageSelected(selected)
 	if not selected or selected.id ~= "codex" or not M.codexUsageDetailsVisible then
 		return false
 	end
-	if M.codexUsageRowIndex == 1 then
-		M.codexFiveHourTimeFormat = M.codexFiveHourTimeFormat == "remaining" and "time" or "remaining"
-		M.renderCodexUsageDetails()
-	elseif M.codexUsageRowIndex == 2 then
-		M.codexWeeklyTimeFormat = M.codexWeeklyTimeFormat == "remaining" and "date" or "remaining"
-		M.renderCodexUsageDetails()
-	end
+	local showingRemaining = M.codexFiveHourTimeFormat == "remaining"
+		and M.codexWeeklyTimeFormat == "remaining"
+	M.codexFiveHourTimeFormat = showingRemaining and "time" or "remaining"
+	M.codexWeeklyTimeFormat = showingRemaining and "date" or "remaining"
+	M.renderCodexUsageDetails()
 	return true
 end
 
@@ -710,9 +694,6 @@ function M.handleVerticalNavigation(delta)
 	end
 
 	local item = M.navigableItems[M.selectedIndex]
-	if M.handleCodexUsageVertical(item, delta) then
-		return
-	end
 	if keyLights.handleVertical(item, delta) then
 		return
 	end
