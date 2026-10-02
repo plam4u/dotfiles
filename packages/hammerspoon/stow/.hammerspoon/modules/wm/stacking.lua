@@ -329,6 +329,10 @@ end
 -- Setup ----------------------------------------------------------------------
 
 function M.setup(config)
+	if M.restoreTimer then
+		M.restoreTimer:stop()
+		M.restoreTimer = nil
+	end
 	M.config = config or {}
 	M.options = M.config.config or {}
 	M.logger = hs.logger.new("stacking", M.options.logLevel or "info")
@@ -365,9 +369,11 @@ function M.setup(config)
 
 	if M.savedStateExists then
 		-- Let Hammerspoon finish loading the configuration before restoring
-		-- and moving the managed windows.
-		hs.timer.doAfter(M.options.restoreDelay or 0.1, function()
+		-- and moving the managed windows. Retain the timer so garbage
+		-- collection cannot cancel restoration during the remaining setup.
+		M.restoreTimer = hs.timer.doAfter(M.options.restoreDelay or 0.1, function()
 			M.loadStacks(false)
+			M.restoreTimer = nil
 		end)
 	end
 end
