@@ -1,5 +1,7 @@
 local M = {
 	running = false,
+	busy = false,
+	generation = 0,
 	streamCount = 0,
 	updatingLibraries = false,
 }
@@ -9,6 +11,7 @@ local defaultConfig = {
 	baseURL = "http://127.0.0.1:32400",
 	webURL = "http://127.0.0.1:32400/web",
 	refreshInterval = 15,
+	transitionTimeout = 60,
 	tokenPlist = os.getenv("HOME") .. "/Library/Preferences/com.plexapp.plexmediaserver.plist",
 }
 
@@ -63,7 +66,7 @@ end
 
 function M.updateItem()
 	if not M.ui or not M.ui.executable then return end
-	M.ui.run({ "--set", "plex", "label=" .. (M.running and "On" or "Off") })
+	M.ui.run({ "--set", "plex", "label=" .. (M.busy and "…" or (M.running and "On" or "Off")) })
 	if M.detailsVisible then M.renderDetails() end
 end
 
@@ -74,9 +77,18 @@ local function applySessionsResponse(status, body)
 	M.updateItem()
 end
 
+local function finishTransition()
+	if M.transitionTimer then M.transitionTimer:stop(); M.transitionTimer = nil end
+	M.busy = false
+	M.targetRunning = nil
+end
+
 local function applyIdentityResponse(status)
 	local code = tonumber(status) or 0
 	M.running = code >= 200 and code < 300
+	if M.busy and M.running == M.targetRunning and (M.running or not serverApplication()) then
+		finishTransition()
+	end
 	if not M.running then
 		M.streamCount = 0
 		M.updatingLibraries = false
@@ -89,15 +101,41 @@ local function applyIdentityResponse(status)
 		M.updateItem()
 		return
 	end
-	hs.http.asyncGet(M.config.baseURL .. "/status/sessions", requestHeaders, applySessionsResponse)
+	local generation = M.generation
+	hs.http.asyncGet(M.config.baseURL .. "/status/sessions", requestHeaders, function(status, body)
+		if generation ~= M.generation then return end
+		applySessionsResponse(status, body)
+	end)
 	M.updateItem()
 end
 
 function M.refresh()
-	hs.http.asyncGet(M.config.baseURL .. "/identity", headers() or {}, applyIdentityResponse)
+	if M.refreshing then return end
+	M.refreshing = true
+	local generation = M.generation
+	hs.http.asyncGet(M.config.baseURL .. "/identity", headers() or {}, function(status)
+		M.refreshing = false
+		if generation ~= M.generation then return end
+		applyIdentityResponse(status)
+	end)
 end
 
 function M.toggleServer()
+	if M.busy then return end
+	M.busy = true
+	M.targetRunning = not M.running
+	M.generation = M.generation + 1
+	M.updateItem()
+	local elapsed = 0
+	M.transitionTimer = hs.timer.doEvery(1, function()
+		elapsed = elapsed + 1
+		if elapsed >= M.config.transitionTimeout then
+			finishTransition()
+			hs.alert.show("Plex server did not finish starting or stopping")
+			M.updateItem()
+		end
+		M.refresh()
+	end)
 	local application = serverApplication()
 	if application then
 		if M.running then
@@ -109,10 +147,6 @@ function M.toggleServer()
 	else
 		hs.application.launchOrFocusByBundleID(M.config.bundleID)
 	end
-	M.running = not M.running
-	if not M.running then M.streamCount = 0 end
-	M.updateItem()
-	hs.timer.doAfter(1, M.refresh)
 end
 
 function M.openPlex()
