@@ -1,0 +1,54 @@
+#!/opt/homebrew/bin/bash
+set -euo pipefail
+
+if [[ $# -ne 1 ]]; then
+  echo "Usage: $0 <codex-thread-id-or-uri>" >&2
+  exit 2
+fi
+
+# Accept either:
+#   codex://threads/01a0...
+# or:
+#   01a0...
+THREAD_ID="${1#codex://threads/}"
+
+STATE_DIR="$HOME/.local/state/codex-rate-limit"
+STATE_FILE="$STATE_DIR/last-5h-reset"
+
+mkdir -p "$STATE_DIR"
+
+status="$(/Users/plam/dotfiles/packages/codex/bin/codex_status)"
+current_reset="$(jq -r '.fiveHour.resetsAt' <<<"$status")"
+
+if [[ -z "$current_reset" || "$current_reset" == "null" ]]; then
+  echo "Could not read fiveHour.resetsAt from codex_status" >&2
+  exit 1
+fi
+
+# First run: initialize without sending anything.
+if [[ ! -f "$STATE_FILE" ]]; then
+  printf '%s\n' "$current_reset" >"$STATE_FILE"
+  exit 0
+fi
+
+previous_reset="$(cat "$STATE_FILE")"
+
+# Same window: nothing to do.
+if [[ "$current_reset" == "$previous_reset" ]]; then
+  exit 0
+fi
+
+echo "5h window reset: $previous_reset -> $current_reset"
+
+# Send a message to the existing Codex thread.
+#
+# --skip-git-repo-check is useful because cron may not run from inside
+# a Git repository.
+codex exec resume \
+  "$THREAD_ID" \
+  --skip-git-repo-check \
+  "ping"
+
+# Only update state AFTER codex succeeds.
+# If sending fails, the next cron run will retry.
+printf '%s\n' "$current_reset" >"$STATE_FILE"
