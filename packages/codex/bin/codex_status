@@ -1,0 +1,105 @@
+#!/usr/bin/env bash
+
+# stdout is JSON; diagnostics go to stderr so callers can safely pipe to jq.
+set -euo pipefail
+
+fail() {
+  printf 'codex_status: %s\n' "$*" >&2
+  exit 1
+}
+
+case "${1:-}" in
+  -h|--help)
+    cat <<'EOF'
+Usage: codex_status [--json]
+
+Query the signed-in Codex account's usage limits as JSON (the default).
+fiveHour and weekly contain usedPercent, remainingPercent, windowDurationMins,
+resetsAt (Unix seconds), and resetInSeconds. Missing values remain null.
+Also returns planType, credits, manualResets, all limit buckets, and updatedAt.
+
+Requires Bash 4+, codex, and jq on PATH. CODEX_STATUS_TIMEOUT sets the total
+response timeout in seconds (default: 30). Errors exit nonzero with no JSON.
+EOF
+    exit 0
+    ;;
+  ''|--json) ;;
+  *) fail "unknown argument: $1 (see --help)" ;;
+esac
+[[ $# -le 1 ]] || fail 'too many arguments (see --help)'
+[[ ${BASH_VERSINFO[0]} -ge 4 ]] || fail 'Bash 4+ is required (install Homebrew bash)'
+command -v codex >/dev/null || fail 'codex is not on PATH'
+command -v jq >/dev/null || fail 'jq is not on PATH'
+timeout=${CODEX_STATUS_TIMEOUT:-30}
+[[ $timeout =~ ^[1-9][0-9]*$ ]] || fail 'CODEX_STATUS_TIMEOUT must be a positive integer'
+
+coproc CODEX_SERVER { exec codex app-server --stdio 2>/dev/null; }
+server_pid=$CODEX_SERVER_PID
+# Keep descriptors valid even if the coprocess exits before a response is read.
+exec {server_in}>&"${CODEX_SERVER[1]}"
+exec {server_out}<&"${CODEX_SERVER[0]}"
+cleanup() {
+  kill "$server_pid" 2>/dev/null || true
+  wait "$server_pid" 2>/dev/null || true
+}
+trap cleanup EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+trap 'fail "app server closed its input"' PIPE
+deadline=$((SECONDS + timeout))
+
+send() {
+  printf '%s\n' "$1" >&"$server_in" || fail 'could not write to app server'
+}
+
+read_response() {
+  local id=$1 line remaining
+  while true; do
+    remaining=$((deadline - SECONDS))
+    ((remaining > 0)) || fail "timed out after ${timeout}s"
+    if ! IFS= read -r -t "$remaining" line <&"$server_out"; then
+      fail 'app server stopped responding (closed output or timed out)'
+    fi
+    if jq -e --argjson id "$id" '.id == $id' >/dev/null 2>&1 <<<"$line"; then
+      if jq -e '.error != null' >/dev/null <<<"$line"; then
+        fail "$(jq -r '.error.message // "app server request failed"' <<<"$line")"
+      fi
+      response=$line
+      return
+    fi
+  done
+}
+
+send '{"method":"initialize","id":1,"params":{"clientInfo":{"name":"codex-status","title":"Codex Status","version":"1.0"},"capabilities":{"experimentalApi":true}}}'
+read_response 1
+send '{"method":"initialized"}'
+send '{"method":"account/rateLimits/read","id":2}'
+read_response 2
+
+jq -ce '
+  (now | floor) as $now
+  | def window:
+      if . == null then null
+      else . + {
+        remainingPercent: (if .usedPercent == null then null
+          else ([0, ([100, (100 - .usedPercent)] | min)] | max) end),
+        resetInSeconds: (if .resetsAt == null then null
+          else ([0, (.resetsAt - $now)] | max) end)
+      } end;
+    def limits:
+      .primary |= window | .secondary |= window;
+  (.result.rateLimitsByLimitId.codex // .result.rateLimits) as $limits
+  | if $limits == null then error("account usage limits unavailable") else
+      ([$limits.primary, $limits.secondary] | map(select(. != null) | window)) as $windows
+      | {
+        fiveHour: ($windows | map(select(.windowDurationMins >= 290 and .windowDurationMins <= 310)) | first),
+        weekly: ($windows | map(select(.windowDurationMins >= 10000 and .windowDurationMins <= 10100)) | first),
+        manualResets: (.result.rateLimitResetCredits.availableCount // null),
+        planType: ($limits.planType // null),
+        credits: ($limits.credits // null),
+        rateLimits: ($limits | limits),
+        rateLimitsByLimitId: ((.result.rateLimitsByLimitId // {}) | map_values(limits)),
+        updatedAt: $now
+      }
+    end
+' <<<"$response" || fail 'could not read account usage limits'
