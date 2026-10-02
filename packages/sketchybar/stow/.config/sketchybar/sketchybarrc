@@ -94,6 +94,12 @@ sketchybar --add item input_source right \
   icon="󰚺" \
   label="Off" \
   click_script="$PLUGIN_DIR/action_click.sh plex" \
+  --add item transmission right \
+  --set transmission \
+  drawing=off updates=off \
+  icon="󰶘" \
+  label="Off" \
+  click_script="$PLUGIN_DIR/action_click.sh transmission" \
   --add item codex right \
   --set codex \
   drawing=off updates=off \

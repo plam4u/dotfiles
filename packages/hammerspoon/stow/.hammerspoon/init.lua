@@ -221,6 +221,7 @@ require("modules.wm").setup({
 		rightItemOrder = {
 			"codex",
 			"plex",
+			"transmission",
 			"key_lights",
 			"caffeine",
 			"battery",

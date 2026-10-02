@@ -2,6 +2,7 @@ local caffeine = require("modules.caffeine")
 local inputSource = require("modules.keyboard.input_source")
 local keyLights = require("modules.wm.sketchybar.key_lights")
 local plex = require("modules.wm.sketchybar.plex")
+local transmission = require("modules.wm.sketchybar.transmission")
 
 local M = {}
 
@@ -127,6 +128,14 @@ local definitions = {
 			},
 		},
 	},
+    {
+        id = "transmission",
+        defaultOrder = 5.5,
+        setup = function(config, ui) transmission.setup(config.transmission or {}, ui) end,
+        actions = {
+            { id = "toggle", label = "Toggle Transmission service", handler = transmission.toggleService },
+        },
+    },
 }
 
 function M.all()

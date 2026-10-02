@@ -185,3 +185,25 @@ but is not loaded.
 `ReloadConfiguration.spoon`. By default, changes to `.lua` and `.json` files
 reload Hammerspoon, while everything below `state/` is ignored. Configure the
 behavior in `init.lua` with `includeSuffixes` and relative `excludePaths`.
+
+### Transmission widget
+
+The `transmission` item sits beside Plex in `sketchybar.rightItemOrder`.
+Select its icon in bar navigation and press Space to run/stop the Homebrew
+`transmission-cli` service. Up/down selects the popup rows; Space or Return
+activates Open Web UI or Pause All / Resume All. The torrent action pauses all
+when any torrent is active or queued, otherwise resumes all. The status row
+shows total and active torrents. Left click toggles the service, like Plex.
+
+The daemon uses `/opt/homebrew/var/transmission` and serves RPC/web only on
+`127.0.0.1:9091`. Start manually with `brew services run transmission-cli`;
+stop with `brew services stop transmission-cli`. `run` does not enable login
+startup. Use the web UI to manage the daemon's torrents.
+
+The October 2, 2026 migration preserved the original GUI directory and saved
+both configurations plus the custom launch agent in
+`~/Library/Application Support/Transmission-migration-backup-20261002-111656`.
+For rollback, stop the Homebrew service before restoring any state or running
+`brew services run transmission-cli --file="$HOME/Library/LaunchAgents/local.transmission-daemon.plist"`.
+The GUI and daemon now have separate configuration state; subsequent changes
+in one are not synchronized with the other.

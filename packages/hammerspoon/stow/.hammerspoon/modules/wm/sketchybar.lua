@@ -4,6 +4,7 @@ local stacking = require("modules.wm.stacking")
 local keyLights = require("modules.wm.sketchybar.key_lights")
 local items = require("modules.wm.sketchybar.items")
 local plex = require("modules.wm.sketchybar.plex")
+local transmission = require("modules.wm.sketchybar.transmission")
 
 local M = {
 	active = false,
@@ -512,6 +513,7 @@ end
 function M.openCodexUsageDetails()
 	keyLights.closeDetails()
 	plex.closeDetails()
+	transmission.closeDetails()
 	M.closeMenu()
 	clearCodexUsagePopup()
 	local details = hs.json.read(M.codexUsageStateFile)
@@ -585,6 +587,7 @@ function M.openMenu(itemID)
 	M.closeCodexUsageDetails()
 	keyLights.closeDetails()
 	plex.closeDetails()
+	transmission.closeDetails()
 	M.closeMenu()
 	M.menuParent = itemID
 	M.menuItems = definition.actions
@@ -648,6 +651,7 @@ function M.moveSelection(delta)
 	M.syncCodexUsageDetails()
 	keyLights.syncDetails(M.active, M.navigableItems[M.selectedIndex], M.menuIndex)
 	plex.syncDetails(M.active, M.navigableItems[M.selectedIndex], M.menuIndex)
+	transmission.syncDetails(M.active, M.navigableItems[M.selectedIndex], M.menuIndex)
 end
 
 function M.runAction(itemID, actionID)
@@ -685,6 +689,7 @@ function M.handleVerticalNavigation(delta)
 	if keyLights.handleVertical(item, delta) then
 		return
 	end
+	if transmission.handleVertical(item, delta) then return end
 	if plex.handleVertical(item, delta) then
 		return
 	end
@@ -725,6 +730,11 @@ function M.handleSpace()
 		return
 	end
 	if keyLights.invokeSelected(item) then
+		return
+	end
+	local transmissionHandled, closeAfterTransmissionAction = transmission.invokeSelected(item)
+	if transmissionHandled then
+		if closeAfterTransmissionAction then M.modal:exit() end
 		return
 	end
 	local plexHandled, closeAfterPlexAction = plex.invokeSelected(item)
@@ -768,6 +778,11 @@ function M.invokeSelected()
 		return
 	end
 	if keyLights.invokeSelected(item) then
+		return
+	end
+	local transmissionHandled, closeAfterTransmissionAction = transmission.invokeSelected(item)
+	if transmissionHandled then
+		if closeAfterTransmissionAction then M.modal:exit() end
 		return
 	end
 	local plexHandled, closeAfterPlexAction = plex.invokeSelected(item)
@@ -862,6 +877,7 @@ function M.handleURL(_, params)
 		if params.item ~= "plex" then
 			plex.closeDetails()
 		end
+		if params.item ~= "transmission" then transmission.closeDetails() end
 		if params.button == "right" then
 			M.openMenu(params.item)
 		else
@@ -929,6 +945,7 @@ function M.setup(config)
 		M.syncCodexUsageDetails()
 		keyLights.syncDetails(M.active, M.navigableItems[M.selectedIndex], M.menuIndex)
 		plex.syncDetails(M.active, M.navigableItems[M.selectedIndex], M.menuIndex)
+		transmission.syncDetails(M.active, M.navigableItems[M.selectedIndex], M.menuIndex)
 	end
 	M.modal.exited = function()
 		M.lastSelectedID = M.navigableItems[M.selectedIndex] and M.navigableItems[M.selectedIndex].id
@@ -937,6 +954,7 @@ function M.setup(config)
 		M.closeCodexUsageDetails()
 		keyLights.closeDetails()
 		plex.closeDetails()
+		transmission.closeDetails()
 		M.publish(false)
 		M.applySelection()
 		if not (M.snapshot and M.snapshot.collapsed) then
@@ -1006,6 +1024,7 @@ function M.setup(config)
 			M.closeCodexUsageDetails()
 			keyLights.closeDetails()
 			plex.closeDetails()
+		transmission.closeDetails()
 		end
 	end)
 	for action, hotkey in pairs(M.config.mapping or {}) do
