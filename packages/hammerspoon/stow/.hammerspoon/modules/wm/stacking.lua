@@ -137,6 +137,19 @@ local function getWindowID(window)
 	return ok and windowID or nil
 end
 
+local function methodReturnsTrue(object, methodName)
+	local found, method = pcall(function()
+		return object and object[methodName]
+	end)
+	if not found or type(method) ~= "function" then
+		return false
+	end
+
+	local ok, value = pcall(method, object)
+	return ok and value == true
+end
+
+
 local function setMemberWindow(member, window)
 	member.window = window
 	member.windowID = getWindowID(window)
@@ -1025,6 +1038,15 @@ end
 
 -- Layout ---------------------------------------------------------------------
 
+local function layoutMember(member, frame)
+	-- Reserve hidden members' split slots without resizing their hotkey windows.
+	-- Parked windows still need to move back when their workspace is selected.
+	if not member.parked and not methodReturnsTrue(member.window, "isVisible") then return false end
+	local changed = setFrameIfChanged(member.window, frame)
+	member.parked = false
+	return changed
+end
+
 function M.layoutWorkspace(screenName, workspace, shouldVerify)
 	local virtualScreen = M.screens[screenName]
 	local liveMembers = {}
@@ -1043,8 +1065,7 @@ function M.layoutWorkspace(screenName, workspace, shouldVerify)
 	end
 
 	if #liveMembers == 1 then
-		setFrameIfChanged(liveMembers[1].member.window, copyFrame(virtualScreen.frame))
-		liveMembers[1].member.parked = false
+		layoutMember(liveMembers[1].member, copyFrame(virtualScreen.frame))
 		return
 	end
 
@@ -1073,10 +1094,8 @@ function M.layoutWorkspace(screenName, workspace, shouldVerify)
 	rightFrame.x = virtualScreen.frame.x + requestedLeftWidth
 	rightFrame.w = virtualScreen.frame.w - requestedLeftWidth
 
-	local leftChanged = setFrameIfChanged(workspace.members[1].window, leftFrame)
-	local rightChanged = setFrameIfChanged(workspace.members[2].window, rightFrame)
-	workspace.members[1].parked = false
-	workspace.members[2].parked = false
+	local leftChanged = layoutMember(workspace.members[1], leftFrame)
+	local rightChanged = layoutMember(workspace.members[2], rightFrame)
 
 	if shouldVerify ~= false and (leftChanged or rightChanged) then
 		if shouldVerify ~= "continue" then
@@ -1107,6 +1126,8 @@ function M.verifyWorkspaceLayout(screenName, workspace, requestedLeftWidth, vers
 		or not right.window
 		or left.window:isFullScreen()
 		or right.window:isFullScreen()
+		or not methodReturnsTrue(left.window, "isVisible")
+		or not methodReturnsTrue(right.window, "isVisible")
 	then
 		return
 	end
@@ -1160,7 +1181,7 @@ function M.raiseWorkspace(workspace, shouldFocus, shouldMoveMouse)
 	local focusIndex = clamp(workspace.focusedMember or 1, 1, #workspace.members)
 
 	for _, member in ipairs(workspace.members) do
-		if member.window and not member.window:isFullScreen() then
+		if member.window and methodReturnsTrue(member.window, "isVisible") and not member.window:isFullScreen() then
 			member.window:raise()
 		end
 	end
@@ -1600,38 +1621,46 @@ function M.windowDestroyed(window)
 	M.render()
 end
 
-local function methodReturnsTrue(object, methodName)
-	local found, method = pcall(function()
-		return object and object[methodName]
-	end)
-	if not found or type(method) ~= "function" then
-		return false
-	end
-
-	local ok, value = pcall(method, object)
-	return ok and value == true
+-- Visibility is not window lifetime: hotkey windows can disappear without
+-- hiding their application or becoming minimized. Check the AX object itself.
+local function windowUnavailable(window)
+	if not getWindowID(window) then return true end
+	local ok, application = pcall(function() return window:application() end)
+	return not ok or not application
+		or not methodReturnsTrue(application, "isRunning")
+		or not methodReturnsTrue(window, "isStandard")
 end
 
 function M.windowNotVisible(window)
-	-- windowNotVisible is emitted before windowHidden in the same event chain.
-	-- Wait until the next tick so the final hidden/minimized state is readable.
-	hs.timer.doAfter(0, function()
+	-- Keep its membership and split geometry until destruction or app exit.
+	-- Hidden windows must not participate in delayed minimum-width learning.
+	local location = M.getWindowLocation(window)
+	local group = location and M.screens[location.screenName]
+	local workspace = group and group.workspaces[location.workspaceIndex]
+	if workspace then workspace.resizeVersion = (workspace.resizeVersion or 0) + 1 end
+end
+
+function M.windowVisible(window)
+	if not M.enabled or M.suspended then return end
+	M.visibilityTimers = M.visibilityTimers or {}
+	local windowID = getWindowID(window)
+	if not windowID then return end
+	if M.visibilityTimers[windowID] then M.visibilityTimers[windowID]:stop() end
+	-- Let hotkey-window animations finish before restoring the split frame.
+	M.visibilityTimers[windowID] = hs.timer.doAfter(M.options.visibilityDelay or 0.1, function()
+		M.visibilityTimers[windowID] = nil
+		if not M.enabled or M.suspended or not methodReturnsTrue(window, "isVisible") then return end
 		local location = M.getWindowLocation(window)
-		local virtualScreen = location and M.screens[location.screenName]
-		local workspace = virtualScreen and virtualScreen.workspaces[location.workspaceIndex]
-		local member = workspace and workspace.members[location.memberIndex]
-		if member and member.parked then
+		if not location then
+			M.attachCreatedWindow(window)
 			return
 		end
-
-		local ok, application = pcall(function()
-			return window and window:application()
-		end)
-		local hidden = ok and methodReturnsTrue(application, "isHidden")
-		local minimized = methodReturnsTrue(window, "isMinimized")
-
-		if not hidden and not minimized then
-			M.windowDestroyed(window)
+		local group = M.screens[location.screenName]
+		local workspace = group and group.workspaces[location.workspaceIndex]
+		local member = workspace and workspace.members[location.memberIndex]
+		if member and not member.parked then
+			M.layoutWorkspace(location.screenName, workspace)
+			M.render()
 		end
 	end)
 end
@@ -1668,46 +1697,7 @@ function M.applicationTerminated(pid)
 end
 
 function M.applicationDeactivated(pid)
-	if not pid then
-		return
-	end
-
-	local changed = false
-	for _, screenName in ipairs(M.screenOrder) do
-		for workspaceIndex, workspace in ipairs(M.screens[screenName].workspaces) do
-			local workspaceChanged = false
-			for _, member in ipairs(workspace.members) do
-				if member.window and member.pid == pid and not member.parked then
-					local visible = methodReturnsTrue(member.window, "isVisible")
-
-					if not visible then
-						local ok, application = pcall(function()
-							return member.window:application()
-						end)
-						local hidden = ok and methodReturnsTrue(application, "isHidden")
-						local minimized = methodReturnsTrue(member.window, "isMinimized")
-
-						if not hidden and not minimized then
-							setMemberWindow(member, nil)
-							member.name = member.name or nameFromBundleID(member.bundleID)
-							changed = true
-							workspaceChanged = true
-						end
-					end
-				end
-			end
-
-			if workspaceChanged and liveMemberCount(workspace) == 0 then
-				clearUnavailableIndicator(screenName, workspaceIndex)
-			end
-		end
-	end
-
-	if changed then
-		M.rebuildWindowIndex()
-		M.raiseActiveWorkspaces()
-		M.render()
-	end
+	if pid then M.reconcileWindows() end
 end
 
 function M.reconcileWindows()
@@ -1718,17 +1708,7 @@ function M.reconcileWindows()
 			local workspaceChanged = false
 			for _, member in ipairs(workspace.members) do
 				if member.window then
-					local windowID = member.windowID or getWindowID(member.window)
-					member.windowID = windowID
-					local ok, application = pcall(function()
-						return member.window:application()
-					end)
-					local hidden = ok and methodReturnsTrue(application, "isHidden")
-					local minimized = methodReturnsTrue(member.window, "isMinimized")
-					local visible = methodReturnsTrue(member.window, "isVisible")
-					local unavailable = not windowID
-						or not hs.window.get(windowID)
-						or (not member.parked and not visible and not hidden and not minimized)
+					local unavailable = windowUnavailable(member.window)
 
 					if unavailable then
 						setMemberWindow(member, nil)
@@ -1800,7 +1780,9 @@ end
 
 function M.startWindowWatcher()
 	M.windowFilter = hs.window.filter.new()
-	M.windowFilter:setOverrideFilter({ visible = true, fullscreen = false, allowRoles = "AXStandardWindow" })
+	-- Watch hidden windows too, so their eventual destruction is delivered.
+	M.windowFilter:setDefaultFilter({})
+	M.windowFilter:setOverrideFilter({ fullscreen = false, allowRoles = "AXStandardWindow" })
 	M.windowFilter:subscribe(hs.window.filter.windowCreated, function(window)
 		hs.timer.doAfter(0.5, function()
 			M.attachCreatedWindow(window)
@@ -1811,6 +1793,9 @@ function M.startWindowWatcher()
 	end)
 	M.windowFilter:subscribe(hs.window.filter.windowNotVisible, function(window)
 		M.windowNotVisible(window)
+	end)
+	M.windowFilter:subscribe(hs.window.filter.windowVisible, function(window)
+		M.windowVisible(window)
 	end)
 	M.windowFilter:subscribe(hs.window.filter.windowRejected, function()
 		M.reconcileWindows()
