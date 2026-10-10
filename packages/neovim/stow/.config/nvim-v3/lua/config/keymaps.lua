@@ -6,3 +6,6 @@ vim.keymap.set("n", "<leader>L", "<cmd>LazyExtras<CR>", { desc = "LazyExtras" })
 vim.keymap.set("n", "<leader>se", function()
   vim.wo.scrollbind = not vim.wo.scrollbind
 end, { desc = "Toggle scrollbind" })
+vim.keymap.set("n", "<leader>uv", function()
+  vim.opt.list = not vim.opt.list:get()
+end, { desc = "Toggle invisible characters" })
