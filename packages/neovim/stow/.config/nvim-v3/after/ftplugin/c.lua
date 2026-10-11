@@ -39,6 +39,7 @@ vim.keymap.set("n", "<leader>dx", function()
     program = output,
     cwd = vim.fn.getcwd(),
     stopOnEntry = false,
+    terminal = "integrated",
   })
 end, {
   buffer = true,
