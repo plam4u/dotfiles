@@ -236,7 +236,7 @@ require("modules.wm").setup({
 			},
 			right = {
 				match = "07C7",
-				host = "192.168.1.44",
+				host = "192.168.1.41",
 			},
 		},
 		mapping = {

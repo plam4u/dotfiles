@@ -160,7 +160,7 @@ end
 
 local function discover()
 	M.browser = hs.bonjour.new():findServices(M.config.serviceType, M.config.serviceDomain, function(_, kind, added, service)
-		if kind ~= "domain" or not service then return end
+		if kind ~= "service" or not service then return end
 		local serviceName = service:name() or ""
 		for _, role in ipairs({ "left", "right" }) do
 			local device = M.devices[role]
