@@ -12,11 +12,23 @@ return {
       stdin = true,
     }
 
-    -- Check whether a buffer belongs to your 42 projects
-    local root = vim.fn.expand("~/projects/code/42-projects")
+    -- Directories containing 42 projects
+    local roots = {
+      vim.fn.expand("~/projects/code/42-projects"),
+      vim.fn.expand("~/projects/42-projects"),
+    }
+
+    -- Check whether a buffer belongs to a 42 project
     local function is_42_project(bufnr)
       local filename = vim.api.nvim_buf_get_name(bufnr)
-      return vim.startswith(filename, root .. "/")
+
+      for _, root in ipairs(roots) do
+        if vim.startswith(filename, root .. "/") then
+          return true
+        end
+      end
+
+      return false
     end
 
     -- Select formatter depending on project location
@@ -27,9 +39,6 @@ return {
 
       return { "clang_format" }
     end
-
-    -- Preserve existing clang-format settings
-    -- No custom style path needed for c_formatter_42
   end,
 
   keys = {
