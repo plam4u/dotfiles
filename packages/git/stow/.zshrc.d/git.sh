@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 
+alias st=speedtest
 alias gac="gaa && gcmsg"
 alias gcne="gc --no-edit"
-alias gmm="gb -D backup; gb backup && gfa && gm origin/master --no-edit"
-alias gwar=gitWorkTreeAddRemote
-alias gwal=gitWorkTreeAddLocal
-alias gwr=gitWorkTreeRemove
-alias ggg=gitAddAndCommitAll
-alias cc=runCrontabNow
-alias gbb=copyCurrentBranch
-alias st=speedtest
-alias gdd=gitStatusAndGitDiff
-alias glh=copyLastCommitHash
-alias gbt="gb | tee"
+# alias gmm="gb -D backup; gb backup && gfa && gm origin/master --no-edit"
+# alias gwar=gitWorkTreeAddRemote
+# alias gwal=gitWorkTreeAddLocal
+# alias gwr=gitWorkTreeRemove
+# alias ggg=gitAddAndCommitAll
+# alias cc=runCrontabNow
+# alias gbb=copyCurrentBranch
+# alias gdd=gitStatusAndGitDiff
+# alias glh=copyLastCommitHash
+# alias gbt="gb | tee"
