@@ -490,6 +490,18 @@ function M.isSuspended()
 	return M.suspended == true
 end
 
+function M.recoverSession()
+	if not M.enabled or not M.applyResolvedLayout() then return end
+	M.startWindowWatcher()
+	M.startMouseFocusWatcher()
+	M.startWorkspaceScrollWatcher()
+	M.startWorkspaceHoverWatcher()
+	if not M.suspended then M.restoreWindows(true) end
+	-- Recreate the canvases even if the workspace model did not change.
+	ui.clear()
+	M.render()
+end
+
 function M.setSuspended(suspended)
 	M.suspended = suspended == true
 
@@ -1395,7 +1407,7 @@ end
 
 -- Live window restoration ----------------------------------------------------
 
-function M.restoreWindows()
+function M.restoreWindows(preserveExisting)
 	-- Inactive workspaces are intentionally parked outside the physical frame.
 	-- A visible-only window filter omits some of those windows, which makes an
 	-- otherwise intact saved workspace look unavailable after a reload.
@@ -1408,20 +1420,44 @@ function M.restoreWindows()
 	filter:setSortOrder(hs.window.filter.sortByCreated)
 	local windows = filter:getWindows()
 	local used = {}
+	if preserveExisting then
+		local byID = {}
+		for _, window in ipairs(windows) do
+			local id = window:id()
+			if id then byID[id] = window end
+		end
+		-- Reserve surviving window IDs before matching missing members by app.
+		-- Two windows of the same app must not swap workspaces after wake.
+		for _, screenName in ipairs(M.screenOrder) do
+			for _, workspace in ipairs(M.screens[screenName].workspaces) do
+				for _, member in ipairs(workspace.members) do
+					local window = member.windowID and byID[member.windowID]
+					if window and not used[member.windowID] and getBundleID(window) == member.bundleID then
+						setMemberWindow(member, window)
+						used[member.windowID] = true
+					else
+						setMemberWindow(member, nil)
+					end
+				end
+			end
+		end
+	end
 
 	for _, screenName in ipairs(M.screenOrder) do
 		for _, workspace in ipairs(M.screens[screenName].workspaces) do
 			for _, member in ipairs(workspace.members) do
-				setMemberWindow(member, nil)
+				if not (preserveExisting and member.window) then
+					setMemberWindow(member, nil)
 
-				for _, window in ipairs(windows) do
-					local windowID = window:id()
+					for _, window in ipairs(windows) do
+						local windowID = window:id()
 
-					if windowID and not used[windowID] and getBundleID(window) == member.bundleID then
-						setMemberWindow(member, window)
-						member.name = getApplicationName(window) or member.name or nameFromBundleID(member.bundleID)
-						used[windowID] = true
-						break
+						if windowID and not used[windowID] and getBundleID(window) == member.bundleID then
+							setMemberWindow(member, window)
+							member.name = getApplicationName(window) or member.name or nameFromBundleID(member.bundleID)
+							used[windowID] = true
+							break
+						end
 					end
 				end
 			end
@@ -1779,6 +1815,7 @@ function M.startMouseFocusWatcher()
 end
 
 function M.startWindowWatcher()
+	if M.windowFilter then M.windowFilter:unsubscribeAll() end
 	M.windowFilter = hs.window.filter.new()
 	-- Watch hidden windows too, so their eventual destruction is delivered.
 	M.windowFilter:setDefaultFilter({})

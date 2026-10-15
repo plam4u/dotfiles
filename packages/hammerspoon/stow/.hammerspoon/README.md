@@ -158,6 +158,17 @@ remains part of keyboard workspace navigation for the rest of the session.
 The WM starts JankyBorders' `borders` process during setup if it is not already
 running, and checks it again whenever the WM is resumed with `hyper + M`.
 
+After wake, unlock, or returning to the user session, the WM recovers after
+1, 3, and 8 seconds to allow displays and Accessibility windows to settle.
+Recovery preserves the current workspace model, reconnects windows (keeping
+surviving window IDs in their existing stacks), restarts input watchers, and
+redraws Stackline. It also dismisses any pre-sleep bar navigation and reapplies
+SketchyBar visibility even when the layout has not changed. The bar stays
+hidden on the ultrawide unless opened explicitly; the laptop's always-visible
+bar policy still applies. A manually paused WM stays paused. Pending recovery
+passes are cancelled on sleep or lock. Override the delays with
+`control.recoveryDelays` if needed.
+
 Managed state is saved to `~/.hammerspoon/state/stacks.json` only when the save
 hotkey is pressed. Hammerspoon restores that snapshot once during startup or
 reload; the load hotkey can reapply it later. Workspaces are restored by application

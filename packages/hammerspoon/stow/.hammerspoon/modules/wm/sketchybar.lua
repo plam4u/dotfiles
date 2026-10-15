@@ -815,6 +815,16 @@ function M.toggleNavigation()
 	end
 end
 
+function M.recoverSession()
+	M.snapshot = stacking.snapshot()
+	M.rebuildNavigation()
+	M.publish()
+	-- SketchyBar can recreate its bar on wake without changing our model.
+	-- Always reapply visibility instead of relying on the mode fingerprint.
+	M.applyBarMode()
+	M.applySelection()
+end
+
 function M.handleURL(_, params)
 	local command = params.command
 	if command == "refresh" then
