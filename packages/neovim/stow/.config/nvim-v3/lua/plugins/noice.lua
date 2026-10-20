@@ -7,7 +7,7 @@ return {
         view = "hover",
       },
       signature = {
-        enabled = true,
+        enabled = false,
         view = "hover",
       },
     },
