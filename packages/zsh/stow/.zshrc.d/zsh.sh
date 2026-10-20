@@ -8,6 +8,7 @@ alias ......="\cd ../../../../.."
 alias /="\cd /"
 alias ~="\cd ~"
 alias -- -="cd -"
+alias soz="source ~/.zshrc"
 
 alias d=date
 
