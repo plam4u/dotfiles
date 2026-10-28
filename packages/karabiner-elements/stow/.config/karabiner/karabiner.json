@@ -2782,7 +2782,7 @@
             }
           },
           "to" : [ {
-            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=company.thebrowser.Browser\""
+            "shell_command" : "open -g \"hammerspoon://toggle-app-by-id?id=com.brave.Browser\""
           } ],
           "conditions" : [ {
             "identifiers" : [ {
