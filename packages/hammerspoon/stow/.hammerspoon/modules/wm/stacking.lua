@@ -1,3 +1,4 @@
+local windowRules = require("modules.wm.window_rules")
 local store = require("modules.wm.stacking_store")
 local ui = require("modules.wm.stacking_ui")
 local virtualScreens = require("modules.wm.virtual_screens")
@@ -60,7 +61,7 @@ function M.noteMouseInteraction(duration)
 end
 
 local function focusWindow(window, shouldMoveMouse)
-	if not window then
+	if not windowRules.isEligible(window) then
 		return false
 	end
 
@@ -81,7 +82,7 @@ local function clamp(number, minimum, maximum)
 end
 
 local function setFrameIfChanged(window, target)
-	if not window or window:isFullScreen() then
+	if not windowRules.isEligible(window) then
 		return false
 	end
 
@@ -711,7 +712,7 @@ end
 
 function M.isManaged(window)
 	local windowID = getWindowID(window)
-	return M.enabled and windowID and M.windowIndex[windowID] ~= nil
+	return M.enabled and windowID and M.windowIndex[windowID] ~= nil and windowRules.isEligible(window, true)
 end
 
 function M.getWindowLocation(window)
@@ -1193,7 +1194,7 @@ function M.raiseWorkspace(workspace, shouldFocus, shouldMoveMouse)
 	local focusIndex = clamp(workspace.focusedMember or 1, 1, #workspace.members)
 
 	for _, member in ipairs(workspace.members) do
-		if member.window and methodReturnsTrue(member.window, "isVisible") and not member.window:isFullScreen() then
+		if windowRules.isEligible(member.window) and methodReturnsTrue(member.window, "isVisible") then
 			member.window:raise()
 		end
 	end
@@ -1319,6 +1320,11 @@ function M.activateWorkspace(screenName, workspaceIndex, shouldFocus, shouldMove
 end
 
 function M.raiseActiveWorkspaces()
+	-- Background lifecycle events must not cover/dismiss an active launcher or
+	-- dialog by raising its application's main window over it.
+	local focused = hs.window.focusedWindow()
+	if focused and not windowRules.isEligible(focused) then return end
+
 	if M.collapsed then
 		local screenName = M.currentScreenName or M.screenOrder[1]
 		local virtualScreen = M.screens[screenName]
@@ -1418,7 +1424,10 @@ function M.restoreWindows(preserveExisting)
 	filter:setDefaultFilter({})
 	filter:setOverrideFilter({ fullscreen = false, allowRoles = "AXStandardWindow" })
 	filter:setSortOrder(hs.window.filter.sortByCreated)
-	local windows = filter:getWindows()
+	local windows = {}
+	for _, window in ipairs(filter:getWindows()) do
+		if windowRules.isEligible(window) then table.insert(windows, window) end
+	end
 	local used = {}
 	if preserveExisting then
 		local byID = {}
@@ -1505,8 +1514,7 @@ function M.attachCreatedWindow(window)
 		or M.suspended
 		or not window
 		or not window:isVisible()
-		or not window:isStandard()
-		or window:isFullScreen()
+		or not windowRules.isEligible(window)
 	then
 		return
 	end
@@ -1664,7 +1672,7 @@ local function windowUnavailable(window)
 	local ok, application = pcall(function() return window:application() end)
 	return not ok or not application
 		or not methodReturnsTrue(application, "isRunning")
-		or not methodReturnsTrue(window, "isStandard")
+		or not windowRules.isEligible(window, true)
 end
 
 function M.windowNotVisible(window)
@@ -1677,7 +1685,7 @@ function M.windowNotVisible(window)
 end
 
 function M.windowVisible(window)
-	if not M.enabled or M.suspended then return end
+	if not M.enabled or M.suspended or not windowRules.isEligible(window) then return end
 	M.visibilityTimers = M.visibilityTimers or {}
 	local windowID = getWindowID(window)
 	if not windowID then return end
@@ -1685,7 +1693,7 @@ function M.windowVisible(window)
 	-- Let hotkey-window animations finish before restoring the split frame.
 	M.visibilityTimers[windowID] = hs.timer.doAfter(M.options.visibilityDelay or 0.1, function()
 		M.visibilityTimers[windowID] = nil
-		if not M.enabled or M.suspended or not methodReturnsTrue(window, "isVisible") then return end
+		if not M.enabled or M.suspended or not windowRules.isEligible(window) or not methodReturnsTrue(window, "isVisible") then return end
 		local location = M.getWindowLocation(window)
 		if not location then
 			M.attachCreatedWindow(window)
@@ -2100,7 +2108,7 @@ end
 function M.addWindowToWorkspace(screenName, workspace, window, allowEmptyWorkspace)
 	local bundleID = getBundleID(window)
 
-	if not window or window:isFullScreen() or not bundleID then
+	if not windowRules.isEligible(window) or not bundleID then
 		return false
 	end
 
@@ -2174,7 +2182,7 @@ function M.moveWindowToScreen(screenName, forceNewWorkspace)
 	local window = hs.window.focusedWindow()
 	local bundleID = getBundleID(window)
 
-	if not window or not bundleID then
+	if not windowRules.isEligible(window) or not bundleID then
 		return
 	end
 
@@ -2218,7 +2226,7 @@ function M.addWindowToActiveWorkspace(screenName)
 	local virtualScreen = M.screens[screenName]
 	local target, targetIndex = availableWorkspace(virtualScreen, virtualScreen.activeWorkspace)
 
-	if not window or window:isFullScreen() or not getBundleID(window) then
+	if not windowRules.isEligible(window) or not getBundleID(window) then
 		return
 	end
 
@@ -2308,7 +2316,7 @@ function M.moveFocusedWindowToWorkspace(workspaceIndex)
 	local window = hs.window.focusedWindow()
 	local screenName = M.screenNameForWindow(window)
 
-	if not window or not screenName then
+	if not windowRules.isEligible(window) or not screenName then
 		return false
 	end
 

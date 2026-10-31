@@ -1,4 +1,5 @@
 -- Run from packages/hammerspoon: luajit tests/session_recovery.lua
+package.path = 'stow/.hammerspoon/?.lua;' .. package.path
 local timers, calls, paused = {}, {}, false
 local function record(name) return function() calls[#calls + 1] = name end end
 local events = {}

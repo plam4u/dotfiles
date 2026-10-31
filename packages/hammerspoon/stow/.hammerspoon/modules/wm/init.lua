@@ -7,8 +7,9 @@ function M.setup(config)
 
 	-- Setup order matters: stacking owns the model, SketchyBar observes it,
 	-- and control binds the persistent pause toggle last.
+	M.setupModule("window_rules", config.window_rules or {})
 	local setupOrder = { "apps", "layout", "stacking", "borders", "sketchybar", "control" }
-	local configured = {}
+	local configured = { window_rules = true }
 
 	for _, moduleName in ipairs(setupOrder) do
 		if config[moduleName] then

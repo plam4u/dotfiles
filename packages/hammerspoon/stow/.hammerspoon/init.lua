@@ -36,6 +36,15 @@ require("modules.keyboard.zotero").setup(keyboard, {
 	},
 })
 require("modules.wm").setup({
+	window_rules = {
+		exclude = {
+			-- ChatGPT's global Alt+Space launcher must keep its own geometry/focus.
+			{ bundleID = "com.openai.codex", title = "Spotlight Window", reason = "ChatGPT quick chat" },
+			{ bundleID = "com.openai.chat", title = "Spotlight Window", reason = "ChatGPT Classic quick chat" },
+			-- Add app-specific popup exceptions here. Fields in each rule are ANDed.
+			-- { bundleID = "com.apple.iCal", titlePattern = "^Event Details" },
+		},
+	},
 	borders = {
 		arguments = {
 			"active_color=0xff61afef",

@@ -1,4 +1,5 @@
 local M = {}
+local windowRules = require("modules.wm.window_rules")
 local stacking = require("modules.wm.stacking")
 local hotkeys = require("modules.wm.hotkeys")
 
@@ -27,7 +28,7 @@ end
 
 function M.getWin()
 	local win = hs.window.focusedWindow()
-	if win and win:isFullScreen() then
+	if not windowRules.isEligible(win) then
 		return nil
 	end
 

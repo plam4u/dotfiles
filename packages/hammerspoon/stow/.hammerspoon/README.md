@@ -192,6 +192,43 @@ but is not loaded.
 
 ## Configuration reloads
 
+### Window and popup exceptions
+
+`window_rules.exclude` in `init.lua` is the shared exception list for stacking,
+saved-window restoration, focus tracking, and manual layout commands. ChatGPT's
+`Spotlight Window` is excluded while its normal chat windows remain eligible.
+The WM also skips nonstandard windows (including dialogs, sheets and popovers),
+modal windows, and windows whose Accessibility `AXSize` is explicitly read-only.
+Unknown/unsupported Accessibility attributes do not exclude a window. Background
+workspace raising is suppressed while an excluded window has focus.
+
+Each exception matches all its supplied fields. Supported fields are `bundleID`,
+`appName`, exact `title`, Lua `titlePattern`, `role`, `subrole`, `modal`, and
+`resizable`; `reason` describes the exception. For example:
+
+```lua
+window_rules = {
+    exclude = {
+        { bundleID = "com.openai.codex", title = "Spotlight Window" },
+        { bundleID = "com.apple.iCal", titlePattern = "^Event Details" },
+    },
+},
+```
+
+The Calendar title above is illustrative: use the actual popup's metadata,
+especially when a third-party app exposes its popup as a resizable standard
+window. To inspect one, run this in the Hammerspoon console, then focus the popup
+within three seconds:
+
+```lua
+hs.timer.doAfter(3, function()
+    local rules = require("modules.wm.window_rules")
+    local window = hs.window.focusedWindow()
+    print(hs.inspect(rules.describe(window)))
+    print(rules.isEligible(window))
+end)
+```
+
 `reload.lua` uses `hs.pathwatcher` directly rather than
 `ReloadConfiguration.spoon`. By default, changes to `.lua` and `.json` files
 reload Hammerspoon, while everything below `state/` is ignored. Configure the

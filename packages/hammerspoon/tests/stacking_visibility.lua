@@ -1,4 +1,5 @@
 -- Run from packages/hammerspoon: luajit tests/stacking_visibility.lua
+package.path = 'stow/.hammerspoon/?.lua;' .. package.path
 for _, name in ipairs({ 'stacking_store', 'stacking_ui', 'virtual_screens', 'hotkeys' }) do
     package.loaded['modules.wm.' .. name] = {}
 end
