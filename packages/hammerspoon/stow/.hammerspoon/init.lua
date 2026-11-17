@@ -2,6 +2,9 @@ local meh = { "shift", "ctrl", "alt" }
 local hyper = { "shift", "ctrl", "alt", "cmd" }
 
 require("modules.caffeine").setup({
+	enabled = true,
+	mode = "idle",
+	keepDisplayOn = false,
 	mapping = {
 		toggle = { meh, "y" },
 	},

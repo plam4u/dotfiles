@@ -107,13 +107,16 @@ local definitions = {
 	{
 		id = "caffeine",
 		defaultOrder = 4,
-		setup = function(_, ui) caffeine.subscribe(ui.updateCaffeine) end,
+		setup = function(config, ui) require("modules.wm.sketchybar.caffeine").setup(config, ui) end,
 		actions = {
 			{
 				id = "toggle",
-				label = "Toggle Caffeine",
+				label = function() return "Enabled: " .. (caffeine.getState().enabled and "On" or "Off") end,
 				handler = function() caffeine.caffeineClicked({}) end,
 			},
+			{ id = "mode", label = "Toggle sleep prevention (-i / -s)", handler = caffeine.toggleMode },
+			{ id = "display", label = "Toggle keep display on (-d)", handler = caffeine.toggleDisplay },
+			{ id = "label", label = function() return caffeine.getState().showLabel and "Hide label" or "Show label" end, handler = caffeine.toggleLabel },
 		},
 	},
 	{

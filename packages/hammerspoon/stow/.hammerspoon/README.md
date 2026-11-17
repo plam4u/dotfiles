@@ -255,3 +255,25 @@ For rollback, stop the Homebrew service before restoring any state or running
 `brew services run transmission-cli --file="$HOME/Library/LaunchAgents/local.transmission-daemon.plist"`.
 The GUI and daemon now have separate configuration state; subsequent changes
 in one are not synchronized with the other.
+
+## Caffeine
+
+Press meh + Y or click the native Hammerspoon coffee icon to toggle caffeine.
+The SketchyBar panel opens on hover, click, or keyboard selection, like Plex
+and Transmission. H/L or Left/Right move between bar items; J/K or Down/Up
+select panel rows. Space/Return toggle the selected row without dismissing
+the panel. Escape exits navigation.
+Choose idle sleep prevention (`-i`), system sleep
+prevention (`-s`, AC only), or toggle keeping the display on (`-d`). The native
+Hammerspoon coffee icon also offers a preferences menu via right-click or
+Control-click; Option-click toggles its text label.
+
+Defaults in `init.lua` are idle sleep prevention with display sleep allowed.
+The Sleep prevention row toggles between idle (-i) and system (-s, AC only).
+The Show/Hide label row toggles the SketchyBar status text; panel text remains
+visible. Enabled state, sleep mode, display preference, and label visibility are saved across reloads;
+saved values take precedence over config defaults. Turning caffeine off releases
+all three assertions. Changing a preference while off does not enable caffeine.
+Display sleep allowed follows the macOS timeout; it does not turn the screen off
+immediately. System mode remains AC-only even though keeping the display on can
+independently prevent idle sleep on battery.

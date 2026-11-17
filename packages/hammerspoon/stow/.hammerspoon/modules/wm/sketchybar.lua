@@ -1,3 +1,4 @@
+local caffeineDetails = require("modules.wm.sketchybar.caffeine")
 local keyboard = require("modules.keyboard")
 local hotkeys = require("modules.wm.hotkeys")
 local stacking = require("modules.wm.stacking")
@@ -139,14 +140,16 @@ end
 function M.updateCaffeine(state)
 	local icon = hs.configdir
 		.. "/modules/caffeine/assets/coffee."
-		.. (state and "fill" or "empty")
+		.. (state.enabled and "fill" or "empty")
 		.. ".16.png"
 	M.run({
 		"--set",
 		"caffeine",
 		"icon.background.image=" .. icon,
 		"icon.background.image.drawing=on",
-		"label=" .. (state and "On" or "Off"),
+		"label.drawing=" .. (state.showLabel ~= false and "on" or "off"),
+		"label=" .. (state.enabled and ((state.mode == "system" and "System (AC)" or "Idle")
+			.. (state.keepDisplayOn and " + Display" or "")) or "Off"),
 	})
 end
 
@@ -180,8 +183,10 @@ function M.ensureCaffeineItem()
 		"icon.background.image.scale=1.0",
 		"label.drawing=on",
 		"click_script=" .. M.pluginDir .. "/action_click.sh caffeine",
+        "script=/usr/bin/open -g 'hammerspoon://wm-bar?command=caffeine-hover'",
+        "--subscribe", "caffeine", "mouse.entered",
 	})
-	M.updateCaffeine(hs.caffeinate.get("displayIdle"))
+	M.updateCaffeine(require("modules.caffeine").getState())
 end
 
 function M.rebuildNavigation()
@@ -514,6 +519,7 @@ function M.openCodexUsageDetails()
 	keyLights.closeDetails()
 	plex.closeDetails()
 	transmission.closeDetails()
+	caffeineDetails.closeDetails()
 	M.closeMenu()
 	clearCodexUsagePopup()
 	local details = hs.json.read(M.codexUsageStateFile)
@@ -588,6 +594,7 @@ function M.openMenu(itemID)
 	keyLights.closeDetails()
 	plex.closeDetails()
 	transmission.closeDetails()
+	caffeineDetails.closeDetails()
 	M.closeMenu()
 	M.menuParent = itemID
 	M.menuItems = definition.actions
@@ -603,7 +610,7 @@ function M.openMenu(itemID)
 		table.insert(args, "--set")
 		table.insert(args, name)
 		table.insert(args, "icon.drawing=off")
-		table.insert(args, "label=" .. action.label)
+		table.insert(args, "label=" .. (type(action.label) == "function" and action.label() or action.label))
 		table.insert(args, "background.color=0xff3b82f6")
 		table.insert(args, "background.corner_radius=6")
 		table.insert(args, "background.height=26")
@@ -652,6 +659,7 @@ function M.moveSelection(delta)
 	keyLights.syncDetails(M.active, M.navigableItems[M.selectedIndex], M.menuIndex)
 	plex.syncDetails(M.active, M.navigableItems[M.selectedIndex], M.menuIndex)
 	transmission.syncDetails(M.active, M.navigableItems[M.selectedIndex], M.menuIndex)
+	caffeineDetails.syncDetails(M.active, M.navigableItems[M.selectedIndex], M.menuIndex)
 end
 
 function M.runAction(itemID, actionID)
@@ -689,6 +697,7 @@ function M.handleVerticalNavigation(delta)
 	if keyLights.handleVertical(item, delta) then
 		return
 	end
+	if caffeineDetails.handleVertical(item, delta) then return end
 	if transmission.handleVertical(item, delta) then return end
 	if plex.handleVertical(item, delta) then
 		return
@@ -729,6 +738,7 @@ function M.handleSpace()
 	if M.invokeCodexUsageSelected(item) then
 		return
 	end
+	if caffeineDetails.invokeSelected(item) then return end
 	if keyLights.invokeSelected(item) then
 		return
 	end
@@ -754,8 +764,9 @@ function M.handleSpace()
 		M.runAction("volume", "mute")
 		return
 	end
-	if item and item.id == "caffeine" then
-		M.runAction("caffeine", "toggle")
+	if M.menuIndex then
+		local action = M.menuItems[M.menuIndex]
+		if action then M.invokeAction(M.menuParent, action.id) end
 		return
 	end
 	if item and item.type == "static" then
@@ -766,9 +777,7 @@ end
 function M.invokeSelected()
 	if M.menuIndex then
 		local action = M.menuItems[M.menuIndex]
-		if action then
-			M.invokeAction(M.menuParent, action.id)
-		end
+		if action then M.invokeAction(M.menuParent, action.id) end
 		M.modal:exit()
 		return
 	end
@@ -777,6 +786,7 @@ function M.invokeSelected()
 	if not item then
 		return
 	end
+	if caffeineDetails.invokeSelected(item) then return end
 	if keyLights.invokeSelected(item) then
 		return
 	end
@@ -825,8 +835,36 @@ function M.recoverSession()
 	M.applySelection()
 end
 
+function M.focusCaffeine()
+    if not M.itemEnabled("caffeine") then return end
+    if not M.active then M.modal:enter() end
+    M.closeMenu()
+    M.closeCodexUsageDetails()
+    keyLights.closeDetails()
+    plex.closeDetails()
+    transmission.closeDetails()
+    for index, item in ipairs(M.navigableItems) do
+        if item.id == "caffeine" then M.selectedIndex = index; break end
+    end
+    M.publish(false)
+    M.applySelection()
+    caffeineDetails.syncDetails(true, { id = "caffeine" }, nil)
+end
+
 function M.handleURL(_, params)
 	local command = params.command
+    if command == "caffeine-hover" then
+        M.focusCaffeine()
+        return
+    end
+    if command == "caffeine-row" then
+        local index = tonumber(params.index)
+        if caffeineDetails.detailsVisible and index and index >= 1 and index <= 4 and index % 1 == 0 then
+            caffeineDetails.rowIndex = index
+            caffeineDetails.invokeSelected({ id = "caffeine" })
+        end
+        return
+    end
 	if command == "refresh" then
 		M.applyEnabledItems()
 		items.refreshEnabled(M.rightItemOrder, M.config, M)
@@ -888,7 +926,10 @@ function M.handleURL(_, params)
 			plex.closeDetails()
 		end
 		if params.item ~= "transmission" then transmission.closeDetails() end
-		if params.button == "right" then
+		if params.item ~= "caffeine" then caffeineDetails.closeDetails() end
+		if params.item == "caffeine" then
+            M.focusCaffeine()
+        elseif params.button == "right" then
 			M.openMenu(params.item)
 		else
 			local actionIndex = (params.button == "middle" or params.button == "other") and 2 or 1
@@ -956,6 +997,7 @@ function M.setup(config)
 		keyLights.syncDetails(M.active, M.navigableItems[M.selectedIndex], M.menuIndex)
 		plex.syncDetails(M.active, M.navigableItems[M.selectedIndex], M.menuIndex)
 		transmission.syncDetails(M.active, M.navigableItems[M.selectedIndex], M.menuIndex)
+		caffeineDetails.syncDetails(M.active, M.navigableItems[M.selectedIndex], M.menuIndex)
 	end
 	M.modal.exited = function()
 		M.lastSelectedID = M.navigableItems[M.selectedIndex] and M.navigableItems[M.selectedIndex].id
@@ -965,6 +1007,7 @@ function M.setup(config)
 		keyLights.closeDetails()
 		plex.closeDetails()
 		transmission.closeDetails()
+	caffeineDetails.closeDetails()
 		M.publish(false)
 		M.applySelection()
 		if not (M.snapshot and M.snapshot.collapsed) then
@@ -973,16 +1016,16 @@ function M.setup(config)
 	end
 
 	M.modal:bind({}, "left", function()
-		M.moveSelection(-1)
+		M.handleHorizontalNavigation(-1)
 	end)
 	M.modal:bind({}, "right", function()
-		M.moveSelection(1)
+		M.handleHorizontalNavigation(1)
 	end)
 	M.modal:bind({}, "up", function()
-		M.moveSelection(-1)
+		M.handleVerticalNavigation(-1)
 	end)
 	M.modal:bind({}, "down", function()
-		M.moveSelection(1)
+		M.handleVerticalNavigation(1)
 	end)
 	keyboard.register("sketchybar-navigation", {
 		priority = 100,
@@ -1035,6 +1078,7 @@ function M.setup(config)
 			keyLights.closeDetails()
 			plex.closeDetails()
 		transmission.closeDetails()
+	caffeineDetails.closeDetails()
 		end
 	end)
 	for action, hotkey in pairs(M.config.mapping or {}) do
